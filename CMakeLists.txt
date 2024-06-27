@@ -40,6 +40,11 @@ find_package(TBB REQUIRED)
 
 configure_file("include/version.hpp.in" version.hpp)
 
+set(PROJECT_WARNINGS_CXX -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(
+    ueberzugpp PRIVATE $<$<CONFIG:Debug>:
+    $<$<COMPILE_LANGUAGE:CXX>:${PROJECT_WARNINGS_CXX}> >)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>: DEBUG >)
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
     "${PROJECT_BINARY_DIR}"

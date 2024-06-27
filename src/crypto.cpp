@@ -41,7 +41,7 @@ auto crypto::get_b2_hash(const std::string_view str) -> std::string
 
     sstream << std::hex << std::setw(2) << std::setfill('0');
     for (unsigned int i = 0; i < digest_len; ++i) {
-        sstream << static_cast<int>(digest[i]);
+        sstream << static_cast<int>(digest.at(i));
     }
     return sstream.str();
 }
