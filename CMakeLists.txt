@@ -1,3 +1,5 @@
+# cmake-format: off
+
 # Display images inside a terminal
 # Copyright (C) 2024  JustKidding
 #
@@ -14,16 +16,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# // clang-format off
 cmake_minimum_required(VERSION 3.22...3.28 FATAL_ERROR)
 
-set(UEBERZUGPP_VERSION 1.0.0)
-project(ueberzugpp LANGUAGES CXX C VERSION ${UEBERZUGPP_VERSION})
+project(ueberzugpp LANGUAGES CXX VERSION 1.0.0)
 add_executable(ueberzugpp)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set_target_properties(ueberzugpp PROPERTIES
-    CXX_STANDARD 23
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     EXPORT_COMPILE_COMMANDS ON
@@ -40,11 +40,8 @@ find_package(TBB REQUIRED)
 
 configure_file("include/version.hpp.in" version.hpp)
 
-set(PROJECT_WARNINGS_CXX -Wall -Wextra -Wpedantic -Werror)
-target_compile_options(
-    ueberzugpp PRIVATE $<$<CONFIG:Debug>:
-    $<$<COMPILE_LANGUAGE:CXX>:${PROJECT_WARNINGS_CXX}> >)
-target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>: DEBUG >)
+target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
     "${PROJECT_BINARY_DIR}"
@@ -62,3 +59,5 @@ target_sources(ueberzugpp PRIVATE
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
+
+# cmake-format: on
