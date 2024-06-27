@@ -21,4 +21,5 @@ int main()
 {
     std::cout << "Hello, World!" << std::endl;
     std::cout << crypto::get_b2_hash("Hello, World!") << std::endl;
+    std::cout << crypto::base64_encode("Hello, World!") << std::endl;
 }

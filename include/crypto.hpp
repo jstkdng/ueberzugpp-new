@@ -17,12 +17,15 @@
 #ifndef CRYPTO_HPP
 #define CRYPTO_HPP
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
 namespace crypto
 {
 auto get_b2_hash(std::string_view str) -> std::string;
-}
+auto base64_encode(std::string_view str) -> std::string;
+void base64_encode_internal(const uint8_t *input, size_t length, uint8_t *out);
+} // namespace crypto
 
 #endif // CRYPTO_HPP

@@ -19,7 +19,9 @@
 
 #include <array>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include <openssl/evp.h>
 
@@ -44,4 +46,22 @@ auto crypto::get_b2_hash(const std::string_view str) -> std::string
         sstream << static_cast<int>(digest[i]);
     }
     return sstream.str();
+}
+
+auto crypto::base64_encode(const std::string_view str) -> std::string
+{
+    const auto length = str.length();
+    const size_t bufsize = 4 * ((length + 2) / 3) + 1;
+    std::vector<char> buffer(bufsize);
+    base64_encode_internal(std::bit_cast<const uint8_t *>(str.data()), length, std::bit_cast<uint8_t *>(buffer.data()));
+    return {buffer.data(), bufsize - 1};
+}
+
+void crypto::base64_encode_internal(const uint8_t *input, size_t length, uint8_t *out)
+{
+#ifdef ENABLE_TURBOBASE64
+    tb64enc(input, length, out);
+#else
+    EVP_EncodeBlock(out, input, static_cast<int>(length));
+#endif
 }
