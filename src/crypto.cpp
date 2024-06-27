@@ -19,9 +19,7 @@
 
 #include <array>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
-#include <vector>
 
 #include <openssl/evp.h>
 
@@ -51,10 +49,10 @@ auto crypto::get_b2_hash(const std::string_view str) -> std::string
 auto crypto::base64_encode(const std::string_view str) -> std::string
 {
     const auto length = str.length();
-    const size_t bufsize = 4 * ((length + 2) / 3) + 1;
-    std::vector<char> buffer(bufsize);
+    const size_t bufsize = 4 * ((length + 2) / 3);
+    std::string buffer(bufsize, 0);
     base64_encode_internal(std::bit_cast<const uint8_t *>(str.data()), length, std::bit_cast<uint8_t *>(buffer.data()));
-    return {buffer.data(), bufsize - 1};
+    return buffer;
 }
 
 void crypto::base64_encode_internal(const uint8_t *input, size_t length, uint8_t *out)
