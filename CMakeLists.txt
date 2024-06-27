@@ -16,9 +16,9 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.22...3.28 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.28 FATAL_ERROR)
 
-project(ueberzugpp LANGUAGES CXX VERSION 1.0.0)
+project(ueberzugpp-new LANGUAGES CXX VERSION 1.0.0)
 add_executable(ueberzugpp)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
@@ -37,6 +37,14 @@ find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 find_package(TBB REQUIRED)
+
+# check if <execution> is available
+set(CMAKE_REQUIRED_LIBRARIES TBB::tbb)
+check_cxx_symbol_exists(std::execution::par_unseq execution
+    HAVE_STD_EXECUTION_H)
+if (HAVE_STD_EXECUTION_H)
+    target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
+endif ()
 
 configure_file("include/version.hpp.in" version.hpp)
 
