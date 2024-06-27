@@ -23,7 +23,7 @@ add_executable(ueberzugpp)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set_target_properties(ueberzugpp PROPERTIES
-    CXX_STANDARD 20
+    CXX_STANDARD 23
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     EXPORT_COMPILE_COMMANDS ON
