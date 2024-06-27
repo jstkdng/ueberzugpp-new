@@ -14,26 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef OS_HPP
-#define OS_HPP
+#ifndef COMMAND_HPP
+#define COMMAND_HPP
 
-#include <expected>
-#include <optional>
+#include <queue>
+#include <shared_mutex>
 #include <string>
+#include <vector>
 
-namespace os
+/**
+ * Read for commands in stdin and unix_socket socket, divide them by newlines and parse them
+ */
+class CommandManager
 {
-auto exec(const std::string &cmd) -> std::expected<std::string, std::string>;
-auto getenv(const std::string &var) -> std::optional<std::string>;
+  public:
+    CommandManager();
 
-auto get_pid() -> int;
-auto get_ppid() -> int;
+    void wait_for_input();
 
-auto read_data_from_fd(int filde) -> std::expected<std::string, std::string>;
-auto read_data_from_stdin() -> std::expected<std::string, std::string>;
+  private:
+    constexpr int buffer_size = 32 * 1024;
+    std::queue<std::string> command_queue;
+    std::shared_mutex queue_mutex;
 
-auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
-auto wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>;
-} // namespace os
+    std::string stdin_buffer;
+    std::vector<char> stdin_read_buffer;
 
-#endif // OS_HPP
+    std::string socket_buffer;
+    std::vector<char> socket_read_buffer;
+};
+
+#endif // COMMAND_HPP

@@ -100,6 +100,13 @@ target_sources(ueberzugpp PRIVATE
 
     include/os.hpp
     src/os.cpp
+
+    include/command.hpp
+    src/command.cpp
+
+    include/unix_socket.hpp
+    src/unix_socket/server.cpp
+    src/unix_socket/client.cpp
 )
 
 configure_file("include/version.hpp.in" version.hpp)

@@ -14,26 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef OS_HPP
-#define OS_HPP
+#include "command.hpp"
+#include <array>
+#include <poll.h>
+#include <spdlog/spdlog.h>
+#include <unistd.h>
 
-#include <expected>
-#include <optional>
-#include <string>
-
-namespace os
+CommandManager::CommandManager()
 {
-auto exec(const std::string &cmd) -> std::expected<std::string, std::string>;
-auto getenv(const std::string &var) -> std::optional<std::string>;
+    stdin_buffer.reserve(buffer_size);
+    socket_buffer.reserve(buffer_size);
+    stdin_read_buffer.reserve(buffer_size);
+    socket_read_buffer.reserve(buffer_size);
+}
 
-auto get_pid() -> int;
-auto get_ppid() -> int;
+void CommandManager::wait_for_input()
+{
+    constexpr int waitms = 100;
+    std::array<pollfd, 2> pollfds{};
+    pollfds.at(0).fd = STDIN_FILENO;
+    pollfds.at(0).events = POLLIN;
+    // TODO: configure struct for unix_socket unix_socket
 
-auto read_data_from_fd(int filde) -> std::expected<std::string, std::string>;
-auto read_data_from_stdin() -> std::expected<std::string, std::string>;
-
-auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
-auto wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>;
-} // namespace os
-
-#endif // OS_HPP
+    const int result = poll(pollfds.data(), 2, waitms);
+    if (result == -1) {
+        SPDLOG_DEBUG("received unexpected event");
+        return;
+    }
+}

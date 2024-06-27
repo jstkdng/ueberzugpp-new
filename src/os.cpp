@@ -21,6 +21,7 @@
 #include <format>
 #include <poll.h>
 #include <unistd.h>
+#include <vector>
 
 using std::error_code;
 using std::expected;
@@ -51,30 +52,28 @@ auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
     return result;
 }
 
-auto os::read_data_from_fd(const int filde, const char sep) -> std::expected<std::string, std::string>
+auto os::read_data_from_fd(const int filde) -> std::expected<std::string, std::string>
 {
+    constexpr int bufsize = 32 * 1024; // 32K at a time
+    std::vector<char> buffer(bufsize);
     string response;
-    char readch = 0;
 
     while (true) {
-        const auto status = read(filde, &readch, 1);
-        if (status == -1) {
+        const auto bytes_read = read(filde, buffer.data(), bufsize);
+        if (bytes_read == -1) {
             return system_error("could not read from file descriptor");
         }
-        if (status == 0 || readch == sep) {
-            if (response.empty()) {
-                return std::unexpected("got no data from descriptor after read");
-            }
+        if (bytes_read == 0) {
             break;
         }
-        response.push_back(readch);
+        response.append(buffer.data(), bytes_read);
     }
     return response;
 }
 
-auto os::read_data_from_stdin(const char sep) -> std::expected<std::string, std::string>
+auto os::read_data_from_stdin() -> std::expected<std::string, std::string>
 {
-    return read_data_from_fd(STDIN_FILENO, sep);
+    return read_data_from_fd(STDIN_FILENO);
 }
 
 auto os::wait_for_data_on_fd(const int filde, const int waitms) -> std::expected<bool, std::string>

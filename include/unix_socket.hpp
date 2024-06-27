@@ -14,26 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef OS_HPP
-#define OS_HPP
+#ifndef UNIX_SOCKET_HPP
+#define UNIX_SOCKET_HPP
 
-#include <expected>
-#include <optional>
-#include <string>
-
-namespace os
+namespace unix
 {
-auto exec(const std::string &cmd) -> std::expected<std::string, std::string>;
-auto getenv(const std::string &var) -> std::optional<std::string>;
 
-auto get_pid() -> int;
-auto get_ppid() -> int;
+class server
+{
+};
 
-auto read_data_from_fd(int filde) -> std::expected<std::string, std::string>;
-auto read_data_from_stdin() -> std::expected<std::string, std::string>;
+class client
+{
+};
 
-auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
-auto wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>;
-} // namespace os
+} // namespace unix
 
-#endif // OS_HPP
+#endif // UNIX_SOCKET_HPP
