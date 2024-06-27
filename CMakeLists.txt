@@ -27,7 +27,10 @@ set_target_properties(ueberzugpp PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     EXPORT_COMPILE_COMMANDS ON
+    COMPILE_WARNING_AS_ERROR ON
 )
+
+option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
 
 include(FetchContent)
 include(GNUInstallDirs)
@@ -46,9 +49,18 @@ if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
 endif ()
 
-configure_file("include/version.hpp.in" version.hpp)
+if (ENABLE_OPENCV)
+    target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
+    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+    target_link_libraries(ueberzugpp PRIVATE
+        opencv_core
+        opencv_imgproc
+        opencv_imgcodecs
+        opencv_videoio
+    )
+endif ()
 
-target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
@@ -60,12 +72,20 @@ target_link_libraries(ueberzugpp PRIVATE
     Threads::Threads
 )
 target_sources(ueberzugpp PRIVATE
-    include/util/ptr.hpp
-    include/crypto.hpp
     src/main.cpp
+    include/util/ptr.hpp
+
+    include/crypto.hpp
     src/crypto.cpp
+
+    include/application.hpp
+    src/application.cpp
+
+    include/os.hpp
+    src/os.cpp
 )
 
+configure_file("include/version.hpp.in" version.hpp)
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
 
 # cmake-format: on

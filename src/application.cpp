@@ -1,5 +1,5 @@
 // Display images inside a terminal
-// Copyright (C) 2024  JustKidding
+// Copyright (C) 2023  JustKidding
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,13 +13,3 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#include "crypto.hpp"
-#include <iostream>
-
-auto main() -> int
-{
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << crypto::get_b2_hash("Hello, World!") << std::endl;
-    std::cout << crypto::base64_encode("Hello, World!") << std::endl;
-}

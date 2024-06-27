@@ -14,12 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "crypto.hpp"
-#include <iostream>
+#ifndef OS_HPP
+#define OS_HPP
 
-auto main() -> int
+#include <expected>
+#include <optional>
+#include <string>
+
+namespace os
 {
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << crypto::get_b2_hash("Hello, World!") << std::endl;
-    std::cout << crypto::base64_encode("Hello, World!") << std::endl;
-}
+auto exec(const std::string &cmd) -> std::expected<std::string, std::string>;
+auto getenv(const std::string &var) -> std::optional<std::string>;
+
+auto get_pid() -> int;
+auto get_ppid() -> int;
+
+auto read_data_from_fd(int filde, char sep = '\n') -> std::expected<std::string, std::string>;
+auto read_data_from_stdin(char sep = '\n') -> std::expected<std::string, std::string>;
+
+auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
+auto wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>;
+} // namespace os
+
+#endif // OS_HPP
