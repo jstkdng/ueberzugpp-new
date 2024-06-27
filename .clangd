@@ -1,4 +1,4 @@
 CompileFlags:
-  Add: -Wno-unknown-warning-option
+  Add: [-Wno-unknown-warning-option, -D__cpp_concepts=202002L]
   Remove: [-m*, -f*]
 

@@ -49,6 +49,19 @@ if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
 endif ()
 
+set(SPDLOG_USE_STD_FORMAT ON)
+find_package(spdlog CONFIG QUIET)
+if (NOT spdlog_FOUND)
+    FetchContent_Declare(
+        spdlog
+        URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)
+    list(APPEND FC_LIBS spdlog)
+endif ()
+
+if (FC_LIBS)
+    FetchContent_MakeAvailable(${FC_LIBS})
+endif ()
+
 if (ENABLE_OPENCV)
     target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
     find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
@@ -62,6 +75,9 @@ endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
+
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
     "${PROJECT_BINARY_DIR}"
@@ -70,6 +86,7 @@ target_link_libraries(ueberzugpp PRIVATE
     OpenSSL::Crypto
     TBB::tbb
     Threads::Threads
+    spdlog::spdlog
 )
 target_sources(ueberzugpp PRIVATE
     src/main.cpp

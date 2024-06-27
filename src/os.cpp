@@ -27,10 +27,10 @@ using std::expected;
 using std::string;
 using std::unexpected;
 
-auto system_error() -> std::unexpected<std::string>
+constexpr auto system_error(std::string_view msg) -> std::unexpected<std::string>
 {
     const auto err = error_code(errno, std::system_category());
-    return unexpected(err.message());
+    return unexpected(std::format("{}: {}", msg, err.message()));
 }
 
 auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
@@ -40,7 +40,7 @@ auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
     std::string result;
     const c_unique_ptr<FILE, pclose> pipe{popen(cmd.c_str(), "r")};
     if (!pipe) {
-        return system_error();
+        return system_error("Could not open pipe");
     }
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
         result.append(buffer.data());
@@ -59,7 +59,7 @@ auto os::read_data_from_fd(const int filde, const char sep) -> std::expected<std
     while (true) {
         const auto status = read(filde, &readch, 1);
         if (status == -1) {
-            return system_error();
+            return system_error("could not read from file descriptor");
         }
         if (status == 0 || readch == sep) {
             if (response.empty()) {
