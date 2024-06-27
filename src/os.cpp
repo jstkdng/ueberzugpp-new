@@ -28,10 +28,13 @@ using std::expected;
 using std::string;
 using std::unexpected;
 
-constexpr auto system_error(std::string_view msg) -> std::unexpected<std::string>
+auto os::system_error(const std::string_view message) -> std::unexpected<std::string>
 {
     const auto err = error_code(errno, std::system_category());
-    return unexpected(std::format("{}: {}", msg, err.message()));
+    if (message.empty()) {
+        return unexpected(std::format("{}", err.message()));
+    }
+    return unexpected(std::format("{}: {}", message, err.message()));
 }
 
 auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>

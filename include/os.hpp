@@ -34,6 +34,8 @@ auto read_data_from_stdin() -> std::expected<std::string, std::string>;
 
 auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
 auto wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>;
+
+auto system_error(std::string_view message = "") -> std::unexpected<std::string>;
 } // namespace os
 
 #endif // OS_HPP

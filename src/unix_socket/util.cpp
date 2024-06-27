@@ -14,33 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "os.hpp"
 #include "unix_socket.hpp"
 
-#include <bit>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <unistd.h>
 
-using unix_socket::client;
+#include "os.hpp"
 
-client::client(const std::string_view endpoint)
-    : endpoint(endpoint)
+using namespace unix_socket;
+
+auto util::get_socket_and_address(const std::string_view endpoint) -> std::expected<socket_and_address, std::string>
 {
-}
+    socket_and_address result{};
+    result.address.sun_family = AF_UNIX;
+    endpoint.copy(result.address.sun_path, endpoint.size());
 
-auto client::connect_to_endpoint() -> std::expected<void, std::string>
-{
-    return util::get_socket_and_address(endpoint).and_then([this](const socket_and_address &saa) {
-        socket = saa;
-        return connect_to_socket();
-    });
-}
-
-auto client::connect_to_socket() -> std::expected<void, std::string>
-{
-    int result = connect(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
-    if (result == -1) {
-        return os::system_error("coud not connect to endpoint");
+    result.fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (result.fd == -1) {
+        return os::system_error("could not create socket");
     }
-    return {};
+
+    return result;
 }

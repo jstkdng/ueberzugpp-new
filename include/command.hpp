@@ -33,7 +33,7 @@ class CommandManager
     void wait_for_input();
 
   private:
-    constexpr int buffer_size = 32 * 1024;
+    static constexpr int buffer_size = 32 * 1024;
     std::queue<std::string> command_queue;
     std::shared_mutex queue_mutex;
 
