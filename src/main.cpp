@@ -30,5 +30,7 @@ auto main() -> int
         return 1;
     }
 
+    Application::run();
+
     return 0;
 }

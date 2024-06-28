@@ -34,6 +34,7 @@ class Application
 
     auto initialize() -> std::expected<void, std::string>;
 
+    static void run();
     inline static std::atomic_bool stop_flag = false; // NOLINT
     static void print_header();
 

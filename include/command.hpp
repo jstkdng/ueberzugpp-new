@@ -41,7 +41,7 @@ class CommandManager
   private:
     static constexpr int waitms = 100;
 
-    std::shared_ptr<spdlog::logger> logger = spdlog::get("command");
+    std::shared_ptr<spdlog::logger> logger;
     std::queue<nlohmann::json> command_queue;
     std::mutex queue_mutex;
     std::string stdin_buffer;

@@ -18,6 +18,7 @@
 #include "util.hpp"
 #include "version.hpp"
 
+#include <chrono>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -28,12 +29,21 @@ namespace fs = std::filesystem;
 Application::Application()
     : command_manager(socket_path)
 {
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::flush_on(spdlog::level::trace);
 }
 
 Application::~Application()
 {
     logger->info("Exiting ueberzugpp");
     fs::remove(util::get_socket_path());
+}
+
+void Application::run()
+{
+    while (!stop_flag) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 auto Application::initialize() -> std::expected<void, std::string>
@@ -49,9 +59,6 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
 
     const auto log_path = util::get_log_path();
     try {
-        spdlog::set_level(spdlog::level::trace);
-        spdlog::flush_on(spdlog::level::trace);
-
         const auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
         const auto main_logger = std::make_shared<logger>("main", sink);
         const auto command = std::make_shared<logger>("command", sink);

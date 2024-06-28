@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <bit>
 
+#include <spdlog/spdlog.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -55,6 +56,8 @@ auto Server::start() -> std::expected<void, std::string>
     auto bind_res = bind_to_endpoint();
     if (bind_res.has_value()) {
         accept_thread = std::jthread([this] { accept_connections(); });
+    } else {
+        SPDLOG_DEBUG(bind_res.error());
     }
     return bind_res;
 }
@@ -65,6 +68,7 @@ void Server::accept_connections()
         constexpr int waitms = 100;
         const auto in_event = os::wait_for_data_on_fd(socket.fd, waitms);
         if (!in_event.has_value()) {
+            SPDLOG_DEBUG(in_event.error());
             return;
         }
         if (!in_event.value()) {
@@ -72,6 +76,7 @@ void Server::accept_connections()
         }
         const auto accepted_fd = accept_connection();
         if (!accepted_fd.has_value()) {
+            SPDLOG_DEBUG(accepted_fd.error());
             return;
         }
         accepted_connections.push_back(*accepted_fd);
