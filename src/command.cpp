@@ -22,11 +22,15 @@
 
 CommandManager::CommandManager(std::string_view socket_endpoint)
     : socket_server(socket_endpoint)
-
 {
     stdin_buffer.reserve(buffer_size);
     socket_buffer.reserve(buffer_size);
     stdin_read_buffer.reserve(buffer_size);
+}
+
+auto CommandManager::initialize() -> std::expected<void, std::string>
+{
+    return socket_server.bind_to_endpoint();
 }
 
 void CommandManager::wait_for_input()

@@ -35,6 +35,8 @@ class Server
 {
   public:
     explicit Server(std::string_view endpoint);
+    ~Server();
+
     auto bind_to_endpoint() -> std::expected<void, std::string>;
 
     [[nodiscard]] auto get_descriptor() const -> int;

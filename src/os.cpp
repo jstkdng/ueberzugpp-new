@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <format>
 #include <poll.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
 
@@ -56,12 +57,19 @@ auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
 }
 
 // will block if there is no data available
-auto os::read_data_from_fd(const int filde) -> std::expected<std::string, std::string>
+auto os::read_data_from_fd(const int filde, const bool is_socket, const int sock_flags)
+    -> std::expected<std::string, std::string>
 {
     constexpr int bufsize = 32 * 1024; // 32K at a time
     std::vector<char> buffer(bufsize);
     std::string result;
-    const auto bytes_read = read(filde, buffer.data(), bufsize);
+    ssize_t bytes_read;
+    if (is_socket) {
+        bytes_read = recv(filde, buffer.data(), bufsize, sock_flags);
+    } else {
+        bytes_read = read(filde, buffer.data(), bufsize);
+    }
+
     if (bytes_read == -1) {
         return system_error("could not read from file descriptor");
     }

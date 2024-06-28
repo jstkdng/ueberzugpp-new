@@ -31,6 +31,14 @@ Server::Server(const std::string_view endpoint)
 {
 }
 
+Server::~Server()
+{
+    if (socket.fd != -1) {
+        shutdown(socket.fd, SHUT_RDWR);
+        close(socket.fd);
+    }
+}
+
 auto Server::get_descriptor() const -> int
 {
     return socket.fd;
@@ -38,7 +46,7 @@ auto Server::get_descriptor() const -> int
 
 auto Server::read_data_from_connection() const -> std::expected<std::string, std::string>
 {
-    return accept_connection().and_then(os::read_data_from_fd);
+    return accept_connection().and_then([](const int fd) { return os::read_data_from_fd(fd, true); });
 }
 
 auto Server::bind_to_endpoint() -> std::expected<void, std::string>
@@ -53,7 +61,7 @@ auto Server::bind_to_endpoint() -> std::expected<void, std::string>
 
 auto Server::accept_connection() const -> std::expected<int, std::string>
 {
-    int result = accept(socket.fd, nullptr, nullptr);
+    const int result = accept(socket.fd, nullptr, nullptr);
     if (result == -1) {
         return os::system_error("could not accept connection");
     }
@@ -62,7 +70,7 @@ auto Server::accept_connection() const -> std::expected<int, std::string>
 
 auto Server::listen_to_endpoint() const -> std::expected<void, std::string>
 {
-    int result = listen(socket.fd, SOMAXCONN);
+    const int result = listen(socket.fd, SOMAXCONN);
     if (result == -1) {
         return os::system_error("could not listen to endpoint");
     }
@@ -71,7 +79,7 @@ auto Server::listen_to_endpoint() const -> std::expected<void, std::string>
 
 auto Server::bind_to_endpoint_internal() -> std::expected<void, std::string>
 {
-    int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
+    const int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("could not bind to endpoint");
     }

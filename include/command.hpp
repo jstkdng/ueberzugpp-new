@@ -17,6 +17,7 @@
 #ifndef COMMAND_HPP
 #define COMMAND_HPP
 
+#include <expected>
 #include <queue>
 #include <shared_mutex>
 #include <string>
@@ -32,6 +33,7 @@ class CommandManager
   public:
     explicit CommandManager(std::string_view socket_endpoint);
 
+    auto initialize() -> std::expected<void, std::string>;
     void wait_for_input();
 
   private:
