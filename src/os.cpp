@@ -81,6 +81,9 @@ auto os::read_data_from_socket(const int sockfd) -> std::expected<std::string, s
         }
         result.append(buffer.data(), bytes_read);
     }
+    // maybe keep the socket alive if required
+    shutdown(sockfd, SHUT_RDWR);
+    close(sockfd);
     return result;
 }
 

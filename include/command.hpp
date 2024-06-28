@@ -18,8 +18,9 @@
 #define COMMAND_HPP
 
 #include <expected>
+#include <mutex>
+#include <nlohmann/json.hpp>
 #include <queue>
-#include <shared_mutex>
 #include <string>
 
 #include "unix_socket.hpp"
@@ -35,15 +36,18 @@ class CommandManager
     auto initialize() -> std::expected<void, std::string>;
     void wait_for_input();
     void wait_for_input_on_stdin();
+    void wait_for_input_on_socket();
 
   private:
     static constexpr int waitms = 100;
 
-    std::queue<std::string> command_queue;
-    std::shared_mutex queue_mutex;
+    std::queue<nlohmann::json> command_queue;
+    std::mutex queue_mutex;
     std::string socket_buffer;
     std::string stdin_buffer;
     unix_socket::Server socket_server;
+
+    auto extract_commands(std::string_view view) -> std::string;
 };
 
 #endif // COMMAND_HPP

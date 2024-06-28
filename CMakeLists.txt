@@ -49,13 +49,21 @@ if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
 endif ()
 
-set(SPDLOG_USE_STD_FORMAT ON)
 find_package(spdlog CONFIG QUIET)
 if (NOT spdlog_FOUND)
+    set(SPDLOG_USE_STD_FORMAT ON)
     FetchContent_Declare(
         spdlog
         URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)
     list(APPEND FC_LIBS spdlog)
+endif ()
+
+find_package(nlohmann_json CONFIG QUIET)
+if (NOT nlohmann_json_FOUND)
+    FetchContent_Declare(
+        nlohmann_json
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+    list(APPEND FC_LIBS nlohmann_json)
 endif ()
 
 if (FC_LIBS)
@@ -87,6 +95,7 @@ target_link_libraries(ueberzugpp PRIVATE
     TBB::tbb
     Threads::Threads
     spdlog::spdlog
+    nlohmann_json::nlohmann_json
 )
 target_sources(ueberzugpp PRIVATE
     src/main.cpp

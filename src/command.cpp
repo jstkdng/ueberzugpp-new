@@ -15,15 +15,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "command.hpp"
-
 #include "application.hpp"
 #include "os.hpp"
 
 #include <array>
-#include <iostream>
+
 #include <poll.h>
 #include <spdlog/spdlog.h>
 #include <unistd.h>
+
+using njson = nlohmann::json;
 
 CommandManager::CommandManager(const std::string_view socket_endpoint)
     : socket_server(socket_endpoint)
@@ -49,19 +50,62 @@ void CommandManager::wait_for_input_on_stdin()
         if (!data.has_value()) {
             return;
         }
+
+        // append new data to old data and search
         stdin_buffer.append(data.value());
-
-        while (true) {
-            auto find_result = stdin_buffer.find('\n');
-            if (find_result == std::string::npos) {
-                break;
-            }
-
-            auto substr = stdin_buffer.substr(0, find_result);
-            command_queue.emplace(substr);
-            stdin_buffer.erase(0, find_result + 1);
-        }
+        stdin_buffer = extract_commands(stdin_buffer);
     }
+}
+
+void CommandManager::wait_for_input_on_socket()
+{
+    const int sockfd = socket_server.get_descriptor();
+    while (!Application::stop_flag) {
+        auto in_event = os::wait_for_data_on_fd(sockfd, waitms);
+        if (!in_event.has_value()) {
+            return;
+        }
+        if (!in_event.value()) {
+            continue;
+        }
+        auto data = socket_server.read_data_from_connection();
+        if (!data.has_value()) {
+            return;
+        }
+
+        // append new data to old data and search
+        socket_buffer.append(data.value());
+        socket_buffer = extract_commands(socket_buffer);
+    }
+}
+
+// parse any commands, return remaining data for next batches
+// could turn into a memory hog if invalid data keeps coming in
+auto CommandManager::extract_commands(std::string_view view) -> std::string
+{
+    while (true) {
+        const auto find_result = view.find('\n');
+        if (find_result == std::string_view::npos) {
+            break;
+        }
+
+        auto substr = view.substr(0, find_result);
+        try {
+            const auto json = njson::parse(substr);
+            const auto action = json.value("action", "");
+
+            std::lock_guard lock{queue_mutex};
+            if (action == "clear_queue") {
+                command_queue = {};
+            } else {
+                command_queue.emplace(json);
+            }
+        } catch (const njson::parse_error &) {
+            SPDLOG_WARN("Received invalid json");
+        }
+        view.remove_prefix(find_result + 1);
+    }
+    return {view.data(), view.length()};
 }
 
 void CommandManager::wait_for_input()
