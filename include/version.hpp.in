@@ -15,6 +15,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // clang-format off
-#define UEBERZUGPP_VERSION_MAJOR @ueberzugpp_VERSION_MAJOR@
-#define UEBERZUGPP_VERSION_MINOR @ueberzugpp_VERSION_MINOR@
-#define UEBERZUGPP_VERSION_PATCH @ueberzugpp_VERSION_PATCH@
+#define UEBERZUGPP_VERSION_MAJOR @ueberzugpp-new_VERSION_MAJOR@
+#define UEBERZUGPP_VERSION_MINOR @ueberzugpp-new_VERSION_MINOR@
+#define UEBERZUGPP_VERSION_PATCH @ueberzugpp-new_VERSION_PATCH@

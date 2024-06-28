@@ -18,8 +18,6 @@
 #include "application.hpp"
 #include "os.hpp"
 
-#include <array>
-
 #include <poll.h>
 #include <spdlog/spdlog.h>
 #include <unistd.h>
@@ -33,7 +31,12 @@ CommandManager::CommandManager(const std::string_view socket_endpoint)
 
 auto CommandManager::initialize() -> std::expected<void, std::string>
 {
-    return socket_server.start();
+    const auto result = socket_server.start();
+    if (result.has_value()) {
+        stdin_thread = std::jthread([this] { wait_for_input_on_stdin(); });
+        socket_thread = std::jthread([this] { wait_for_input_on_socket(); });
+    }
+    return result;
 }
 
 void CommandManager::wait_for_input_on_stdin()
@@ -98,19 +101,4 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
         view.remove_prefix(find_result + 1);
     }
     return {view.data(), view.length()};
-}
-
-void CommandManager::wait_for_input()
-{
-    std::array<pollfd, 2> pollfds{};
-    pollfds.at(0).fd = STDIN_FILENO;
-    pollfds.at(0).events = POLLIN;
-    pollfds.at(1).fd = socket_server.get_descriptor();
-    pollfds.at(1).events = POLLIN;
-
-    const int result = poll(pollfds.data(), 2, waitms);
-    if (result == -1) {
-        SPDLOG_DEBUG("received unexpected event");
-        return;
-    }
 }

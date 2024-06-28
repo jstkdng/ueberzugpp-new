@@ -37,9 +37,6 @@ class CommandManager
     explicit CommandManager(std::string_view socket_endpoint);
 
     auto initialize() -> std::expected<void, std::string>;
-    void wait_for_input();
-    void wait_for_input_on_stdin();
-    void wait_for_input_on_socket();
 
   private:
     static constexpr int waitms = 100;
@@ -49,7 +46,11 @@ class CommandManager
     std::mutex queue_mutex;
     std::string stdin_buffer;
     unix_socket::Server socket_server;
+    std::jthread stdin_thread;
+    std::jthread socket_thread;
 
+    void wait_for_input_on_stdin();
+    void wait_for_input_on_socket();
     auto extract_commands(std::string_view view) -> std::string;
 };
 

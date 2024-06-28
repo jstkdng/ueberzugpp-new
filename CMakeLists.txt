@@ -86,17 +86,12 @@ target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
 
+configure_file("include/version.hpp.in" version.hpp)
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
     "${PROJECT_BINARY_DIR}"
 )
-target_link_libraries(ueberzugpp PRIVATE
-    OpenSSL::Crypto
-    TBB::tbb
-    Threads::Threads
-    spdlog::spdlog
-    nlohmann_json::nlohmann_json
-)
+
 target_sources(ueberzugpp PRIVATE
     src/main.cpp
     include/util/ptr.hpp
@@ -125,7 +120,14 @@ target_sources(ueberzugpp PRIVATE
     src/unix_socket/util.cpp
 )
 
-configure_file("include/version.hpp.in" version.hpp)
+target_link_libraries(ueberzugpp PRIVATE
+    OpenSSL::Crypto
+    TBB::tbb
+    Threads::Threads
+    spdlog::spdlog
+    nlohmann_json::nlohmann_json
+)
+
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
 
 # cmake-format: on

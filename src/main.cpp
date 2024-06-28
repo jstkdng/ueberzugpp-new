@@ -17,12 +17,18 @@
 #include "application.hpp"
 #include "signal.hpp"
 
+#include <iostream>
+
 auto main() -> int
 {
     Application application;
     signal_manager::setup_signals();
 
-    CommandManager cmd("bruh");
-    cmd.wait_for_input_on_stdin();
+    const auto result = application.initialize();
+    if (!result.has_value()) {
+        std::cerr << result.error() << '\n';
+        return 1;
+    }
+
     return 0;
 }

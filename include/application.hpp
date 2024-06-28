@@ -21,15 +21,21 @@
 #include "util.hpp"
 
 #include <atomic>
+#include <expected>
 #include <memory>
+
 #include <spdlog/spdlog.h>
 
 class Application
 {
   public:
     Application();
+    ~Application();
+
+    auto initialize() -> std::expected<void, std::string>;
 
     inline static std::atomic_bool stop_flag = false; // NOLINT
+    static void print_header();
 
   private:
     std::shared_ptr<spdlog::logger> logger;
@@ -37,7 +43,7 @@ class Application
     std::string socket_path = util::get_socket_path();
     CommandManager command_manager;
 
-    void setup_loggers();
+    auto setup_loggers() -> std::expected<void, std::string>;
 };
 
 #endif // APPLICATION_HPP
