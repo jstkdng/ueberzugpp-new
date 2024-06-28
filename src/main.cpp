@@ -21,5 +21,8 @@ auto main() -> int
 {
     Application application;
     signal_manager::setup_signals();
+
+    CommandManager cmd("bruh");
+    cmd.wait_for_input_on_stdin();
     return 0;
 }

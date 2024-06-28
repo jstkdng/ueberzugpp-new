@@ -93,7 +93,7 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
                 command_queue.emplace(json);
             }
         } catch (const njson::parse_error &) {
-            SPDLOG_WARN("Received invalid json");
+            SPDLOG_LOGGER_WARN(logger, "Received invalid json");
         }
         view.remove_prefix(find_result + 1);
     }

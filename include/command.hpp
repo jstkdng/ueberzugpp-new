@@ -17,13 +17,16 @@
 #ifndef COMMAND_HPP
 #define COMMAND_HPP
 
+#include "unix_socket.hpp"
+
 #include <expected>
+#include <memory>
 #include <mutex>
-#include <nlohmann/json.hpp>
 #include <queue>
 #include <string>
 
-#include "unix_socket.hpp"
+#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 /**
  * Read for commands in stdin and unix_socket socket, divide them by newlines and parse them
@@ -41,6 +44,7 @@ class CommandManager
   private:
     static constexpr int waitms = 100;
 
+    std::shared_ptr<spdlog::logger> logger = spdlog::get("command");
     std::queue<nlohmann::json> command_queue;
     std::mutex queue_mutex;
     std::string stdin_buffer;
