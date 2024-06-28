@@ -46,7 +46,7 @@ auto Server::get_descriptor() const -> int
 
 auto Server::read_data_from_connection() const -> std::expected<std::string, std::string>
 {
-    return accept_connection().and_then([](const int fd) { return os::read_data_from_fd(fd, true); });
+    return accept_connection().and_then(os::read_data_from_socket);
 }
 
 auto Server::bind_to_endpoint() -> std::expected<void, std::string>

@@ -40,40 +40,47 @@ auto os::system_error(const std::string_view message) -> std::unexpected<std::st
 
 auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
 {
-    constexpr int bufsize = 128;
-    std::array<char, bufsize> buffer{};
+    std::vector<char> buffer(bufsize);
     std::string result;
     const c_unique_ptr<FILE, pclose> pipe{popen(cmd.c_str(), "r")};
     if (!pipe) {
         return system_error("Could not open pipe");
     }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+    while (fgets(buffer.data(), bufsize, pipe.get()) != nullptr) {
         result.append(buffer.data());
     }
     if (!result.empty()) {
-        result.erase(result.length() - 1);
+        result.pop_back();
     }
     return result;
 }
 
 // will block if there is no data available
-auto os::read_data_from_fd(const int filde, const bool is_socket, const int sock_flags)
-    -> std::expected<std::string, std::string>
+auto os::read_data_from_fd(const int filde) -> std::expected<std::string, std::string>
 {
-    constexpr int bufsize = 32 * 1024; // 32K at a time
     std::vector<char> buffer(bufsize);
-    std::string result;
-    ssize_t bytes_read;
-    if (is_socket) {
-        bytes_read = recv(filde, buffer.data(), bufsize, sock_flags);
-    } else {
-        bytes_read = read(filde, buffer.data(), bufsize);
-    }
-
+    const auto bytes_read = read(filde, buffer.data(), bufsize);
     if (bytes_read == -1) {
         return system_error("could not read from file descriptor");
     }
-    result.append(buffer.data(), bytes_read);
+    std::string result(buffer.data(), bytes_read);
+    return result;
+}
+
+auto os::read_data_from_socket(const int sockfd) -> std::expected<std::string, std::string>
+{
+    std::vector<char> buffer(bufsize);
+    std::string result;
+    while (true) {
+        const auto bytes_read = recv(sockfd, buffer.data(), bufsize, 0);
+        if (bytes_read == -1) {
+            return system_error("could not read from socket");
+        }
+        if (bytes_read == 0) {
+            break;
+        }
+        result.append(buffer.data(), bytes_read);
+    }
     return result;
 }
 

@@ -23,14 +23,16 @@
 
 namespace os
 {
+constexpr int bufsize = 32 * 1024; // 32K at a time
+
 auto exec(const std::string &cmd) -> std::expected<std::string, std::string>;
 auto getenv(const std::string &var) -> std::optional<std::string>;
 
 auto get_pid() -> int;
 auto get_ppid() -> int;
 
-auto read_data_from_fd(int filde, bool is_socket = false, int sock_flags = 0)
-    -> std::expected<std::string, std::string>;
+auto read_data_from_fd(int filde) -> std::expected<std::string, std::string>;
+auto read_data_from_socket(int sockfd) -> std::expected<std::string, std::string>;
 auto read_data_from_stdin() -> std::expected<std::string, std::string>;
 
 auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
