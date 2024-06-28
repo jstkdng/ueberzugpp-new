@@ -36,7 +36,7 @@ class server
   public:
     explicit server(std::string_view endpoint);
     auto bind_to_endpoint() -> std::expected<void, std::string>;
-    auto wait_for_connections(int waitms = 100) -> std::expected<int, std::string>;
+    [[nodiscard]] auto read_data_from_connection() const -> std::expected<std::string, std::string>;
 
   private:
     std::string endpoint;

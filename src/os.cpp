@@ -55,23 +55,18 @@ auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
     return result;
 }
 
+// will block if there is no data available
 auto os::read_data_from_fd(const int filde) -> std::expected<std::string, std::string>
 {
     constexpr int bufsize = 32 * 1024; // 32K at a time
     std::vector<char> buffer(bufsize);
-    string response;
-
-    while (true) {
-        const auto bytes_read = read(filde, buffer.data(), bufsize);
-        if (bytes_read == -1) {
-            return system_error("could not read from file descriptor");
-        }
-        if (bytes_read == 0) {
-            break;
-        }
-        response.append(buffer.data(), bytes_read);
+    std::string result;
+    const auto bytes_read = read(filde, buffer.data(), bufsize);
+    if (bytes_read == -1) {
+        return system_error("could not read from file descriptor");
     }
-    return response;
+    result.append(buffer.data(), bytes_read);
+    return result;
 }
 
 auto os::read_data_from_stdin() -> std::expected<std::string, std::string>
