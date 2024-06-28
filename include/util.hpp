@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "command.hpp"
-#include "util.hpp"
+#ifndef UTIL_HPP
+#define UTIL_HPP
 
-#include <iostream>
-#include <spdlog/spdlog.h>
+#include "os.hpp"
 
-auto main() -> int
+#include <string>
+
+namespace util
 {
-    spdlog::set_level(spdlog::level::trace);
-    spdlog::flush_on(spdlog::level::trace);
 
-    CommandManager cmd(util::get_socket_path());
-    cmd.initialize();
-    cmd.wait_for_input_on_stdin();
+auto get_socket_path(int pid = os::get_pid()) -> std::string;
+
 }
+
+#endif // UTIL_HPP

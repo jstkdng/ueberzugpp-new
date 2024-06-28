@@ -14,18 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "command.hpp"
 #include "util.hpp"
 
-#include <iostream>
-#include <spdlog/spdlog.h>
+#include <filesystem>
+#include <format>
 
-auto main() -> int
+namespace fs = std::filesystem;
+
+auto util::get_socket_path(int pid) -> std::string
 {
-    spdlog::set_level(spdlog::level::trace);
-    spdlog::flush_on(spdlog::level::trace);
-
-    CommandManager cmd(util::get_socket_path());
-    cmd.initialize();
-    cmd.wait_for_input_on_stdin();
+    return std::format("{}/ueberzugpp-{}.socket", fs::temp_directory_path().string(), pid);
 }

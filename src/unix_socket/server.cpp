@@ -15,16 +15,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "os.hpp"
 #include "unix_socket.hpp"
 
+#include <algorithm>
 #include <bit>
+
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-
-#include "os.hpp"
-
-#include <sys/poll.h>
 
 using unix_socket::Server;
 
@@ -50,13 +50,13 @@ auto Server::get_descriptor() const -> int
     return socket.fd;
 }
 
-void Server::start()
+auto Server::start() -> std::expected<void, std::string>
 {
     auto bind_res = bind_to_endpoint();
-    if (!bind_res.has_value()) {
-        return;
+    if (bind_res.has_value()) {
+        accept_thread = std::jthread([this] { accept_connections(); });
     }
-    accept_thread = std::jthread([this] { accept_connections(); });
+    return bind_res;
 }
 
 void Server::accept_connections()
@@ -74,13 +74,45 @@ void Server::accept_connections()
         if (!accepted_fd.has_value()) {
             return;
         }
-        accepted_connections.emplace(*accepted_fd);
+        accepted_connections.push_back(*accepted_fd);
     }
 }
 
-auto Server::read_data_from_connection() const -> std::expected<std::string, std::string>
+auto Server::read_data_from_connection() -> std::expected<std::string, std::string>
 {
-    return accept_connection().and_then(os::read_data_from_socket);
+    std::vector<pollfd> fds(accepted_connections.size());
+    for (const auto fd : accepted_connections) {
+        pollfd tmp{};
+        tmp.fd = fd;
+        tmp.events = POLLIN;
+        fds.emplace_back(tmp);
+    }
+
+    const int res = poll(fds.data(), fds.size(), 100);
+    if (res == -1) {
+        return os::system_error("can't poll for connections");
+    }
+
+    std::string result;
+    for (const auto &[fd, events, revents] : fds) {
+        if ((revents & (POLLERR | POLLNVAL)) != 0) {
+            continue;
+        }
+        if ((revents & (POLLIN | POLLHUP)) != 0) {
+            const auto data = os::read_data_from_socket(fd);
+            if (data.has_value()) {
+                result.append(data.value());
+            }
+        }
+        if ((revents & POLLHUP) != 0) {
+            shutdown(fd, SHUT_RDWR);
+            close(fd);
+            auto [begin, end] = std::ranges::remove(accepted_connections, fd);
+            accepted_connections.erase(begin, end);
+        }
+    }
+
+    return result;
 }
 
 auto Server::bind_to_endpoint() -> std::expected<void, std::string>

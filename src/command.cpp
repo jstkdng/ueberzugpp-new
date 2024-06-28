@@ -33,7 +33,7 @@ CommandManager::CommandManager(const std::string_view socket_endpoint)
 
 auto CommandManager::initialize() -> std::expected<void, std::string>
 {
-    return socket_server.bind_to_endpoint();
+    return socket_server.start();
 }
 
 void CommandManager::wait_for_input_on_stdin()
@@ -59,15 +59,7 @@ void CommandManager::wait_for_input_on_stdin()
 
 void CommandManager::wait_for_input_on_socket()
 {
-    const int sockfd = socket_server.get_descriptor();
     while (!Application::stop_flag) {
-        auto in_event = os::wait_for_data_on_fd(sockfd, waitms);
-        if (!in_event.has_value()) {
-            return;
-        }
-        if (!in_event.value()) {
-            continue;
-        }
         auto data = socket_server.read_data_from_connection();
         if (!data.has_value()) {
             return;

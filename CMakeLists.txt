@@ -113,6 +113,9 @@ target_sources(ueberzugpp PRIVATE
     include/command.hpp
     src/command.cpp
 
+    include/util.hpp
+    src/util.cpp
+
     include/unix_socket.hpp
     src/unix_socket/server.cpp
     src/unix_socket/client.cpp
