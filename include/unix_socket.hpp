@@ -41,7 +41,7 @@ class Server
     auto start() -> std::expected<void, std::string>;
 
     [[nodiscard]] auto get_descriptor() const -> int;
-    auto read_data_from_connection() -> std::expected<std::string, std::string>;
+    auto read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>;
 
   private:
     std::string endpoint;

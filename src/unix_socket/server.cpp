@@ -78,7 +78,7 @@ void Server::accept_connections()
     }
 }
 
-auto Server::read_data_from_connection() -> std::expected<std::string, std::string>
+auto Server::read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>
 {
     std::vector<pollfd> fds(accepted_connections.size());
     for (const auto fd : accepted_connections) {
@@ -93,7 +93,7 @@ auto Server::read_data_from_connection() -> std::expected<std::string, std::stri
         return os::system_error("can't poll for connections");
     }
 
-    std::string result;
+    std::vector<std::string> result;
     for (const auto &[fd, events, revents] : fds) {
         if ((revents & (POLLERR | POLLNVAL)) != 0) {
             continue;
@@ -101,7 +101,7 @@ auto Server::read_data_from_connection() -> std::expected<std::string, std::stri
         if ((revents & (POLLIN | POLLHUP)) != 0) {
             const auto data = os::read_data_from_socket(fd);
             if (data.has_value()) {
-                result.append(data.value());
+                result.push_back(data.value());
             }
         }
         if ((revents & POLLHUP) != 0) {

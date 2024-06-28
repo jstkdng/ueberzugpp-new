@@ -43,7 +43,6 @@ class CommandManager
 
     std::queue<nlohmann::json> command_queue;
     std::mutex queue_mutex;
-    std::string socket_buffer;
     std::string stdin_buffer;
     unix_socket::Server socket_server;
 

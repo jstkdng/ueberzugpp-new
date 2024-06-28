@@ -65,9 +65,9 @@ void CommandManager::wait_for_input_on_socket()
             return;
         }
 
-        // append new data to old data and search
-        socket_buffer.append(data.value());
-        socket_buffer = extract_commands(socket_buffer);
+        for (const auto &cmd : data.value()) {
+            extract_commands(cmd);
+        }
     }
 }
 
