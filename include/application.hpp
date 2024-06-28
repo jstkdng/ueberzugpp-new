@@ -29,7 +29,7 @@ class Application
   public:
     Application();
 
-    inline static std::atomic_bool stop_flag = false;
+    inline static std::atomic_bool stop_flag = false; // NOLINT
 
   private:
     std::shared_ptr<spdlog::logger> logger;

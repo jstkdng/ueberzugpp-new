@@ -22,7 +22,8 @@
 
 #include "os.hpp"
 
-using namespace unix_socket;
+namespace unix_socket
+{
 
 auto util::get_socket_and_address(const std::string_view endpoint) -> std::expected<socket_and_address, std::string>
 {
@@ -37,3 +38,5 @@ auto util::get_socket_and_address(const std::string_view endpoint) -> std::expec
 
     return result;
 }
+
+} // namespace unix_socket

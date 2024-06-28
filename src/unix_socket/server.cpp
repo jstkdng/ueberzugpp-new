@@ -39,9 +39,9 @@ Server::~Server()
         shutdown(socket.fd, SHUT_RDWR);
         close(socket.fd);
     }
-    for (const auto fd : accepted_connections) {
-        shutdown(fd, SHUT_RDWR);
-        close(fd);
+    for (const auto filde : accepted_connections) {
+        shutdown(filde, SHUT_RDWR);
+        close(filde);
     }
 }
 
@@ -81,9 +81,9 @@ void Server::accept_connections()
 auto Server::read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>
 {
     std::vector<pollfd> fds(accepted_connections.size());
-    for (const auto fd : accepted_connections) {
+    for (const auto filde : accepted_connections) {
         pollfd tmp{};
-        tmp.fd = fd;
+        tmp.fd = filde;
         tmp.events = POLLIN;
         fds.emplace_back(tmp);
     }
