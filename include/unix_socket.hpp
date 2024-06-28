@@ -18,7 +18,6 @@
 #define UNIX_SOCKET_HPP
 
 #include <expected>
-#include <filesystem>
 #include <string>
 
 #include <sys/un.h>

@@ -15,6 +15,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "command.hpp"
+
+#include "application.hpp"
+
 #include <array>
 #include <poll.h>
 #include <spdlog/spdlog.h>
@@ -23,9 +26,6 @@
 CommandManager::CommandManager(std::string_view socket_endpoint)
     : socket_server(socket_endpoint)
 {
-    stdin_buffer.reserve(buffer_size);
-    socket_buffer.reserve(buffer_size);
-    stdin_read_buffer.reserve(buffer_size);
 }
 
 auto CommandManager::initialize() -> std::expected<void, std::string>
@@ -46,5 +46,8 @@ void CommandManager::wait_for_input()
     if (result == -1) {
         SPDLOG_DEBUG("received unexpected event");
         return;
+    }
+
+    while (Application::stop_flag) {
     }
 }

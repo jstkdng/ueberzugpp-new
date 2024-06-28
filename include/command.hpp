@@ -21,7 +21,6 @@
 #include <queue>
 #include <shared_mutex>
 #include <string>
-#include <vector>
 
 #include "unix_socket.hpp"
 
@@ -42,10 +41,8 @@ class CommandManager
     std::shared_mutex queue_mutex;
 
     std::string socket_buffer;
-    unix_socket::Server socket_server;
-
     std::string stdin_buffer;
-    std::vector<char> stdin_read_buffer;
+    unix_socket::Server socket_server;
 };
 
 #endif // COMMAND_HPP

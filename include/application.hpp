@@ -17,8 +17,12 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include <atomic>
+
 class Application
 {
+  public:
+    inline static std::atomic_bool stop_flag = false;
 };
 
 #endif // APPLICATION_HPP
