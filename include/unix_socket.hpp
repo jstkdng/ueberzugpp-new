@@ -19,6 +19,8 @@
 
 #include <expected>
 #include <string>
+#include <thread>
+#include <unordered_set>
 
 #include <sys/un.h>
 
@@ -36,6 +38,7 @@ class Server
     explicit Server(std::string_view endpoint);
     ~Server();
 
+    void start();
     auto bind_to_endpoint() -> std::expected<void, std::string>;
 
     [[nodiscard]] auto get_descriptor() const -> int;
@@ -44,8 +47,11 @@ class Server
   private:
     std::string endpoint;
     socket_and_address socket{};
+    std::unordered_set<int> accepted_connections;
+    std::jthread accept_thread;
 
     auto bind_to_endpoint_internal() -> std::expected<void, std::string>;
+    void accept_connections();
 
     [[nodiscard]] auto accept_connection() const -> std::expected<int, std::string>;
     [[nodiscard]] auto listen_to_endpoint() const -> std::expected<void, std::string>;

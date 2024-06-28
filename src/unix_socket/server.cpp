@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "application.hpp"
 #include "unix_socket.hpp"
 
 #include <bit>
@@ -22,6 +23,8 @@
 #include <unistd.h>
 
 #include "os.hpp"
+
+#include <sys/poll.h>
 
 using unix_socket::Server;
 
@@ -36,11 +39,43 @@ Server::~Server()
         shutdown(socket.fd, SHUT_RDWR);
         close(socket.fd);
     }
+    for (const auto fd : accepted_connections) {
+        shutdown(fd, SHUT_RDWR);
+        close(fd);
+    }
 }
 
 auto Server::get_descriptor() const -> int
 {
     return socket.fd;
+}
+
+void Server::start()
+{
+    auto bind_res = bind_to_endpoint();
+    if (!bind_res.has_value()) {
+        return;
+    }
+    accept_thread = std::jthread([this] { accept_connections(); });
+}
+
+void Server::accept_connections()
+{
+    while (!Application::stop_flag) {
+        constexpr int waitms = 100;
+        const auto in_event = os::wait_for_data_on_fd(socket.fd, waitms);
+        if (!in_event.has_value()) {
+            return;
+        }
+        if (!in_event.value()) {
+            continue;
+        }
+        const auto accepted_fd = accept_connection();
+        if (!accepted_fd.has_value()) {
+            return;
+        }
+        accepted_connections.emplace(*accepted_fd);
+    }
 }
 
 auto Server::read_data_from_connection() const -> std::expected<std::string, std::string>

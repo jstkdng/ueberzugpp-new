@@ -15,6 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "command.hpp"
+
+#include <iostream>
 #include <spdlog/spdlog.h>
 
 auto main() -> int
@@ -22,6 +24,6 @@ auto main() -> int
     spdlog::set_level(spdlog::level::trace);
     spdlog::flush_on(spdlog::level::trace);
 
-    CommandManager cmd("bruh");
-    cmd.wait_for_input_on_stdin();
+    // CommandManager cmd("bruh");
+    // cmd.wait_for_input_on_stdin();
 }
