@@ -31,6 +31,11 @@ server::server(const std::string_view endpoint)
 {
 }
 
+auto server::get_descriptor() const -> int
+{
+    return socket.fd;
+}
+
 auto server::read_data_from_connection() const -> std::expected<std::string, std::string>
 {
     return accept_connection().and_then(os::read_data_from_fd);
