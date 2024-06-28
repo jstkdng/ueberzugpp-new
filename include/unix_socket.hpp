@@ -31,10 +31,10 @@ struct socket_and_address {
     sockaddr_un address;
 };
 
-class server
+class Server
 {
   public:
-    explicit server(std::string_view endpoint);
+    explicit Server(std::string_view endpoint);
     auto bind_to_endpoint() -> std::expected<void, std::string>;
 
     [[nodiscard]] auto get_descriptor() const -> int;
@@ -50,10 +50,10 @@ class server
     [[nodiscard]] auto listen_to_endpoint() const -> std::expected<void, std::string>;
 };
 
-class client
+class Client
 {
   public:
-    explicit client(std::string_view endpoint);
+    explicit Client(std::string_view endpoint);
     auto connect_to_endpoint() -> std::expected<void, std::string>;
 
   private:

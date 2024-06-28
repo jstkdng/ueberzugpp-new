@@ -24,24 +24,24 @@
 
 #include "os.hpp"
 
-using unix_socket::server;
+using unix_socket::Server;
 
-server::server(const std::string_view endpoint)
+Server::Server(const std::string_view endpoint)
     : endpoint(endpoint)
 {
 }
 
-auto server::get_descriptor() const -> int
+auto Server::get_descriptor() const -> int
 {
     return socket.fd;
 }
 
-auto server::read_data_from_connection() const -> std::expected<std::string, std::string>
+auto Server::read_data_from_connection() const -> std::expected<std::string, std::string>
 {
     return accept_connection().and_then(os::read_data_from_fd);
 }
 
-auto server::bind_to_endpoint() -> std::expected<void, std::string>
+auto Server::bind_to_endpoint() -> std::expected<void, std::string>
 {
     return util::get_socket_and_address(endpoint)
         .and_then([this](const socket_and_address &saa) {
@@ -51,7 +51,7 @@ auto server::bind_to_endpoint() -> std::expected<void, std::string>
         .and_then([this] { return listen_to_endpoint(); });
 }
 
-auto server::accept_connection() const -> std::expected<int, std::string>
+auto Server::accept_connection() const -> std::expected<int, std::string>
 {
     int result = accept(socket.fd, nullptr, nullptr);
     if (result == -1) {
@@ -60,7 +60,7 @@ auto server::accept_connection() const -> std::expected<int, std::string>
     return result;
 }
 
-auto server::listen_to_endpoint() const -> std::expected<void, std::string>
+auto Server::listen_to_endpoint() const -> std::expected<void, std::string>
 {
     int result = listen(socket.fd, SOMAXCONN);
     if (result == -1) {
@@ -69,7 +69,7 @@ auto server::listen_to_endpoint() const -> std::expected<void, std::string>
     return {};
 }
 
-auto server::bind_to_endpoint_internal() -> std::expected<void, std::string>
+auto Server::bind_to_endpoint_internal() -> std::expected<void, std::string>
 {
     int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
     if (result == -1) {

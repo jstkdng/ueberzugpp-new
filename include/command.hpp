@@ -22,13 +22,15 @@
 #include <string>
 #include <vector>
 
+#include "unix_socket.hpp"
+
 /**
  * Read for commands in stdin and unix_socket socket, divide them by newlines and parse them
  */
 class CommandManager
 {
   public:
-    CommandManager();
+    explicit CommandManager(std::string_view socket_endpoint);
 
     void wait_for_input();
 
@@ -37,11 +39,11 @@ class CommandManager
     std::queue<std::string> command_queue;
     std::shared_mutex queue_mutex;
 
+    std::string socket_buffer;
+    unix_socket::Server socket_server;
+
     std::string stdin_buffer;
     std::vector<char> stdin_read_buffer;
-
-    std::string socket_buffer;
-    std::vector<char> socket_read_buffer;
 };
 
 #endif // COMMAND_HPP

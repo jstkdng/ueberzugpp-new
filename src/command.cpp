@@ -20,12 +20,13 @@
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
-CommandManager::CommandManager()
+CommandManager::CommandManager(std::string_view socket_endpoint)
+    : socket_server(socket_endpoint)
+
 {
     stdin_buffer.reserve(buffer_size);
     socket_buffer.reserve(buffer_size);
     stdin_read_buffer.reserve(buffer_size);
-    socket_read_buffer.reserve(buffer_size);
 }
 
 void CommandManager::wait_for_input()
@@ -34,7 +35,8 @@ void CommandManager::wait_for_input()
     std::array<pollfd, 2> pollfds{};
     pollfds.at(0).fd = STDIN_FILENO;
     pollfds.at(0).events = POLLIN;
-    // TODO: configure struct for unix_socket unix_socket
+    pollfds.at(1).fd = socket_server.get_descriptor();
+    pollfds.at(1).events = POLLIN;
 
     const int result = poll(pollfds.data(), 2, waitms);
     if (result == -1) {

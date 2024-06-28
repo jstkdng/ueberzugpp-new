@@ -21,14 +21,14 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-using unix_socket::client;
+using unix_socket::Client;
 
-client::client(const std::string_view endpoint)
+Client::Client(const std::string_view endpoint)
     : endpoint(endpoint)
 {
 }
 
-auto client::connect_to_endpoint() -> std::expected<void, std::string>
+auto Client::connect_to_endpoint() -> std::expected<void, std::string>
 {
     return util::get_socket_and_address(endpoint).and_then([this](const socket_and_address &saa) {
         socket = saa;
@@ -36,7 +36,7 @@ auto client::connect_to_endpoint() -> std::expected<void, std::string>
     });
 }
 
-auto client::connect_to_socket() -> std::expected<void, std::string>
+auto Client::connect_to_socket() -> std::expected<void, std::string>
 {
     int result = connect(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
     if (result == -1) {
