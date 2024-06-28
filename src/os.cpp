@@ -95,7 +95,10 @@ auto os::wait_for_data_on_fd(const int filde, const int waitms) -> std::expected
     fds.fd = filde;
     fds.events = POLLIN;
 
-    poll(&fds, 1, waitms);
+    const int res = poll(&fds, 1, waitms);
+    if (res == -1) {
+        return system_error("could not poll on file descriptor");
+    }
 
     if ((fds.revents & (POLLERR | POLLNVAL | POLLHUP)) != 0) {
         return std::unexpected("poll received unexpected event");

@@ -34,12 +34,13 @@ class CommandManager
 
     auto initialize() -> std::expected<void, std::string>;
     void wait_for_input();
+    void wait_for_input_on_stdin();
 
   private:
-    static constexpr int buffer_size = 32 * 1024;
+    static constexpr int waitms = 100;
+
     std::queue<std::string> command_queue;
     std::shared_mutex queue_mutex;
-
     std::string socket_buffer;
     std::string stdin_buffer;
     unix_socket::Server socket_server;

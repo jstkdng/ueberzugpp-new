@@ -17,13 +17,15 @@
 #include "command.hpp"
 
 #include "application.hpp"
+#include "os.hpp"
 
 #include <array>
+#include <iostream>
 #include <poll.h>
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
-CommandManager::CommandManager(std::string_view socket_endpoint)
+CommandManager::CommandManager(const std::string_view socket_endpoint)
     : socket_server(socket_endpoint)
 {
 }
@@ -33,9 +35,37 @@ auto CommandManager::initialize() -> std::expected<void, std::string>
     return socket_server.bind_to_endpoint();
 }
 
+void CommandManager::wait_for_input_on_stdin()
+{
+    while (!Application::stop_flag) {
+        auto in_event = os::wait_for_data_on_stdin(waitms);
+        if (!in_event.has_value()) {
+            return;
+        }
+        if (!in_event.value()) {
+            continue;
+        }
+        auto data = os::read_data_from_stdin();
+        if (!data.has_value()) {
+            return;
+        }
+        stdin_buffer.append(data.value());
+
+        while (true) {
+            auto find_result = stdin_buffer.find('\n');
+            if (find_result == std::string::npos) {
+                break;
+            }
+
+            auto substr = stdin_buffer.substr(0, find_result);
+            command_queue.emplace(substr);
+            stdin_buffer.erase(0, find_result + 1);
+        }
+    }
+}
+
 void CommandManager::wait_for_input()
 {
-    constexpr int waitms = 100;
     std::array<pollfd, 2> pollfds{};
     pollfds.at(0).fd = STDIN_FILENO;
     pollfds.at(0).events = POLLIN;
@@ -46,8 +76,5 @@ void CommandManager::wait_for_input()
     if (result == -1) {
         SPDLOG_DEBUG("received unexpected event");
         return;
-    }
-
-    while (Application::stop_flag) {
     }
 }

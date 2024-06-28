@@ -14,19 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
-#include "crypto.hpp"
-#include "os.hpp"
-#include <iostream>
+#include "command.hpp"
 #include <spdlog/spdlog.h>
 
 auto main() -> int
 {
     spdlog::set_level(spdlog::level::trace);
 
-    std::cout << os::exec("ls -alh").value() << std::endl;
-    std::cout << Application::stop_flag << std::endl;
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << crypto::get_b2_hash("Hello, World!") << std::endl;
-    std::cout << crypto::base64_encode("Hello, World!") << std::endl;
+    CommandManager cmd("bruh");
+    cmd.wait_for_input_on_stdin();
 }
