@@ -25,7 +25,8 @@ namespace util
 {
 
 auto get_socket_path(int pid = os::get_pid()) -> std::string;
+auto get_log_path() -> std::string;
 
-}
+} // namespace util
 
 #endif // UTIL_HPP

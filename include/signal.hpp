@@ -14,12 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
-#include "signal.hpp"
+#ifndef SIGNAL_HPP
+#define SIGNAL_HPP
 
-auto main() -> int
+namespace signal_manager
 {
-    Application application;
-    signal_manager::setup_signals();
-    return 0;
-}
+
+void signal_handler(int signal);
+void setup_signals();
+
+} // namespace signal_manager
+
+#endif // SIGNAL_HPP

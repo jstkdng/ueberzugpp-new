@@ -17,12 +17,27 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "command.hpp"
+#include "util.hpp"
+
 #include <atomic>
+#include <memory>
+#include <spdlog/spdlog.h>
 
 class Application
 {
   public:
+    Application();
+
     inline static std::atomic_bool stop_flag = false;
+
+  private:
+    std::shared_ptr<spdlog::logger> logger;
+
+    std::string socket_path = util::get_socket_path();
+    CommandManager command_manager;
+
+    void setup_loggers();
 };
 
 #endif // APPLICATION_HPP

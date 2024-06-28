@@ -23,5 +23,15 @@ namespace fs = std::filesystem;
 
 auto util::get_socket_path(int pid) -> std::string
 {
-    return std::format("{}/ueberzugpp-{}.socket", fs::temp_directory_path().string(), pid);
+    const auto sockname = std::format("ueberzugpp-{}.socket", pid);
+    const auto tmp = fs::temp_directory_path();
+    return tmp / sockname;
+}
+
+auto util::get_log_path() -> std::string
+{
+    const auto user = os::getenv("USER").value_or("NOUSER");
+    const auto logname = std::format("ueberzugpp-{}.log", user);
+    const auto tmp = fs::temp_directory_path();
+    return tmp / logname;
 }

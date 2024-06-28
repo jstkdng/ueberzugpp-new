@@ -116,6 +116,9 @@ target_sources(ueberzugpp PRIVATE
     include/util.hpp
     src/util.cpp
 
+    include/signal.hpp
+    src/signal.cpp
+
     include/unix_socket.hpp
     src/unix_socket/server.cpp
     src/unix_socket/client.cpp
