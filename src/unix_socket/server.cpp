@@ -44,14 +44,14 @@ Server::~Server()
 
 auto Server::start() -> std::expected<void, std::string>
 {
-    auto bind_res = bind_to_endpoint();
-    if (bind_res.has_value()) {
+    auto bind_ok = bind_to_endpoint();
+    if (bind_ok) {
         SPDLOG_INFO("Listening for connections on {}", endpoint);
         accept_thread = std::jthread([this] { accept_connections(); });
     } else {
-        SPDLOG_DEBUG(bind_res.error());
+        SPDLOG_DEBUG(bind_ok.error());
     }
-    return bind_res;
+    return bind_ok;
 }
 
 void Server::accept_connections()
@@ -149,7 +149,7 @@ auto Server::listen_to_endpoint() const -> std::expected<void, std::string>
 
 auto Server::bind_to_socket() -> std::expected<void, std::string>
 {
-    const int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&socket.addr), sizeof(sockaddr_un));
+    const int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&(socket.addr)), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("could not bind to endpoint");
     }

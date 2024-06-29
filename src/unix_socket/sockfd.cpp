@@ -18,12 +18,34 @@
 #include "unix_socket.hpp"
 
 #include <sys/socket.h>
+#include <utility>
 
 using unix_socket::sockfd;
 
+// assignment operator (replaces copy and move assignment)
+sockfd &sockfd::operator=(sockfd other) noexcept
+{
+    std::swap(fd, other.fd);
+    std::swap(addr, other.addr);
+    return *this;
+}
+
+// copy constructor
+sockfd::sockfd(const sockfd &other)
+    : addr(other.addr)
+{
+    fd = dup(other.fd);
+}
+
+sockfd::sockfd(sockfd &&other) noexcept
+    : fd(std::exchange(other.fd, -1)),
+      addr(std::exchange(other.addr, {}))
+{
+}
+
 auto sockfd::create(const std::string_view endpoint) -> std::expected<sockfd, std::string>
 {
-    sockfd res{};
+    sockfd res;
     res.addr.sun_family = AF_UNIX;
     endpoint.copy(res.addr.sun_path, endpoint.size());
 

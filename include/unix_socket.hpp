@@ -28,6 +28,11 @@ namespace unix_socket
 {
 
 struct sockfd {
+    sockfd() = default;
+    sockfd(const sockfd &other);
+    sockfd(sockfd &&other) noexcept;
+    sockfd &operator=(sockfd other) noexcept;
+
     static auto create(std::string_view endpoint) -> std::expected<sockfd, std::string>;
     ~sockfd();
 

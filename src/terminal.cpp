@@ -25,12 +25,6 @@
 #include <spdlog/spdlog.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <unistd.h>
-
-Terminal::Terminal()
-{
-    logger = spdlog::get("main");
-}
 
 auto Terminal::initialize() -> std::expected<void, std::string>
 {
@@ -59,23 +53,23 @@ void Terminal::open_first_pty()
         const int stat_result = stat(pty_path, &stat_info);
         if (stat_result == -1) {
             const auto err = std::error_code(errno, std::generic_category());
-            SPDLOG_LOGGER_DEBUG(logger, "stat failed for pty {}: {}", pty_path, err.message());
+            SPDLOG_DEBUG("stat failed for pty {}: {}", pty_path, err.message());
             continue;
         }
         if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
-            SPDLOG_LOGGER_DEBUG(logger, "device number different {} != {}", proc.tty_nr, stat_info.st_rdev);
+            SPDLOG_DEBUG("device number different {} != {}", proc.tty_nr, stat_info.st_rdev);
             continue;
         }
         pty_fd = open(pty_path, O_RDONLY | O_NOCTTY);
         if (pty_fd == -1) {
             const auto err = std::error_code(errno, std::generic_category());
-            SPDLOG_LOGGER_DEBUG(logger, "could not open pty {}: {}", pty_path, err.message());
+            SPDLOG_DEBUG("could not open pty {}: {}", pty_path, err.message());
             continue;
         }
         opened_terminal_pid = proc.pid;
-        SPDLOG_LOGGER_INFO(logger, "PTY = {}", pty_path);
+        SPDLOG_INFO("PTY = {}", pty_path);
         return;
     }
-    SPDLOG_LOGGER_WARN(logger, "could not open any pty, using stdout as fallback");
+    SPDLOG_WARN("could not open any pty, using stdout as fallback");
     pty_fd = STDOUT_FILENO;
 }

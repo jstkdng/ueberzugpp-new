@@ -20,16 +20,12 @@
 #include <expected>
 #include <string>
 
-#include <spdlog/spdlog.h>
-
 class Terminal
 {
   public:
-    Terminal();
     auto initialize() -> std::expected<void, std::string>;
 
   private:
-    std::shared_ptr<spdlog::logger> logger;
     int opened_terminal_pid = -1;
     int pty_fd = -1;
 

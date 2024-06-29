@@ -35,19 +35,15 @@ void signal_manager::setup_signals()
 void signal_manager::signal_handler(const int signal)
 {
     Application::stop_flag = true;
-    const auto logger = spdlog::get("main");
-    if (!logger) {
-        return;
-    }
     switch (signal) {
         case SIGINT:
-            SPDLOG_LOGGER_ERROR(logger, "SIGINT received, exiting...");
+            SPDLOG_ERROR("SIGINT received, exiting...");
             break;
         case SIGTERM:
-            SPDLOG_LOGGER_ERROR(logger, "SIGTERM received, exiting...");
+            SPDLOG_ERROR("SIGTERM received, exiting...");
             break;
         default:
-            SPDLOG_LOGGER_ERROR(logger, "UNKNOWN({}) signal received, exiting...", signal);
+            SPDLOG_ERROR("UNKNOWN({}) signal received, exiting...", signal);
             break;
     }
 }

@@ -25,8 +25,6 @@
 #include <expected>
 #include <memory>
 
-#include <spdlog/spdlog.h>
-
 class Application
 {
   public:
@@ -36,17 +34,14 @@ class Application
     auto initialize() -> std::expected<void, std::string>;
 
     static void run();
-    inline static std::atomic_bool stop_flag = false; // NOLINT
     static void print_header();
+    static auto setup_loggers() -> std::expected<void, std::string>;
+    inline static std::atomic_bool stop_flag = false; // NOLINT
 
   private:
-    std::shared_ptr<spdlog::logger> logger;
-
     std::string socket_path = util::get_socket_path();
     Terminal terminal;
     CommandManager command_manager;
-
-    auto setup_loggers() -> std::expected<void, std::string>;
 };
 
 #endif // APPLICATION_HPP

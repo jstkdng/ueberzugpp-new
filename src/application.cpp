@@ -35,7 +35,6 @@ Application::Application()
 
 Application::~Application()
 {
-    SPDLOG_INFO("exiting ueberzugpp");
     fs::remove(util::get_socket_path());
 }
 
@@ -61,10 +60,7 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
 
     const auto log_path = util::get_log_path();
     try {
-        const auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
-        const auto main_logger = std::make_shared<spdlog::logger>("main", sink);
-
-        initialize_logger(main_logger);
+        const auto main_logger = spdlog::basic_logger_mt("main", log_path);
         set_default_logger(main_logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return std::unexpected(std::format("log init failed: {}", ex.what()));
