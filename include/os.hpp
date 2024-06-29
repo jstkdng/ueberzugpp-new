@@ -20,25 +20,27 @@
 #include <expected>
 #include <optional>
 #include <string>
+#include <string_view>
 
 namespace os
 {
 constexpr int bufsize = 32 * 1024; // 32K at a time
+auto get_poll_err(int event) noexcept -> std::string_view;
 
-auto exec(const std::string &cmd) -> std::expected<std::string, std::string>;
-auto getenv(const std::string &var) -> std::optional<std::string>;
+auto exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>;
+auto getenv(const std::string &var) noexcept -> std::optional<std::string>;
 
-auto get_pid() -> int;
-auto get_ppid() -> int;
+auto get_pid() noexcept -> int;
+auto get_ppid() noexcept -> int;
 
-auto read_data_from_fd(int filde) -> std::expected<std::string, std::string>;
-auto read_data_from_socket(int sockfd) -> std::expected<std::string, std::string>;
-auto read_data_from_stdin() -> std::expected<std::string, std::string>;
+auto read_data_from_fd(int filde) noexcept -> std::expected<std::string, std::string>;
+auto read_data_from_socket(int sockfd) noexcept -> std::expected<std::string, std::string>;
+auto read_data_from_stdin() noexcept -> std::expected<std::string, std::string>;
 
-auto wait_for_data_on_fd(int filde, int waitms) -> std::expected<bool, std::string>;
-auto wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>;
+auto wait_for_data_on_fd(int filde, int waitms) noexcept -> std::expected<bool, std::string>;
+auto wait_for_data_on_stdin(int waitms) noexcept -> std::expected<bool, std::string>;
 
-auto system_error(std::string_view message = "") -> std::unexpected<std::string>;
+auto system_error(std::string_view message = "") noexcept -> std::unexpected<std::string>;
 } // namespace os
 
 #endif // OS_HPP

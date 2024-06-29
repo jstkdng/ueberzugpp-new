@@ -17,7 +17,7 @@
 #ifndef SIGNAL_HPP
 #define SIGNAL_HPP
 
-#include <string>
+#include <string_view>
 
 namespace signal_manager
 {

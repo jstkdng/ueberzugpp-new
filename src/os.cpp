@@ -18,10 +18,12 @@
 #include "util/ptr.hpp"
 
 #include <cerrno>
-#include <format>
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
+#include <algorithm>
+#include <format>
 #include <vector>
 
 using std::error_code;
@@ -29,7 +31,7 @@ using std::expected;
 using std::string;
 using std::unexpected;
 
-auto os::system_error(const std::string_view message) -> std::unexpected<std::string>
+auto os::system_error(const std::string_view message) noexcept -> std::unexpected<std::string>
 {
     const auto err = error_code(errno, std::system_category());
     if (message.empty()) {
@@ -38,7 +40,7 @@ auto os::system_error(const std::string_view message) -> std::unexpected<std::st
     return unexpected(std::format("{}: {}", message, err.message()));
 }
 
-auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
+auto os::exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>
 {
     std::vector<char> buffer(bufsize);
     std::string result;
@@ -56,7 +58,7 @@ auto os::exec(const std::string &cmd) -> std::expected<std::string, std::string>
 }
 
 // will block if there is no data available
-auto os::read_data_from_fd(const int filde) -> std::expected<std::string, std::string>
+auto os::read_data_from_fd(const int filde) noexcept -> std::expected<std::string, std::string>
 {
     std::vector<char> buffer(bufsize);
     const auto bytes_read = read(filde, buffer.data(), bufsize);
@@ -67,7 +69,7 @@ auto os::read_data_from_fd(const int filde) -> std::expected<std::string, std::s
     return result;
 }
 
-auto os::read_data_from_socket(const int sockfd) -> std::expected<std::string, std::string>
+auto os::read_data_from_socket(const int sockfd) noexcept -> std::expected<std::string, std::string>
 {
     std::vector<char> buffer(bufsize);
     std::string result;
@@ -87,12 +89,26 @@ auto os::read_data_from_socket(const int sockfd) -> std::expected<std::string, s
     return result;
 }
 
-auto os::read_data_from_stdin() -> std::expected<std::string, std::string>
+auto os::read_data_from_stdin() noexcept -> std::expected<std::string, std::string>
 {
     return read_data_from_fd(STDIN_FILENO);
 }
 
-auto os::wait_for_data_on_fd(const int filde, const int waitms) -> std::expected<bool, std::string>
+auto os::get_poll_err(const int event) noexcept -> std::string_view
+{
+    if (event & POLLERR) {
+        return "POLLERR";
+    }
+    if (event & POLLNVAL) {
+        return "POLLNVAL";
+    }
+    if (event & POLLHUP) {
+        return "POLLHUP";
+    }
+    return "unknown event";
+}
+
+auto os::wait_for_data_on_fd(const int filde, const int waitms) noexcept -> std::expected<bool, std::string>
 {
     pollfd fds{};
     fds.fd = filde;
@@ -104,28 +120,28 @@ auto os::wait_for_data_on_fd(const int filde, const int waitms) -> std::expected
     }
 
     if ((fds.revents & (POLLERR | POLLNVAL | POLLHUP)) != 0) {
-        return std::unexpected("poll received unexpected event");
+        return std::unexpected(std::format("poll received {}", get_poll_err(fds.events)));
     }
 
     return (fds.revents & POLLIN) != 0;
 }
 
-auto os::wait_for_data_on_stdin(int waitms) -> std::expected<bool, std::string>
+auto os::wait_for_data_on_stdin(const int waitms) noexcept -> std::expected<bool, std::string>
 {
     return wait_for_data_on_fd(STDIN_FILENO, waitms);
 }
 
-auto os::get_pid() -> int
+auto os::get_pid() noexcept -> int
 {
     return getpid();
 }
 
-auto os::get_ppid() -> int
+auto os::get_ppid() noexcept -> int
 {
     return getppid();
 }
 
-auto os::getenv(const std::string &var) -> std::optional<std::string>
+auto os::getenv(const std::string &var) noexcept -> std::optional<std::string>
 {
     const char *env_p = std::getenv(var.c_str()); // NOLINT
     if (env_p == nullptr) {
