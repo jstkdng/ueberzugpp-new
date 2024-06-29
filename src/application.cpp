@@ -49,7 +49,9 @@ void Application::run()
 auto Application::initialize() -> std::expected<void, std::string>
 {
     print_header();
-    return setup_loggers().and_then([this] { return command_manager.initialize(); });
+    return setup_loggers().and_then([this] { return command_manager.initialize(); }).and_then([this] {
+        return terminal.initialize();
+    });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>
@@ -61,10 +63,14 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
     try {
         const auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
         const auto main_logger = std::make_shared<logger>("main", sink);
-        const auto command = std::make_shared<logger>("command", sink);
+        const auto socket_logger = std::make_shared<logger>("socket", sink);
+        const auto command_logger = std::make_shared<logger>("command", sink);
+        const auto terminal_logger = std::make_shared<logger>("terminal", sink);
 
         initialize_logger(main_logger);
-        initialize_logger(command);
+        initialize_logger(socket_logger);
+        initialize_logger(command_logger);
+        initialize_logger(terminal_logger);
 
         this->logger = spdlog::get("main");
     } catch (const spdlog::spdlog_ex &ex) {

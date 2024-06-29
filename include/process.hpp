@@ -1,5 +1,5 @@
 // Display images inside a terminal
-// Copyright (C) 2024  JustKidding
+// Copyright (C) 2023  JustKidding
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,23 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTIL_HPP
-#define UTIL_HPP
-
-#include "os.hpp"
-#include "process.hpp"
+#ifndef PROCESS_HPP
+#define PROCESS_HPP
 
 #include <string>
-#include <vector>
 
-namespace util
-{
+struct Process {
+    explicit Process(int pid);
 
-auto get_socket_path(int pid = os::get_pid()) -> std::string;
-auto get_log_path() -> std::string;
-auto get_process_tree(int pid) -> std::vector<Process>;
-auto get_process_pid_tree(int pid) -> std::vector<int>;
+    int pid = -1;
+    int ppid = -1;
+    int tty_nr = -1;
+    int minor_dev = -1;
+    std::string pty_path;
+};
 
-} // namespace util
-
-#endif // UTIL_HPP
+#endif // PROCESS_HPP

@@ -43,8 +43,7 @@ find_package(TBB REQUIRED)
 
 # check if <execution> is available
 set(CMAKE_REQUIRED_LIBRARIES TBB::tbb)
-check_cxx_symbol_exists(std::execution::par_unseq execution
-    HAVE_STD_EXECUTION_H)
+check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION_H)
 if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
 endif ()
@@ -92,9 +91,16 @@ target_include_directories(ueberzugpp PRIVATE
     "${PROJECT_BINARY_DIR}"
 )
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_sources(ueberzugpp PRIVATE
+        src/linux/process.cpp
+    )
+endif ()
+
 target_sources(ueberzugpp PRIVATE
     src/main.cpp
     include/util/ptr.hpp
+    include/process.hpp
 
     include/crypto.hpp
     src/crypto.cpp
@@ -113,6 +119,9 @@ target_sources(ueberzugpp PRIVATE
 
     include/signal.hpp
     src/signal.cpp
+
+    include/terminal.hpp
+    src/terminal.cpp
 
     include/unix_socket.hpp
     src/unix_socket/server.cpp

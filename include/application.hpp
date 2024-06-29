@@ -18,6 +18,7 @@
 #define APPLICATION_HPP
 
 #include "command.hpp"
+#include "terminal.hpp"
 #include "util.hpp"
 
 #include <atomic>
@@ -42,6 +43,7 @@ class Application
     std::shared_ptr<spdlog::logger> logger;
 
     std::string socket_path = util::get_socket_path();
+    Terminal terminal;
     CommandManager command_manager;
 
     auto setup_loggers() -> std::expected<void, std::string>;

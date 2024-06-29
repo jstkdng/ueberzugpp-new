@@ -1,5 +1,5 @@
 // Display images inside a terminal
-// Copyright (C) 2024  JustKidding
+// Copyright (C) 2023  JustKidding
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,23 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTIL_HPP
-#define UTIL_HPP
+#ifndef TERMINAL_HPP
+#define TERMINAL_HPP
 
-#include "os.hpp"
-#include "process.hpp"
-
+#include <expected>
 #include <string>
-#include <vector>
 
-namespace util
+#include <spdlog/spdlog.h>
+
+class Terminal
 {
+  public:
+    auto initialize() -> std::expected<void, std::string>;
 
-auto get_socket_path(int pid = os::get_pid()) -> std::string;
-auto get_log_path() -> std::string;
-auto get_process_tree(int pid) -> std::vector<Process>;
-auto get_process_pid_tree(int pid) -> std::vector<int>;
+  private:
+    std::shared_ptr<spdlog::logger> logger;
+    int opened_terminal_pid = -1;
+    int pty_fd = -1;
 
-} // namespace util
+    void open_first_pty();
+    auto get_terminal_sizes_ioctl() -> std::expected<void, std::string>;
+};
 
-#endif // UTIL_HPP
+#endif // TERMINAL_HPP

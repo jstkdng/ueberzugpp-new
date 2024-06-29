@@ -36,7 +36,7 @@ auto CommandManager::initialize() -> std::expected<void, std::string>
         stdin_thread = std::jthread([this] { wait_for_input_on_stdin(); });
         socket_thread = std::jthread([this] { wait_for_input_on_socket(); });
     } else {
-        SPDLOG_DEBUG(result.error());
+        SPDLOG_LOGGER_DEBUG(logger, result.error());
     }
     return result;
 }
@@ -46,7 +46,7 @@ void CommandManager::wait_for_input_on_stdin()
     while (!Application::stop_flag) {
         auto in_event = os::wait_for_data_on_stdin(waitms);
         if (!in_event.has_value()) {
-            SPDLOG_DEBUG(in_event.error());
+            SPDLOG_LOGGER_DEBUG(logger, in_event.error());
             return;
         }
         if (!in_event.value()) {
@@ -54,7 +54,7 @@ void CommandManager::wait_for_input_on_stdin()
         }
         auto data = os::read_data_from_stdin();
         if (!data.has_value()) {
-            SPDLOG_DEBUG(data.error());
+            SPDLOG_LOGGER_DEBUG(logger, data.error());
             return;
         }
 
@@ -69,7 +69,7 @@ void CommandManager::wait_for_input_on_socket()
     while (!Application::stop_flag) {
         auto data = socket_server.read_data_from_connection();
         if (!data.has_value()) {
-            SPDLOG_DEBUG(data.error());
+            SPDLOG_LOGGER_DEBUG(logger, data.error());
             return;
         }
 
@@ -98,10 +98,11 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
             if (action == "clear_queue") {
                 command_queue = {};
             } else {
+                logger->info("Received command {}.", substr);
                 command_queue.emplace(json);
             }
         } catch (const njson::parse_error &) {
-            SPDLOG_LOGGER_WARN(logger, "Received invalid json");
+            logger->warn("Received invalid json.");
         }
         view.remove_prefix(find_result + 1);
     }

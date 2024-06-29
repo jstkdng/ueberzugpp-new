@@ -16,6 +16,7 @@
 
 #include "util.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
 
@@ -34,4 +35,23 @@ auto util::get_log_path() -> std::string
     const auto logname = std::format("ueberzugpp-{}.log", user);
     const auto tmp = fs::temp_directory_path();
     return tmp / logname;
+}
+
+auto util::get_process_tree(const int pid) -> std::vector<Process>
+{
+    std::vector<Process> result;
+    Process runner(pid);
+    while (runner.pid > 1) {
+        result.emplace_back(runner.pid);
+        runner = Process(runner.ppid);
+    }
+    return result;
+}
+
+auto util::get_process_pid_tree(const int pid) -> std::vector<int>
+{
+    const auto tree = get_process_tree(pid);
+    std::vector<int> result;
+    std::ranges::transform(tree, std::back_inserter(result), [](const auto &proc) { return proc.pid; });
+    return result;
 }

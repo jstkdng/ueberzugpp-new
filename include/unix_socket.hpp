@@ -18,6 +18,7 @@
 #define UNIX_SOCKET_HPP
 
 #include <expected>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
 #include <vector>
@@ -44,6 +45,7 @@ class Server
     auto read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>;
 
   private:
+    std::shared_ptr<spdlog::logger> logger;
     std::string endpoint;
     socket_and_address socket{};
     std::vector<int> accepted_connections;
@@ -52,6 +54,7 @@ class Server
     auto bind_to_endpoint() -> std::expected<void, std::string>;
     auto bind_to_endpoint_internal() -> std::expected<void, std::string>;
     void accept_connections();
+    void remove_accepted_connection(int filde);
 
     [[nodiscard]] auto accept_connection() const -> std::expected<int, std::string>;
     [[nodiscard]] auto listen_to_endpoint() const -> std::expected<void, std::string>;

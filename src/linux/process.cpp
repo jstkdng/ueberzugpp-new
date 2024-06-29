@@ -1,5 +1,5 @@
 // Display images inside a terminal
-// Copyright (C) 2024  JustKidding
+// Copyright (C) 2023  JustKidding
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,23 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef UTIL_HPP
-#define UTIL_HPP
-
-#include "os.hpp"
 #include "process.hpp"
 
-#include <string>
-#include <vector>
+#include <format>
+#include <fstream>
+#include <limits>
 
-namespace util
+#include <sys/sysmacros.h>
+
+constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
+
+Process::Process(const int pid)
+    : pid(pid)
 {
+    int ignore;
+    char ignc;
+    const auto stat_file = std::format("/proc/{}/stat", pid);
+    std::ifstream ifs(stat_file);
+    ifs.ignore(max_size, ')'); // skip pid and executable name
 
-auto get_socket_path(int pid = os::get_pid()) -> std::string;
-auto get_log_path() -> std::string;
-auto get_process_tree(int pid) -> std::vector<Process>;
-auto get_process_pid_tree(int pid) -> std::vector<int>;
-
-} // namespace util
-
-#endif // UTIL_HPP
+    ifs >> ignc >> ppid >> ignore >> ignore >> tty_nr;
+    minor_dev = minor(tty_nr);
+    pty_path = std::format("/dev/pts/{}", minor_dev);
+}
