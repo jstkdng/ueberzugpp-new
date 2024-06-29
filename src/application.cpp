@@ -30,8 +30,6 @@ namespace fs = std::filesystem;
 Application::Application()
     : command_manager(socket_path)
 {
-    spdlog::set_level(spdlog::level::trace);
-    spdlog::flush_on(spdlog::level::trace);
 }
 
 Application::~Application()
@@ -59,6 +57,9 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
     using spdlog::set_default_logger;
     using spdlog::set_pattern;
 
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::flush_on(spdlog::level::trace);
+
     const auto log_path = util::get_log_path();
     try {
         const auto main_logger = spdlog::basic_logger_mt("main", log_path);
@@ -80,9 +81,9 @@ void Application::print_header()
 | | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_
 | | | |/ _ \ '_ \ / _ \ '__|_  / | | |/ _` |_   _|_   _|
 | |_| |  __/ |_) |  __/ |   / /| |_| | (_| | |_|   |_|
- \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
+ \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |    new
                                        __/ |
-                                      |___/    new v{}.{}.{})",
+                                      |___/     v{}.{}.{})",
                                  UEBERZUGPP_VERSION_MAJOR, UEBERZUGPP_VERSION_MINOR, UEBERZUGPP_VERSION_PATCH);
     std::ofstream ofs(log_path, std::ios::out | std::ios::app);
     ofs << art << '\n' << std::flush;
