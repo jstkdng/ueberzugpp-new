@@ -26,7 +26,6 @@ using njson = nlohmann::json;
 CommandManager::CommandManager(const std::string_view socket_endpoint)
     : socket_server(socket_endpoint)
 {
-    logger = spdlog::get("main");
 }
 
 auto CommandManager::initialize() -> std::expected<void, std::string>
@@ -98,11 +97,11 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
             if (action == "clear_queue") {
                 command_queue = {};
             } else {
-                logger->info("Received command {}.", substr);
+                SPDLOG_INFO("Received command {}.", substr);
                 command_queue.emplace(json);
             }
         } catch (const njson::parse_error &) {
-            logger->warn("Received invalid json.");
+            SPDLOG_WARN("Received invalid json.");
         }
         view.remove_prefix(find_result + 1);
     }

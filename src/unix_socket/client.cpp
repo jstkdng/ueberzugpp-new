@@ -44,10 +44,10 @@ auto Client::connect_to_socket() -> std::expected<void, std::string>
 
 auto Client::create_socket() -> std::expected<void, std::string>
 {
-    auto socket_res = sockfd::create(endpoint);
+    auto socket_res = util::create_socket(endpoint);
     if (!socket_res) {
         return std::unexpected(socket_res.error());
     }
-    socket = *socket_res;
+    socket = socket_res.value();
     return {};
 }

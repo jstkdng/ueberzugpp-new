@@ -23,6 +23,7 @@
 #include <format>
 #include <fstream>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 namespace fs = std::filesystem;
 
@@ -55,13 +56,14 @@ auto Application::initialize() -> std::expected<void, std::string>
 
 auto Application::setup_loggers() -> std::expected<void, std::string>
 {
-    using spdlog::register_logger;
     using spdlog::set_default_logger;
+    using spdlog::set_pattern;
 
     const auto log_path = util::get_log_path();
     try {
         const auto main_logger = spdlog::basic_logger_mt("main", log_path);
         set_default_logger(main_logger);
+        set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%L] [%s:%#] %v");
     } catch (const spdlog::spdlog_ex &ex) {
         return std::unexpected(std::format("log init failed: {}", ex.what()));
     }

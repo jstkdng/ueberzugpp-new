@@ -57,7 +57,7 @@ void Terminal::open_first_pty()
             continue;
         }
         if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
-            SPDLOG_DEBUG("device number different {} != {}", proc.tty_nr, stat_info.st_rdev);
+            SPDLOG_DEBUG("device number different: {} != {}", proc.tty_nr, stat_info.st_rdev);
             continue;
         }
         pty_fd = open(pty_path, O_RDONLY | O_NOCTTY);

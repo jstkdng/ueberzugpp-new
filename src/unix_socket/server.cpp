@@ -36,6 +36,10 @@ Server::Server(const std::string_view endpoint)
 
 Server::~Server()
 {
+    if (socket.fd != -1) {
+        shutdown(socket.fd, SHUT_RDWR);
+        close(socket.fd);
+    }
     for (const auto filde : accepted_connections) {
         shutdown(filde, SHUT_RDWR);
         close(filde);
@@ -125,7 +129,7 @@ void Server::remove_accepted_connection(int filde)
 auto Server::bind_to_endpoint() -> std::expected<void, std::string>
 {
     return create_socket().and_then([this] { return bind_to_socket(); }).and_then([this] {
-        return listen_to_endpoint();
+        return listen_to_socket();
     });
 }
 
@@ -138,7 +142,7 @@ auto Server::accept_connection() const -> std::expected<int, std::string>
     return result;
 }
 
-auto Server::listen_to_endpoint() const -> std::expected<void, std::string>
+auto Server::listen_to_socket() const -> std::expected<void, std::string>
 {
     const int result = listen(socket.fd, SOMAXCONN);
     if (result == -1) {
@@ -158,7 +162,7 @@ auto Server::bind_to_socket() -> std::expected<void, std::string>
 
 auto Server::create_socket() -> std::expected<void, std::string>
 {
-    auto socket_res = sockfd::create(endpoint);
+    auto socket_res = util::create_socket(endpoint);
     if (!socket_res) {
         return std::unexpected(socket_res.error());
     }

@@ -19,23 +19,14 @@
 
 #include <expected>
 #include <string>
+#include <sys/un.h>
 #include <thread>
 #include <vector>
-
-#include <sys/un.h>
 
 namespace unix_socket
 {
 
 struct sockfd {
-    sockfd() = default;
-    sockfd(const sockfd &other);
-    sockfd(sockfd &&other) noexcept;
-    sockfd &operator=(sockfd other) noexcept;
-
-    static auto create(std::string_view endpoint) -> std::expected<sockfd, std::string>;
-    ~sockfd();
-
     int fd = -1;
     sockaddr_un addr{};
 };
@@ -51,8 +42,8 @@ class Server
 
   private:
     std::string endpoint;
+    sockfd socket{};
 
-    sockfd socket;
     std::vector<int> accepted_connections;
     std::jthread accept_thread;
 
@@ -63,7 +54,7 @@ class Server
     void remove_accepted_connection(int filde);
 
     [[nodiscard]] auto accept_connection() const -> std::expected<int, std::string>;
-    [[nodiscard]] auto listen_to_endpoint() const -> std::expected<void, std::string>;
+    [[nodiscard]] auto listen_to_socket() const -> std::expected<void, std::string>;
 };
 
 class Client
@@ -79,6 +70,11 @@ class Client
     auto create_socket() -> std::expected<void, std::string>;
     auto connect_to_socket() -> std::expected<void, std::string>;
 };
+
+namespace util
+{
+auto create_socket(std::string_view endpoint) -> std::expected<sockfd, std::string>;
+}
 
 } // namespace unix_socket
 

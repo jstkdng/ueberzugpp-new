@@ -17,7 +17,12 @@
 #include "signal.hpp"
 #include "application.hpp"
 
+#include <algorithm>
+#include <array>
+#include <utility>
+
 #include <csignal>
+#include <spdlog/spdlog.h>
 
 void signal_manager::setup_signals()
 {
@@ -28,22 +33,22 @@ void signal_manager::setup_signals()
     sga.sa_flags = 0;
     sigaction(SIGINT, &sga, nullptr);
     sigaction(SIGTERM, &sga, nullptr);
-    sigaction(SIGHUP, nullptr, nullptr);
-    sigaction(SIGCHLD, nullptr, nullptr);
+    sigaction(SIGHUP, &sga, nullptr);
+    sigaction(SIGCHLD, &sga, nullptr);
 }
 
 void signal_manager::signal_handler(const int signal)
 {
+    using pair_type = std::pair<int, std::string_view>;
+    constexpr auto map = std::to_array<pair_type>({
+        {SIGINT, "SIGINT"},
+        {SIGTERM, "SIGTERM"},
+        {SIGHUP, "SIGHUP"},
+        {SIGCHLD, "SIGCHLD"},
+    });
+    const auto find = std::ranges::find_if(map, [signal](const pair_type &pair) { return pair.first == signal; });
+    const std::string_view signal_name = find != map.end() ? find->second : "UNKNOWN signal";
+
     Application::stop_flag = true;
-    switch (signal) {
-        case SIGINT:
-            SPDLOG_ERROR("SIGINT received, exiting...");
-            break;
-        case SIGTERM:
-            SPDLOG_ERROR("SIGTERM received, exiting...");
-            break;
-        default:
-            SPDLOG_ERROR("UNKNOWN({}) signal received, exiting...", signal);
-            break;
-    }
+    SPDLOG_WARN("{} received, exiting...", signal_name);
 }
