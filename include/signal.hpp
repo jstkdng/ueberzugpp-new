@@ -17,9 +17,12 @@
 #ifndef SIGNAL_HPP
 #define SIGNAL_HPP
 
+#include <string>
+
 namespace signal_manager
 {
 
+constexpr auto get_signal_name(int signal) -> std::string_view;
 void signal_handler(int signal);
 void setup_signals();
 

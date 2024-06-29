@@ -37,7 +37,7 @@ void signal_manager::setup_signals()
     sigaction(SIGCHLD, &sga, nullptr);
 }
 
-void signal_manager::signal_handler(const int signal)
+constexpr auto signal_manager::get_signal_name(int signal) -> std::string_view
 {
     using pair_type = std::pair<int, std::string_view>;
     constexpr auto map = std::to_array<pair_type>({
@@ -47,8 +47,14 @@ void signal_manager::signal_handler(const int signal)
         {SIGCHLD, "SIGCHLD"},
     });
     const auto find = std::ranges::find_if(map, [signal](const pair_type &pair) { return pair.first == signal; });
-    const std::string_view signal_name = find != map.end() ? find->second : "UNKNOWN signal";
+    if (find == map.end()) {
+        return "UNKNOWN signal";
+    }
+    return find->second;
+}
 
+void signal_manager::signal_handler(const int signal)
+{
     Application::stop_flag = true;
-    SPDLOG_WARN("{} received, exiting...", signal_name);
+    SPDLOG_WARN("{} received, exiting...", get_signal_name(signal));
 }
