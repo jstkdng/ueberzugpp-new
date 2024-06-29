@@ -41,13 +41,13 @@ void signal_manager::signal_handler(const int signal)
     }
     switch (signal) {
         case SIGINT:
-            logger->error("SIGINT received, exiting...");
+            SPDLOG_LOGGER_ERROR(logger, "SIGINT received, exiting...");
             break;
         case SIGTERM:
-            logger->error("SIGTERM received, exiting...");
+            SPDLOG_LOGGER_ERROR(logger, "SIGTERM received, exiting...");
             break;
         default:
-            logger->error("UNKNOWN({}) signal received, exiting...", signal);
+            SPDLOG_LOGGER_ERROR(logger, "UNKNOWN({}) signal received, exiting...", signal);
             break;
     }
 }

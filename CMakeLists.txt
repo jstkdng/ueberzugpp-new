@@ -126,7 +126,7 @@ target_sources(ueberzugpp PRIVATE
     include/unix_socket.hpp
     src/unix_socket/server.cpp
     src/unix_socket/client.cpp
-    src/unix_socket/util.cpp
+    src/unix_socket/sockfd.cpp
 )
 
 target_link_libraries(ueberzugpp PRIVATE

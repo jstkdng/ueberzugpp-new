@@ -36,30 +36,20 @@ Server::Server(const std::string_view endpoint)
 
 Server::~Server()
 {
-    if (socket.fd != -1) {
-        shutdown(socket.fd, SHUT_RDWR);
-        close(socket.fd);
-    }
     for (const auto filde : accepted_connections) {
         shutdown(filde, SHUT_RDWR);
         close(filde);
     }
 }
 
-auto Server::get_descriptor() const -> int
-{
-    return socket.fd;
-}
-
 auto Server::start() -> std::expected<void, std::string>
 {
-    logger = spdlog::get("socket");
     auto bind_res = bind_to_endpoint();
     if (bind_res.has_value()) {
-        logger->info("Listening for connections on {}", endpoint);
+        SPDLOG_INFO("Listening for connections on {}", endpoint);
         accept_thread = std::jthread([this] { accept_connections(); });
     } else {
-        SPDLOG_LOGGER_DEBUG(logger, bind_res.error());
+        SPDLOG_DEBUG(bind_res.error());
     }
     return bind_res;
 }
@@ -70,7 +60,7 @@ void Server::accept_connections()
         constexpr int waitms = 100;
         const auto in_event = os::wait_for_data_on_fd(socket.fd, waitms);
         if (!in_event.has_value()) {
-            SPDLOG_LOGGER_DEBUG(logger, in_event.error());
+            SPDLOG_DEBUG(in_event.error());
             return;
         }
         if (!in_event.value()) {
@@ -78,7 +68,7 @@ void Server::accept_connections()
         }
         const auto accepted_fd = accept_connection();
         if (!accepted_fd.has_value()) {
-            SPDLOG_LOGGER_DEBUG(logger, accepted_fd.error());
+            SPDLOG_DEBUG(accepted_fd.error());
             return;
         }
         accepted_connections.push_back(*accepted_fd);
@@ -103,7 +93,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
     std::vector<std::string> result;
     for (const auto &[fd, events, revents] : fds) {
         if ((revents & (POLLERR | POLLNVAL)) != 0) {
-            SPDLOG_LOGGER_DEBUG(logger, "received error on fd {}", fd);
+            SPDLOG_DEBUG("received error on fd {}", fd);
             remove_accepted_connection(fd);
             continue;
         }
@@ -112,11 +102,11 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
             if (data.has_value()) {
                 result.push_back(data.value());
             } else {
-                SPDLOG_LOGGER_DEBUG(logger, data.error());
+                SPDLOG_DEBUG(data.error());
             }
         }
         if ((revents & POLLHUP) != 0) {
-            SPDLOG_LOGGER_DEBUG(logger, "removing connection from fd {}", fd);
+            SPDLOG_DEBUG("removing connection from fd {}", fd);
             remove_accepted_connection(fd);
         }
     }
@@ -134,12 +124,9 @@ void Server::remove_accepted_connection(int filde)
 
 auto Server::bind_to_endpoint() -> std::expected<void, std::string>
 {
-    return util::get_socket_and_address(endpoint)
-        .and_then([this](const socket_and_address &saa) {
-            socket = saa;
-            return bind_to_endpoint_internal();
-        })
-        .and_then([this] { return listen_to_endpoint(); });
+    return create_socket().and_then([this] { return bind_to_socket(); }).and_then([this] {
+        return listen_to_endpoint();
+    });
 }
 
 auto Server::accept_connection() const -> std::expected<int, std::string>
@@ -160,11 +147,21 @@ auto Server::listen_to_endpoint() const -> std::expected<void, std::string>
     return {};
 }
 
-auto Server::bind_to_endpoint_internal() -> std::expected<void, std::string>
+auto Server::bind_to_socket() -> std::expected<void, std::string>
 {
-    const int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
+    const int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&socket.addr), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("could not bind to endpoint");
     }
+    return {};
+}
+
+auto Server::create_socket() -> std::expected<void, std::string>
+{
+    auto socket_res = sockfd::create(endpoint);
+    if (!socket_res) {
+        return std::unexpected(socket_res.error());
+    }
+    socket = *socket_res;
     return {};
 }

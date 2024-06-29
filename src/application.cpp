@@ -35,7 +35,7 @@ Application::Application()
 
 Application::~Application()
 {
-    logger->info("Exiting ueberzugpp");
+    SPDLOG_INFO("exiting ueberzugpp");
     fs::remove(util::get_socket_path());
 }
 
@@ -56,23 +56,16 @@ auto Application::initialize() -> std::expected<void, std::string>
 
 auto Application::setup_loggers() -> std::expected<void, std::string>
 {
-    using spdlog::initialize_logger;
-    using spdlog::logger;
+    using spdlog::register_logger;
+    using spdlog::set_default_logger;
 
     const auto log_path = util::get_log_path();
     try {
         const auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
-        const auto main_logger = std::make_shared<logger>("main", sink);
-        const auto socket_logger = std::make_shared<logger>("socket", sink);
-        const auto command_logger = std::make_shared<logger>("command", sink);
-        const auto terminal_logger = std::make_shared<logger>("terminal", sink);
+        const auto main_logger = std::make_shared<spdlog::logger>("main", sink);
 
         initialize_logger(main_logger);
-        initialize_logger(socket_logger);
-        initialize_logger(command_logger);
-        initialize_logger(terminal_logger);
-
-        this->logger = spdlog::get("main");
+        set_default_logger(main_logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return std::unexpected(std::format("log init failed: {}", ex.what()));
     }
@@ -91,7 +84,7 @@ void Application::print_header()
 | |_| |  __/ |_) |  __/ |   / /| |_| | (_| | |_|   |_|
  \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
                                        __/ |
-                                      |___/     v{}.{}.{})",
+                                      |___/    new v{}.{}.{})",
                                  UEBERZUGPP_VERSION_MAJOR, UEBERZUGPP_VERSION_MINOR, UEBERZUGPP_VERSION_PATCH);
     std::ofstream ofs(log_path, std::ios::out | std::ios::app);
     ofs << art << '\n' << std::flush;

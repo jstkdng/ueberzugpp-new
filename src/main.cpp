@@ -25,7 +25,7 @@ auto main() -> int
     signal_manager::setup_signals();
 
     const auto result = application.initialize();
-    if (!result.has_value()) {
+    if (!result) {
         std::cerr << result.error() << '\n';
         return 1;
     }

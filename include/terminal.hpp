@@ -25,6 +25,7 @@
 class Terminal
 {
   public:
+    Terminal();
     auto initialize() -> std::expected<void, std::string>;
 
   private:

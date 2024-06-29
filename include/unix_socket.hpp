@@ -18,7 +18,6 @@
 #define UNIX_SOCKET_HPP
 
 #include <expected>
-#include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
 #include <vector>
@@ -28,9 +27,12 @@
 namespace unix_socket
 {
 
-struct socket_and_address {
-    int fd;
-    sockaddr_un address;
+struct sockfd {
+    static auto create(std::string_view endpoint) -> std::expected<sockfd, std::string>;
+    ~sockfd();
+
+    int fd = -1;
+    sockaddr_un addr{};
 };
 
 class Server
@@ -40,19 +42,18 @@ class Server
     ~Server();
 
     auto start() -> std::expected<void, std::string>;
-
-    [[nodiscard]] auto get_descriptor() const -> int;
     auto read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>;
 
   private:
-    std::shared_ptr<spdlog::logger> logger;
     std::string endpoint;
-    socket_and_address socket{};
+
+    sockfd socket;
     std::vector<int> accepted_connections;
     std::jthread accept_thread;
 
     auto bind_to_endpoint() -> std::expected<void, std::string>;
-    auto bind_to_endpoint_internal() -> std::expected<void, std::string>;
+    auto bind_to_socket() -> std::expected<void, std::string>;
+    auto create_socket() -> std::expected<void, std::string>;
     void accept_connections();
     void remove_accepted_connection(int filde);
 
@@ -68,17 +69,11 @@ class Client
 
   private:
     std::string endpoint;
-    socket_and_address socket{};
+    sockfd socket;
 
+    auto create_socket() -> std::expected<void, std::string>;
     auto connect_to_socket() -> std::expected<void, std::string>;
 };
-
-namespace util
-{
-
-auto get_socket_and_address(std::string_view endpoint) -> std::expected<socket_and_address, std::string>;
-
-}
 
 } // namespace unix_socket
 

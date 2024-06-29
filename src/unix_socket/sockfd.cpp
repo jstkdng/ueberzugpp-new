@@ -14,29 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "os.hpp"
 #include "unix_socket.hpp"
 
 #include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
 
-#include "os.hpp"
+using unix_socket::sockfd;
 
-namespace unix_socket
+auto sockfd::create(const std::string_view endpoint) -> std::expected<sockfd, std::string>
 {
+    sockfd res{};
+    res.addr.sun_family = AF_UNIX;
+    endpoint.copy(res.addr.sun_path, endpoint.size());
 
-auto util::get_socket_and_address(const std::string_view endpoint) -> std::expected<socket_and_address, std::string>
-{
-    socket_and_address result{};
-    result.address.sun_family = AF_UNIX;
-    endpoint.copy(result.address.sun_path, endpoint.size());
-
-    result.fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (result.fd == -1) {
+    res.fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (res.fd == -1) {
         return os::system_error("could not create socket");
     }
 
-    return result;
+    return res;
 }
 
-} // namespace unix_socket
+sockfd::~sockfd()
+{
+    if (fd != -1) {
+        shutdown(fd, SHUT_RDWR);
+        close(fd);
+    }
+}

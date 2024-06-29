@@ -26,17 +26,17 @@ using njson = nlohmann::json;
 CommandManager::CommandManager(const std::string_view socket_endpoint)
     : socket_server(socket_endpoint)
 {
+    logger = spdlog::get("main");
 }
 
 auto CommandManager::initialize() -> std::expected<void, std::string>
 {
-    logger = spdlog::get("command");
     const auto result = socket_server.start();
     if (result.has_value()) {
         stdin_thread = std::jthread([this] { wait_for_input_on_stdin(); });
         socket_thread = std::jthread([this] { wait_for_input_on_socket(); });
     } else {
-        SPDLOG_LOGGER_DEBUG(logger, result.error());
+        SPDLOG_DEBUG(result.error());
     }
     return result;
 }
@@ -46,7 +46,7 @@ void CommandManager::wait_for_input_on_stdin()
     while (!Application::stop_flag) {
         auto in_event = os::wait_for_data_on_stdin(waitms);
         if (!in_event.has_value()) {
-            SPDLOG_LOGGER_DEBUG(logger, in_event.error());
+            SPDLOG_DEBUG(in_event.error());
             return;
         }
         if (!in_event.value()) {
@@ -54,7 +54,7 @@ void CommandManager::wait_for_input_on_stdin()
         }
         auto data = os::read_data_from_stdin();
         if (!data.has_value()) {
-            SPDLOG_LOGGER_DEBUG(logger, data.error());
+            SPDLOG_DEBUG(data.error());
             return;
         }
 
@@ -69,7 +69,7 @@ void CommandManager::wait_for_input_on_socket()
     while (!Application::stop_flag) {
         auto data = socket_server.read_data_from_connection();
         if (!data.has_value()) {
-            SPDLOG_LOGGER_DEBUG(logger, data.error());
+            SPDLOG_DEBUG(data.error());
             return;
         }
 

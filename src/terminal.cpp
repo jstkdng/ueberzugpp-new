@@ -22,13 +22,18 @@
 #include <system_error>
 
 #include <fcntl.h>
+#include <spdlog/spdlog.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+Terminal::Terminal()
+{
+    logger = spdlog::get("main");
+}
+
 auto Terminal::initialize() -> std::expected<void, std::string>
 {
-    logger = spdlog::get("terminal");
     open_first_pty();
     return {};
 }

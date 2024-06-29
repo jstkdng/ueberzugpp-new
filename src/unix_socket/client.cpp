@@ -30,17 +30,24 @@ Client::Client(const std::string_view endpoint)
 
 auto Client::connect_to_endpoint() -> std::expected<void, std::string>
 {
-    return util::get_socket_and_address(endpoint).and_then([this](const socket_and_address &saa) {
-        socket = saa;
-        return connect_to_socket();
-    });
+    return create_socket().and_then([this] { return connect_to_socket(); });
 }
 
 auto Client::connect_to_socket() -> std::expected<void, std::string>
 {
-    int result = connect(socket.fd, std::bit_cast<const sockaddr *>(&socket.address), sizeof(sockaddr_un));
+    const int result = connect(socket.fd, std::bit_cast<const sockaddr *>(&socket.addr), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("coud not connect to endpoint");
     }
+    return {};
+}
+
+auto Client::create_socket() -> std::expected<void, std::string>
+{
+    auto socket_res = sockfd::create(endpoint);
+    if (!socket_res) {
+        return std::unexpected(socket_res.error());
+    }
+    socket = *socket_res;
     return {};
 }
