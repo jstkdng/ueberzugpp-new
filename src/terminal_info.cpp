@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include <unordered_set>
 
 #include <sys/ioctl.h>
 
@@ -36,7 +37,28 @@ auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::
         .or_else([this](const std::string &err) {
             SPDLOG_DEBUG(err);
             return set_size_xtsm();
-        });
+        })
+        .and_then([this] { return check_sixel_support(); });
+}
+
+auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
+{
+    // some terminals support sixel but don't respond to escape sequences
+    const auto supported_terms = std::unordered_set<std::string_view>{"yaft-256color", "iTerm.app"};
+    const auto resp = read_raw_terminal_command("\033[?1;1;0S");
+    if (!resp) {
+        return unexpected(resp.error());
+    }
+    std::string_view view = resp.value();
+    view.remove_prefix(3);
+    view.remove_suffix(1);
+    const auto vals = util::str_split(view, ";");
+    if (vals.size() > 2) {
+        SPDLOG_DEBUG("sixel is supported");
+    } else {
+        SPDLOG_DEBUG("sixel is not supported");
+    }
+    return {};
 }
 
 auto TerminalInfo::set_size_ioctl() -> std::expected<void, std::string>
@@ -50,10 +72,10 @@ auto TerminalInfo::set_size_ioctl() -> std::expected<void, std::string>
     rows = size.ws_row;
     xpixel = size.ws_xpixel;
     ypixel = size.ws_ypixel;
+    SPDLOG_DEBUG("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", cols, rows, xpixel, ypixel);
     if (xpixel == 0 || ypixel == 0) {
         return unexpected("xpixel and ypixel not set by ioctl");
     }
-    SPDLOG_DEBUG("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", cols, rows, xpixel, ypixel);
     return {};
 }
 
@@ -62,6 +84,19 @@ auto TerminalInfo::set_size_xtsm() -> std::expected<void, std::string>
     auto resp = read_raw_terminal_command("\033[?2;1;0S");
     if (!resp) {
         return unexpected(resp.error());
+    }
+    std::string_view view = resp.value();
+    view.remove_prefix(3);
+    view.remove_suffix(1);
+    const auto values = util::str_split(view, ";");
+    if (values.size() != 4) {
+        return unexpected("got bad values from xtsm");
+    }
+    xpixel = util::view_to_numeral<int>(values.at(2)).value_or(0);
+    ypixel = util::view_to_numeral<int>(values.at(3)).value_or(0);
+    SPDLOG_DEBUG("XTSM sizes XPIXEL={} YPIXEL={}", xpixel, ypixel);
+    if (xpixel == 0 || ypixel == 0) {
+        return unexpected("xpixel and/or ypixel not set by xtsm");
     }
     return {};
 }
@@ -75,20 +110,16 @@ auto TerminalInfo::set_size_escape_code() -> std::expected<void, std::string>
     std::string_view view = resp.value();
     view.remove_prefix(4);
     view.remove_suffix(1);
-    const auto semi_idx = view.find(';');
-    const auto str1 = view.substr(0, semi_idx);
-    const auto str2 = view.substr(semi_idx + 1, view.length());
-    auto n1_conv = util::view_to_numeral<int>(str1);
-    if (!n1_conv) {
-        return unexpected(n1_conv.error());
+    const auto values = util::str_split(view, ";");
+    if (values.size() != 2) {
+        return unexpected("got bad values from escape code");
     }
-    xpixel = *n1_conv;
-    auto n2_conv = util::view_to_numeral<int>(str2);
-    if (!n2_conv) {
-        return unexpected(n2_conv.error());
-    }
-    ypixel = *n2_conv;
+    xpixel = util::view_to_numeral<int>(values.at(0)).value_or(0);
+    ypixel = util::view_to_numeral<int>(values.at(1)).value_or(0);
     SPDLOG_DEBUG("ESC sizes XPIXEL = {} YPIXEL = {}", xpixel, ypixel);
+    if (xpixel == 0 || ypixel == 0) {
+        return unexpected("xpixel and/or ypixel not set by escape code");
+    }
     return {};
 }
 

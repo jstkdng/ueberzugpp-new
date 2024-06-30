@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <format>
+#include <ranges>
 
 namespace fs = std::filesystem;
 
@@ -53,5 +54,14 @@ auto util::get_process_pid_tree(const int pid) -> std::vector<int>
     const auto tree = get_process_tree(pid);
     std::vector<int> result;
     std::ranges::transform(tree, std::back_inserter(result), [](const auto &proc) { return proc.pid; });
+    return result;
+}
+
+auto util::str_split(std::string_view str, std::string_view delim) -> std::vector<std::string>
+{
+    std::vector<std::string> result;
+    for (auto word : std::ranges::views::split(str, delim)) {
+        result.emplace_back(std::string_view(word));
+    }
     return result;
 }

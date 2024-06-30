@@ -34,6 +34,7 @@ auto get_socket_path(int pid = os::get_pid()) -> std::string;
 auto get_log_path() -> std::string;
 auto get_process_tree(int pid) -> std::vector<Process>;
 auto get_process_pid_tree(int pid) -> std::vector<int>;
+auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string>;
 
 template <typename T>
 constexpr auto view_to_numeral(std::string_view view) -> std::expected<T, std::string>
