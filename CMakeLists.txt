@@ -35,7 +35,8 @@ option(ENABLE_X11 "Enable X11 canvas." ON)
 option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__cpp_concepts=202002L -stdlib=libc++ -fexperimental-library")
+    target_compile_options(ueberzugpp PRIVATE -stdlib=libc++ -fexperimental-library -Wno-builtin-macro-redefined)
+    target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif ()
 
