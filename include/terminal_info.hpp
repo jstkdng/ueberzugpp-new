@@ -42,6 +42,7 @@ class TerminalInfo
     std::shared_ptr<Config> config = Config::instance();
 
     void init_termios();
+    void check_output_support();
     void reset_termios() const;
     auto read_raw_terminal_command(std::string_view command) -> std::expected<std::string, std::string>;
     auto set_size_ioctl() -> std::expected<void, std::string>;

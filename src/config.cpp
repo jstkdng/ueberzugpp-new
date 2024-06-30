@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "os.hpp"
 
+#include <filesystem>
 #include <format>
 #include <fstream>
 

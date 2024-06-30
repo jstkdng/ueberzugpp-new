@@ -41,17 +41,22 @@ auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::
                          SPDLOG_DEBUG(err);
                          return set_size_xtsm();
                      });
-        auto supports_sixel = check_sixel_support();
-        if (!supports_sixel) {
-            SPDLOG_DEBUG("sixel not supported: {}", supports_sixel.error());
-        }
-        auto supports_kitty = check_kitty_support();
-        if (!supports_kitty) {
-            SPDLOG_DEBUG("kitty not supported: {}", supports_kitty.error());
-        }
+        check_output_support();
     }
-
     return result;
+}
+
+void TerminalInfo::check_output_support()
+{
+    SPDLOG_DEBUG("checking output support");
+    auto supports_sixel = check_sixel_support();
+    if (!supports_sixel) {
+        SPDLOG_DEBUG("sixel not supported: {}", supports_sixel.error());
+    }
+    auto supports_kitty = check_kitty_support();
+    if (!supports_kitty) {
+        SPDLOG_DEBUG("kitty not supported: {}", supports_kitty.error());
+    }
 }
 
 auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>

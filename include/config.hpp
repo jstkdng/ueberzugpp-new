@@ -24,7 +24,7 @@
 class Config
 {
   public:
-    static constexpr auto instance() -> std::shared_ptr<Config>
+    static auto instance() -> std::shared_ptr<Config>
     {
         struct enabler : Config {
         };

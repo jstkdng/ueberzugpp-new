@@ -22,9 +22,10 @@
 #include <system_error>
 
 #include <fcntl.h>
-#include <spdlog/spdlog.h>
-
 #include <sys/stat.h>
+#include <unistd.h>
+
+#include <spdlog/spdlog.h>
 
 Terminal::~Terminal()
 {
