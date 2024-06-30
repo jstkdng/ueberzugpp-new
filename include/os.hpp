@@ -25,7 +25,6 @@
 namespace os
 {
 constexpr int bufsize = 32 * 1024; // 32K at a time
-auto get_poll_err(int event) noexcept -> std::string_view;
 
 auto exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>;
 auto getenv(const std::string &var) noexcept -> std::optional<std::string>;

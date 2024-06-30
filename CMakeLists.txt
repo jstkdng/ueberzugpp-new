@@ -31,6 +31,8 @@ set_target_properties(ueberzugpp PROPERTIES
 )
 
 option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
+option(ENABLE_X11 "Enable X11 canvas." ON)
+option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
 
 include(FetchContent)
 include(GNUInstallDirs)
@@ -46,6 +48,18 @@ set(CMAKE_REQUIRED_LIBRARIES TBB::tbb)
 check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION_H)
 if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
+endif ()
+
+find_package(CLI11 CONFIG QUIET)
+if (NOT CLI11_FOUND)
+    if (FETCHCONTENT_FULLY_DISCONNECTED)
+        add_subdirectory("${CMAKE_SOURCE_DIR}/third_party/CLI11")
+    else ()
+        FetchContent_Declare(
+            cli11
+            URL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.4.2.tar.gz)
+        list(APPEND FC_LIBS cli11)
+    endif ()
 endif ()
 
 find_package(spdlog CONFIG QUIET)
@@ -67,6 +81,26 @@ endif ()
 
 if (FC_LIBS)
     FetchContent_MakeAvailable(${FC_LIBS})
+endif ()
+
+if (ENABLE_X11)
+    target_compile_definitions(ueberzugpp PRIVATE ENABLE_X11)
+    pkg_check_modules(XCB REQUIRED IMPORTED_TARGET xcb)
+    pkg_check_modules(XCB_IMAGE REQUIRED IMPORTED_TARGET xcb-image)
+    pkg_check_modules(XCB_RES REQUIRED IMPORTED_TARGET xcb-res)
+    #    list(APPEND UEBERZUG_SOURCES "src/util/x11.cpp" "src/canvas/x11/x11.cpp"
+    #        "src/canvas/x11/window/x11.cpp")
+    target_link_libraries(ueberzugpp PRIVATE PkgConfig::XCB PkgConfig::XCB_IMAGE PkgConfig::XCB_RES)
+
+    #    if(ENABLE_OPENGL)
+    #        list(APPEND UEBERZUG_SOURCES "src/canvas/x11/window/x11egl.cpp")
+    #    endif()
+
+    if (ENABLE_XCB_ERRORS)
+        target_compile_definitions(ueberzugpp PRIVATE ENABLE_XCB_ERRORS)
+        pkg_check_modules(XCB_ERRORS REQUIRED IMPORTED_TARGET xcb-errors)
+        target_link_libraries(ueberzugpp PRIVATE PkgConfig::XCB_ERRORS)
+    endif ()
 endif ()
 
 if (ENABLE_OPENCV)
@@ -135,6 +169,7 @@ target_link_libraries(ueberzugpp PRIVATE
     Threads::Threads
     spdlog::spdlog
     nlohmann_json::nlohmann_json
+    CLI11::CLI11
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)

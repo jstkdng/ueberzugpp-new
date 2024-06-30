@@ -97,7 +97,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
     std::vector<std::string> result;
     for (const auto &[fd, events, revents] : fds) {
         if ((revents & (POLLERR | POLLNVAL)) != 0) {
-            SPDLOG_DEBUG("received {} on fd {}", os::get_poll_err(revents), fd);
+            SPDLOG_DEBUG("received unexpected event on fd {}", fd);
             remove_accepted_connection(fd);
             continue;
         }
