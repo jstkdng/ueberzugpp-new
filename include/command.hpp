@@ -17,6 +17,7 @@
 #ifndef COMMAND_HPP
 #define COMMAND_HPP
 
+#include "config.hpp"
 #include "unix_socket.hpp"
 
 #include <expected>
@@ -37,10 +38,12 @@ class CommandManager
   private:
     static constexpr int waitms = 100;
 
+    unix_socket::Server socket_server;
+    std::shared_ptr<Config> config = Config::instance();
+
     std::queue<nlohmann::json> command_queue;
     std::mutex queue_mutex;
     std::string stdin_buffer;
-    unix_socket::Server socket_server;
     std::jthread stdin_thread;
     std::jthread socket_thread;
 

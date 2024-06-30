@@ -157,6 +157,9 @@ target_sources(ueberzugpp PRIVATE
     include/terminal.hpp
     src/terminal.cpp
 
+    include/config.hpp
+    src/config.cpp
+
     include/unix_socket.hpp
     src/unix_socket/server.cpp
     src/unix_socket/client.cpp

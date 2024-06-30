@@ -32,6 +32,7 @@ class Application
     auto initialize() -> std::expected<void, std::string>;
 
     static void run();
+    static auto get_version() -> std::string;
     static void print_header();
     static auto setup_loggers() -> std::expected<void, std::string>;
     inline static std::atomic_bool stop_flag = false; // NOLINT

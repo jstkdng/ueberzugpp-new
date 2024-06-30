@@ -84,3 +84,9 @@ void Application::print_header()
     std::ofstream ofs(log_path, std::ios::out | std::ios::app);
     ofs << art << '\n' << std::flush;
 }
+
+auto Application::get_version() -> std::string
+{
+    return std::format("ueberzugpp {}.{}.{}", UEBERZUGPP_VERSION_MAJOR, UEBERZUGPP_VERSION_MINOR,
+                       UEBERZUGPP_VERSION_PATCH);
+}
