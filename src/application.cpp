@@ -30,6 +30,7 @@ namespace fs = std::filesystem;
 Application::~Application()
 {
     fs::remove(util::get_socket_path());
+    SPDLOG_INFO("ueberzugpp terminated");
 }
 
 void Application::run()

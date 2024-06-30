@@ -95,6 +95,20 @@ auto os::read_data_from_stdin() noexcept -> std::expected<std::string, std::stri
     return read_data_from_fd(STDIN_FILENO);
 }
 
+auto os::get_poll_err(const int event) noexcept -> std::string_view
+{
+    if ((event & POLLHUP) != 0) {
+        return "POLLHUP";
+    }
+    if ((event & POLLERR) != 0) {
+        return "POLLERR";
+    }
+    if ((event & POLLNVAL) != 0) {
+        return "POLLNVAL";
+    }
+    [[unlikely]] return "unknown event";
+}
+
 auto os::wait_for_data_on_fd(const int filde, const int waitms) noexcept -> std::expected<bool, std::string>
 {
     pollfd fds{};
@@ -107,7 +121,7 @@ auto os::wait_for_data_on_fd(const int filde, const int waitms) noexcept -> std:
     }
 
     if ((fds.revents & (POLLERR | POLLNVAL | POLLHUP)) != 0) {
-        return std::unexpected(std::format("poll received unexpected event: {}", fds.revents));
+        return std::unexpected(std::format("poll received {}", get_poll_err(fds.revents)));
     }
 
     return (fds.revents & POLLIN) != 0;

@@ -44,7 +44,8 @@ void CommandManager::wait_for_input_on_stdin()
     while (!Application::stop_flag) {
         auto in_event = os::wait_for_data_on_stdin(waitms);
         if (!in_event.has_value()) {
-            SPDLOG_DEBUG(in_event.error());
+            SPDLOG_DEBUG(std::format("stdin thread terminated: {}", in_event.error()));
+            Application::stop_flag = true; // stop this program if this thread dies
             return;
         }
         if (!in_event.value()) {
