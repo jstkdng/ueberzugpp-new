@@ -18,6 +18,7 @@
 #define APPLICATION_HPP
 
 #include "command.hpp"
+#include "config.hpp"
 #include "terminal.hpp"
 
 #include <atomic>
@@ -40,6 +41,9 @@ class Application
   private:
     Terminal terminal;
     CommandManager command_manager;
+    std::shared_ptr<Config> config = Config::instance();
+
+    auto daemonize() const -> std::expected<void, std::string>;
 };
 
 #endif // APPLICATION_HPP
