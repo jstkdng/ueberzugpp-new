@@ -144,7 +144,9 @@ target_sources(ueberzugpp PRIVATE
     src/signal.cpp
 
     include/terminal.hpp
+    include/terminal_info.hpp
     src/terminal.cpp
+    src/terminal_info.cpp
 
     include/config.hpp
     src/config.cpp

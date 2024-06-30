@@ -14,29 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef TERMINAL_HPP
-#define TERMINAL_HPP
-
-#include "terminal_info.hpp"
+#ifndef TERMINAL_INFO_HPP
+#define TERMINAL_INFO_HPP
 
 #include <expected>
 #include <string>
+#include <string_view>
 
-class Terminal
+#include <termios.h>
+
+class TerminalInfo
 {
   public:
-    auto initialize() -> std::expected<void, std::string>;
-    ~Terminal();
+    auto initialize(int cur_pty_fd) -> std::expected<void, std::string>;
+
+    int xpixel = 0;
+    int ypixel = 0;
+    int rows = 0;
+    int cols = 0;
 
   private:
-    int opened_terminal_pid = -1;
     int pty_fd = -1;
+    termios old_term{};
+    termios new_term{};
 
-    std::string term;
-    std::string term_program;
-    TerminalInfo info;
-
-    void open_first_pty();
+    void init_termios();
+    void reset_termios() const;
+    auto read_raw_terminal_command(std::string_view command) -> std::expected<std::string, std::string>;
+    auto set_size_ioctl() -> std::expected<void, std::string>;
+    auto set_size_xtsm() -> std::expected<void, std::string>;
+    auto set_size_escape_code() -> std::expected<void, std::string>;
 };
 
-#endif // TERMINAL_HPP
+#endif // TERMINAL_INFO_HPP

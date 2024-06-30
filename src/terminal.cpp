@@ -23,23 +23,26 @@
 
 #include <fcntl.h>
 #include <spdlog/spdlog.h>
-#include <sys/ioctl.h>
+
 #include <sys/stat.h>
+
+Terminal::~Terminal()
+{
+    if (pty_fd > 2) {
+        close(pty_fd);
+    }
+}
 
 auto Terminal::initialize() -> std::expected<void, std::string>
 {
-    open_first_pty();
-    return {};
-}
-
-auto Terminal::get_terminal_sizes_ioctl() -> std::expected<void, std::string>
-{
-    winsize size{};
-    const int result = ioctl(pty_fd, TIOCGWINSZ, &size);
-    if (result == -1) {
-        return os::system_error("could not get ioctl sizes");
+    term = os::getenv("TERM").value_or("xterm-256color");
+    term_program = os::getenv("TERM_PROGRAM").value_or("");
+    SPDLOG_INFO("TERM = {}", term);
+    if (!term_program.empty()) {
+        SPDLOG_INFO("TERM_PROGRAM = {}", term_program);
     }
-    return {};
+    open_first_pty();
+    return info.initialize(pty_fd);
 }
 
 void Terminal::open_first_pty()

@@ -20,7 +20,11 @@
 #include "os.hpp"
 #include "process.hpp"
 
+#include <charconv>
+#include <expected>
+#include <format>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace util
@@ -30,6 +34,24 @@ auto get_socket_path(int pid = os::get_pid()) -> std::string;
 auto get_log_path() -> std::string;
 auto get_process_tree(int pid) -> std::vector<Process>;
 auto get_process_pid_tree(int pid) -> std::vector<int>;
+
+template <typename T>
+constexpr auto view_to_numeral(std::string_view view) -> std::expected<T, std::string>
+{
+    T result{};
+    const auto last_char = view.data() + view.size();
+    auto [ptr, err] = std::from_chars(view.data(), last_char, result);
+    if (err == std::errc()) {
+        return result;
+    }
+    if (err == std::errc::invalid_argument) {
+        return std::unexpected(std::format("{} is not a number", view));
+    }
+    if (err == std::errc::result_out_of_range) {
+        return std::unexpected(std::format("{} is out of range", view));
+    }
+    return std::unexpected("unknown error");
+}
 
 } // namespace util
 
