@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-#include <CLI/CLI.hpp>
+#include "CLI11.hpp"
 
 auto main(const int argc, char *argv[]) -> int
 {

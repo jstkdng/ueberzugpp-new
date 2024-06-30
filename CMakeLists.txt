@@ -50,18 +50,6 @@ if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
 endif ()
 
-find_package(CLI11 CONFIG QUIET)
-if (NOT CLI11_FOUND)
-    if (FETCHCONTENT_FULLY_DISCONNECTED)
-        add_subdirectory("${CMAKE_SOURCE_DIR}/third_party/CLI11")
-    else ()
-        FetchContent_Declare(
-            cli11
-            URL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.4.2.tar.gz)
-        list(APPEND FC_LIBS cli11)
-    endif ()
-endif ()
-
 find_package(spdlog CONFIG QUIET)
 if (NOT spdlog_FOUND)
     set(SPDLOG_USE_STD_FORMAT ON)
@@ -122,6 +110,7 @@ target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_
 configure_file("include/version.hpp.in" version.hpp)
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
+    "${CMAKE_SOURCE_DIR}/third_party"
     "${PROJECT_BINARY_DIR}"
 )
 
@@ -172,7 +161,6 @@ target_link_libraries(ueberzugpp PRIVATE
     Threads::Threads
     spdlog::spdlog
     nlohmann_json::nlohmann_json
-    CLI11::CLI11
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
