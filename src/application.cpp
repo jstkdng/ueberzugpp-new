@@ -43,8 +43,11 @@ void Application::run()
 auto Application::initialize() -> std::expected<void, std::string>
 {
     print_header();
-    return setup_loggers()
-        .and_then([this] { return terminal.initialize(); })
+    auto result = setup_loggers();
+    if (result) {
+        SPDLOG_INFO("starting ueberzugpp");
+    }
+    return result.and_then([this] { return terminal.initialize(); })
         .and_then([this] { return daemonize(); })
         .and_then([this] { return command_manager.initialize(); });
 }

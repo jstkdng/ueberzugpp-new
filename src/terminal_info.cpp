@@ -56,6 +56,10 @@ auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
         return unexpected(resp.error());
     }
     std::string_view view = resp.value();
+    if (view.empty()) {
+        SPDLOG_DEBUG("sixel is not supported");
+        return {};
+    }
     view.remove_prefix(3);
     view.remove_suffix(1);
     const auto vals = util::str_split(view, ";");
@@ -132,20 +136,18 @@ auto TerminalInfo::set_size_escape_code() -> std::expected<void, std::string>
 auto TerminalInfo::read_raw_terminal_command(const std::string_view command) -> std::expected<std::string, std::string>
 {
     constexpr int waitms = 100;
-    std::string result;
+    std::expected<std::string, std::string> result;
     init_termios();
     std::cout << command << std::flush;
     const auto in_event = os::wait_for_data_on_stdin(waitms);
-    if (in_event.has_value() && *in_event) {
-        const auto output = os::read_data_from_stdin();
-        if (output) {
-            result = *output;
+    if (in_event.has_value()) {
+        if (*in_event) {
+            result = os::read_data_from_stdin();
         }
+    } else {
+        result = unexpected(in_event.error());
     }
     reset_termios();
-    if (result.empty()) {
-        return unexpected("could not read output of command");
-    }
     return result;
 }
 
