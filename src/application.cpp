@@ -43,9 +43,9 @@ auto Application::initialize() -> std::expected<void, std::string>
 {
     print_header();
     return setup_loggers()
+        .and_then([this] { return terminal.initialize(); })
         .and_then([this] { return daemonize(); })
-        .and_then([this] { return command_manager.initialize(); })
-        .and_then([this] { return terminal.initialize(); });
+        .and_then([this] { return command_manager.initialize(); });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>

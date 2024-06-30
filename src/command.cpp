@@ -27,10 +27,12 @@ auto CommandManager::initialize() -> std::expected<void, std::string>
 {
     const auto result = socket_server.start();
     if (result.has_value()) {
+        SPDLOG_INFO("listening for commands on socket");
+        socket_thread = std::jthread([this] { wait_for_input_on_socket(); });
         if (!config->no_stdin) {
+            SPDLOG_INFO("listening for commands on stdin");
             stdin_thread = std::jthread([this] { wait_for_input_on_stdin(); });
         }
-        socket_thread = std::jthread([this] { wait_for_input_on_socket(); });
     } else {
         SPDLOG_DEBUG(result.error());
     }

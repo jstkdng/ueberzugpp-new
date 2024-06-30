@@ -24,11 +24,12 @@
 class Config
 {
   public:
-    static auto instance() -> std::shared_ptr<Config>
+    static constexpr auto instance() -> std::shared_ptr<Config>
     {
         struct enabler : Config {
         };
-        return std::make_shared<enabler>();
+        static auto ptr = std::make_shared<enabler>();
+        return ptr;
     }
 
     Config(const Config &) = delete;
