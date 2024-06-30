@@ -29,16 +29,22 @@ using std::unexpected;
 auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::string>
 {
     pty_fd = cur_pty_fd;
-    return set_size_ioctl()
-        .or_else([this](const std::string &err) {
-            SPDLOG_DEBUG(err);
-            return set_size_escape_code();
-        })
-        .or_else([this](const std::string &err) {
-            SPDLOG_DEBUG(err);
-            return set_size_xtsm();
-        })
-        .and_then([this] { return check_sixel_support(); });
+    auto ioctl_result = set_size_ioctl();
+
+    if (config->use_escape_codes) {
+        return ioctl_result
+            .or_else([this](const std::string &err) {
+                SPDLOG_DEBUG(err);
+                return set_size_escape_code();
+            })
+            .or_else([this](const std::string &err) {
+                SPDLOG_DEBUG(err);
+                return set_size_xtsm();
+            })
+            .and_then([this] { return check_sixel_support(); });
+    }
+
+    return ioctl_result;
 }
 
 auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>

@@ -17,6 +17,8 @@
 #ifndef TERMINAL_INFO_HPP
 #define TERMINAL_INFO_HPP
 
+#include "config.hpp"
+
 #include <expected>
 #include <string>
 #include <string_view>
@@ -37,6 +39,7 @@ class TerminalInfo
     int pty_fd = -1;
     termios old_term{};
     termios new_term{};
+    std::shared_ptr<Config> config = Config::instance();
 
     void init_termios();
     void reset_termios() const;
