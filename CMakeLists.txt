@@ -35,14 +35,16 @@ option(ENABLE_X11 "Enable X11 canvas." ON)
 option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(ueberzugpp PRIVATE -stdlib=libc++ -fexperimental-library -Wno-builtin-macro-redefined)
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
+    target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif ()
 
 include(FetchContent)
 include(GNUInstallDirs)
 include(CheckCXXSymbolExists)
+include(CheckSourceCompiles)
 
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
@@ -50,15 +52,24 @@ find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 find_package(TBB REQUIRED)
 
 # check if <execution> is available
-set(CMAKE_REQUIRED_LIBRARIES TBB::tbb)
+set(CMAKE_REQUIRED_LIBRARIES TBB::tbb Threads::Threads)
+set(CMAKE_REQUIRED_FLAGS -std=c++23)
 check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION_H)
 if (HAVE_STD_EXECUTION_H)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_EXECUTION_H)
 endif ()
 
+check_source_compiles(CXX "
+#include <thread>
+int main(void) {auto t = std::jthread([] {}); return 0;}
+" HAVE_STD_JTHREAD)
+if (HAVE_STD_JTHREAD)
+    target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_JTHREAD)
+endif ()
+
+set(SPDLOG_USE_STD_FORMAT ON)
 find_package(spdlog CONFIG QUIET)
 if (NOT spdlog_FOUND)
-    set(SPDLOG_USE_STD_FORMAT ON)
     FetchContent_Declare(
         spdlog
         URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)

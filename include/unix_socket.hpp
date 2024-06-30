@@ -23,6 +23,10 @@
 #include <thread>
 #include <vector>
 
+#ifndef HAVE_STD_JTHREAD
+#  include "jthread/jthread.hpp"
+#endif
+
 namespace unix_socket
 {
 
