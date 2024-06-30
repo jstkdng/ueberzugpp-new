@@ -48,6 +48,7 @@ class TerminalInfo
     auto set_size_xtsm() -> std::expected<void, std::string>;
     auto set_size_escape_code() -> std::expected<void, std::string>;
     auto check_sixel_support() -> std::expected<void, std::string>;
+    auto check_kitty_support() -> std::expected<void, std::string>;
 };
 
 #endif // TERMINAL_INFO_HPP

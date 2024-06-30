@@ -29,22 +29,29 @@ using std::unexpected;
 auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::string>
 {
     pty_fd = cur_pty_fd;
-    auto ioctl_result = set_size_ioctl();
+    auto result = set_size_ioctl();
 
     if (config->use_escape_codes) {
-        return ioctl_result
-            .or_else([this](const std::string &err) {
-                SPDLOG_DEBUG(err);
-                return set_size_escape_code();
-            })
-            .or_else([this](const std::string &err) {
-                SPDLOG_DEBUG(err);
-                return set_size_xtsm();
-            })
-            .and_then([this] { return check_sixel_support(); });
+        result = result
+                     .or_else([this](const std::string &err) {
+                         SPDLOG_DEBUG(err);
+                         return set_size_escape_code();
+                     })
+                     .or_else([this](const std::string &err) {
+                         SPDLOG_DEBUG(err);
+                         return set_size_xtsm();
+                     });
+        auto supports_sixel = check_sixel_support();
+        if (!supports_sixel) {
+            SPDLOG_DEBUG("sixel not supported: {}", supports_sixel.error());
+        }
+        auto supports_kitty = check_kitty_support();
+        if (!supports_kitty) {
+            SPDLOG_DEBUG("kitty not supported: {}", supports_kitty.error());
+        }
     }
 
-    return ioctl_result;
+    return result;
 }
 
 auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
@@ -56,18 +63,26 @@ auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
         return unexpected(resp.error());
     }
     std::string_view view = resp.value();
-    if (view.empty()) {
-        SPDLOG_DEBUG("sixel is not supported");
-        return {};
-    }
     view.remove_prefix(3);
     view.remove_suffix(1);
     const auto vals = util::str_split(view, ";");
-    if (vals.size() > 2) {
-        SPDLOG_DEBUG("sixel is supported");
-    } else {
-        SPDLOG_DEBUG("sixel is not supported");
+    if (vals.size() <= 2) {
+        return unexpected("invalid escape code results");
     }
+    SPDLOG_DEBUG("sixel is supported");
+    return {};
+}
+
+auto TerminalInfo::check_kitty_support() -> std::expected<void, std::string>
+{
+    const auto resp = read_raw_terminal_command("\033_Gi=31,s=1,v=1,a=q,t=d,f=24;AAAA\033\\\033[c");
+    if (!resp) {
+        return unexpected(resp.error());
+    }
+    if (resp.value().find("OK") == std::string_view::npos) {
+        return unexpected("invalid escape code results");
+    }
+    SPDLOG_INFO("kitty is supported");
     return {};
 }
 
@@ -143,6 +158,8 @@ auto TerminalInfo::read_raw_terminal_command(const std::string_view command) -> 
     if (in_event.has_value()) {
         if (*in_event) {
             result = os::read_data_from_stdin();
+        } else {
+            result = unexpected("could not read any data");
         }
     } else {
         result = unexpected(in_event.error());
