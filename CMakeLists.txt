@@ -67,9 +67,9 @@ if (HAVE_STD_JTHREAD)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_JTHREAD)
 endif ()
 
-set(SPDLOG_USE_STD_FORMAT ON)
-find_package(spdlog CONFIG QUIET)
+#find_package(spdlog CONFIG QUIET)
 if (NOT spdlog_FOUND)
+    set(SPDLOG_USE_STD_FORMAT ON)
     FetchContent_Declare(
         spdlog
         URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)
@@ -108,16 +108,16 @@ if (ENABLE_X11)
     endif ()
 endif ()
 
-if (ENABLE_OPENCV)
-    target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
-    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
-    target_link_libraries(ueberzugpp PRIVATE
-        opencv_core
-        opencv_imgproc
-        opencv_imgcodecs
-        opencv_videoio
-    )
-endif ()
+#if (ENABLE_OPENCV)
+#    target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
+#    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+#    target_link_libraries(ueberzugpp PRIVATE
+#        opencv_core
+#        opencv_imgproc
+#        opencv_imgcodecs
+#        opencv_videoio
+#    )
+#endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
@@ -176,7 +176,7 @@ target_sources(ueberzugpp PRIVATE
 
 target_link_libraries(ueberzugpp PRIVATE
     OpenSSL::Crypto
-    TBB::tbb
+    #    TBB::tbb
     Threads::Threads
     spdlog::spdlog
     nlohmann_json::nlohmann_json

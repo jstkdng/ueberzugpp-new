@@ -43,7 +43,7 @@ class Application
     CommandManager command_manager;
     std::shared_ptr<Config> config = Config::instance();
 
-    auto daemonize() const -> std::expected<void, std::string>;
+    [[nodiscard]] auto daemonize() const -> std::expected<void, std::string>;
 };
 
 #endif // APPLICATION_HPP

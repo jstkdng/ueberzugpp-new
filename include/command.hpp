@@ -20,8 +20,11 @@
 #include "config.hpp"
 #include "unix_socket.hpp"
 
+#ifndef HAVE_STD_JTHREAD
+#  include "jthread/jthread.hpp"
+#endif
+
 #include <expected>
-#include <mutex>
 #include <queue>
 #include <string>
 
