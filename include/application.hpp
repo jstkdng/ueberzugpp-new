@@ -19,7 +19,6 @@
 
 #include "command.hpp"
 #include "terminal.hpp"
-#include "util.hpp"
 
 #include <atomic>
 #include <expected>
@@ -28,7 +27,6 @@
 class Application
 {
   public:
-    Application();
     ~Application();
 
     auto initialize() -> std::expected<void, std::string>;
@@ -39,7 +37,6 @@ class Application
     inline static std::atomic_bool stop_flag = false; // NOLINT
 
   private:
-    std::string socket_path = util::get_socket_path();
     Terminal terminal;
     CommandManager command_manager;
 };

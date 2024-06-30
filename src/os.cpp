@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <format>
+#include <spdlog/spdlog.h>
 #include <vector>
 
 using std::error_code;
@@ -134,4 +135,36 @@ auto os::getenv(const std::string &var) noexcept -> std::optional<std::string>
         return {};
     }
     return env_p;
+}
+
+auto os::fork_process() -> std::expected<int, std::string>
+{
+    const int result = fork();
+    if (result == -1) {
+        return system_error("could not fork process");
+    }
+    return result;
+}
+
+auto os::create_new_session() -> std::expected<int, std::string>
+{
+    const int result = setsid();
+    if (result == -1) {
+        return system_error("could not create session id");
+    }
+    return result;
+}
+
+auto os::daemonize() -> std::expected<void, std::string>
+{
+    auto fork_ok = fork_process();
+    if (!fork_ok) {
+        return std::unexpected(fork_ok.error());
+    }
+    // kill parent process
+    if (*fork_ok > 0) {
+        SPDLOG_DEBUG("child process {} created, terminating parent", *fork_ok);
+        std::exit(EXIT_SUCCESS);
+    }
+    return {};
 }

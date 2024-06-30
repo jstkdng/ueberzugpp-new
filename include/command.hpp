@@ -32,8 +32,6 @@
 class CommandManager
 {
   public:
-    explicit CommandManager(std::string_view socket_endpoint);
-
     auto initialize() -> std::expected<void, std::string>;
 
   private:

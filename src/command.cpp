@@ -23,11 +23,6 @@
 
 using njson = nlohmann::json;
 
-CommandManager::CommandManager(const std::string_view socket_endpoint)
-    : socket_server(socket_endpoint)
-{
-}
-
 auto CommandManager::initialize() -> std::expected<void, std::string>
 {
     const auto result = socket_server.start();

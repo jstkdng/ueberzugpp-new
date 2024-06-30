@@ -27,11 +27,6 @@
 
 namespace fs = std::filesystem;
 
-Application::Application()
-    : command_manager(socket_path)
-{
-}
-
 Application::~Application()
 {
     fs::remove(util::get_socket_path());
@@ -47,9 +42,10 @@ void Application::run()
 auto Application::initialize() -> std::expected<void, std::string>
 {
     print_header();
-    return setup_loggers().and_then([this] { return command_manager.initialize(); }).and_then([this] {
-        return terminal.initialize();
-    });
+    return setup_loggers()
+        .and_then(os::daemonize)
+        .and_then([this] { return command_manager.initialize(); })
+        .and_then([this] { return terminal.initialize(); });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>

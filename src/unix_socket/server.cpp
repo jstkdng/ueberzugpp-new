@@ -17,6 +17,7 @@
 #include "application.hpp"
 #include "os.hpp"
 #include "unix_socket.hpp"
+#include "util.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -28,11 +29,6 @@
 #include <unistd.h>
 
 using unix_socket::Server;
-
-Server::Server(const std::string_view endpoint)
-    : endpoint(endpoint)
-{
-}
 
 Server::~Server()
 {
@@ -48,9 +44,10 @@ Server::~Server()
 
 auto Server::start() -> std::expected<void, std::string>
 {
+    endpoint = ::util::get_socket_path();
     auto bind_ok = bind_to_endpoint();
     if (bind_ok) {
-        SPDLOG_INFO("Listening for connections on {}", endpoint);
+        SPDLOG_INFO("listening for connections on {}", endpoint);
         accept_thread = std::jthread([this] { accept_connections(); });
     } else {
         SPDLOG_DEBUG(bind_ok.error());

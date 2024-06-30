@@ -34,7 +34,6 @@ struct sockfd {
 class Server
 {
   public:
-    explicit Server(std::string_view endpoint);
     ~Server();
 
     auto start() -> std::expected<void, std::string>;
