@@ -35,12 +35,13 @@ Application::~Application()
 
 void Application::run()
 {
+    constexpr int waitms = 10;
     while (!stop_flag) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(waitms));
     }
 }
 
-auto Application::initialize() -> std::expected<void, std::string>
+auto Application::initialize() noexcept -> std::expected<void, std::string>
 {
     print_header();
     auto result = setup_loggers();
@@ -91,18 +92,18 @@ auto Application::daemonize() const -> std::expected<void, std::string>
     if (!config->no_stdin) {
         return {};
     }
-    auto ok = os::daemonize();
-    if (ok) {
+    auto daemon_ok = os::daemonize();
+    if (daemon_ok) {
         std::ofstream ofs(config->pid_file);
         ofs << os::get_pid() << std::flush;
     }
-    return ok;
+    return daemon_ok;
 }
 
 void Application::print_header()
 {
     const auto log_path = util::get_log_path();
-    const auto art = R"(
+    const std::string art = R"(
  _   _      _
 | | | |    | |                                _     _
 | | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_

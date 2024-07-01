@@ -22,10 +22,20 @@ project(ueberzugpp-new LANGUAGES CXX VERSION 1.0.0)
 add_executable(ueberzugpp)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
+set(CLANG_TIDY_CMD
+    clang-tidy
+    -p ${PROJECT_BINARY_DIR}
+    --config-file ${CMAKE_SOURCE_DIR}/.clang-tidy
+    --extra-arg=-Wno-unknown-warning-option
+    --extra-arg=-Wno-builtin-macro-redefined
+    --extra-arg=-D__cpp_concepts=202002L
+)
 set_target_properties(ueberzugpp PROPERTIES
     CXX_STANDARD 23
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
+    CXX_SCAN_FOR_MODULES OFF
+    CXX_CLANG_TIDY "${CLANG_TIDY_CMD}"
     EXPORT_COMPILE_COMMANDS ON
     COMPILE_WARNING_AS_ERROR ON
 )
@@ -37,8 +47,8 @@ option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
     target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
+    # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif ()
 
 include(FetchContent)
@@ -131,9 +141,9 @@ target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_
 configure_file("include/version.hpp.in" version.hpp)
 target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
-    "${CMAKE_SOURCE_DIR}/third_party"
     "${PROJECT_BINARY_DIR}"
 )
+target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_SOURCE_DIR}/third_party")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(ueberzugpp PRIVATE

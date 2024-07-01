@@ -1,28 +1,34 @@
 ---
 Checks: -*,
-        readability-*,
-        modernize-*,
-        portability-*,
-        performance-*,
-        concurrency-*,
-        cppcoreguidelines-*, -cppcoreguidelines-pro-*, -cppcoreguidelines-special-member-functions, -cppcoreguidelines-non-private-member-variables-in-classes, -cppcoreguidelines-owning-memory
-        misc-*, -misc-non-private-member-variables-in-classes,
-        bugprone-*, -bugprone-easily-swappable-parameters,
-        google-*, -google-runtime-references, -google-readability-todo
+  readability-*,
+  modernize-*,
+  portability-*,
+  performance-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-pro-*,
+  -cppcoreguidelines-special-member-functions,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-prefer-member-initializer,
+  misc-*, -misc-non-private-member-variables-in-classes,
+  bugprone-*, -bugprone-easily-swappable-parameters, -bugprone-exception-escape,
+  google-*, -google-runtime-references, -google-readability-todo
 WarningsAsErrors: '*'
-HeaderFilterRegex: 'compute_samples/'
-AnalyzeTemporaryDtors: false
+HeaderFilterRegex: './include/*.hpp$'
+#AnalyzeTemporaryDtors: false
+SystemHeaders: false
 FormatStyle: file
 CheckOptions:
-  - key:             readability-identifier-naming.ClassMemberCase
-    value:           lower_case
-  - key:             readability-identifier-naming.ClassMemberSuffix
-    value:           ''
-  - key:             readability-identifier-naming.VariableCase
-    value:           lower_case
-  - key:             readability-identifier-naming.FunctionCase
-    value:           lower_case
-  - key:             readability-identifier-naming.EnumCase
-    value:           lower_case
-  - key:             readability-identifier-naming.NamespaceCase
-    value:           lower_case
+  - key: readability-identifier-naming.ClassMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ClassMemberSuffix
+    value: ''
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumCase
+    value: lower_case
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case

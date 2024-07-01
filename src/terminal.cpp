@@ -53,7 +53,7 @@ void Terminal::open_first_pty()
     auto tree = util::get_process_tree(os::get_pid());
     std::ranges::reverse(tree);
     for (const auto &proc : tree) {
-        const auto pty_path = proc.pty_path.c_str();
+        const auto *pty_path = proc.pty_path.c_str();
         const int stat_result = stat(pty_path, &stat_info);
         if (stat_result == -1) {
             [[maybe_unused]] const auto err = std::error_code(errno, std::generic_category());

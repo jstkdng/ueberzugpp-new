@@ -166,7 +166,7 @@ auto os::daemonize() -> std::expected<void, std::string>
     // kill parent process
     if (*fork_ok > 0) {
         SPDLOG_DEBUG("child process {} created, terminating parent", *fork_ok);
-        std::exit(EXIT_SUCCESS);
+        std::exit(EXIT_SUCCESS); // NOLINT
     }
     return {};
 }

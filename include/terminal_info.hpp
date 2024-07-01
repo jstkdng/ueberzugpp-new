@@ -30,8 +30,8 @@ class TerminalInfo
   public:
     auto initialize(int cur_pty_fd) -> std::expected<void, std::string>;
 
-    static double guess_padding(int chars, int pixels);
-    static double guess_font_size(int chars, int pixels, int padding);
+    static auto guess_padding(int chars, int pixels) -> double;
+    static auto guess_font_size(int chars, int pixels, int padding) -> double;
     int xpixel = 0;
     int ypixel = 0;
     int rows = 0;

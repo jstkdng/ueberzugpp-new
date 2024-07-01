@@ -18,17 +18,18 @@
 
 #include <format>
 #include <fstream>
+#include <ios>
 #include <limits>
 
 #include <sys/sysmacros.h>
 
-constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
+static constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
 
 Process::Process(const int pid)
     : pid(pid)
 {
-    int ignore;
-    char ignc;
+    int ignore{};
+    char ignc{};
     const auto stat_file = std::format("/proc/{}/stat", pid);
     std::ifstream ifs(stat_file);
     ifs.ignore(max_size, ')'); // skip pid and executable name

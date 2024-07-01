@@ -46,7 +46,7 @@ constexpr auto signal_manager::get_signal_name(int signal) -> std::string_view
         {SIGHUP, "SIGHUP"},
         {SIGCHLD, "SIGCHLD"},
     });
-    const auto find = std::ranges::find_if(map, [signal](const pair_type &pair) { return pair.first == signal; });
+    const auto *find = std::ranges::find_if(map, [signal](const pair_type &pair) { return pair.first == signal; });
     if (find == map.end()) {
         return "UNKNOWN signal";
     }

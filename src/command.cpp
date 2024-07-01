@@ -18,6 +18,11 @@
 #include "application.hpp"
 #include "os.hpp"
 
+#include <format>
+#include <string>
+#include <string_view>
+#include <thread>
+
 #include <poll.h>
 #include <spdlog/spdlog.h>
 
@@ -93,7 +98,7 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
             const auto json = njson::parse(substr);
             const auto action = json.value("action", "");
 
-            std::lock_guard lock{queue_mutex};
+            const std::lock_guard lock{queue_mutex};
             if (action == "clear_queue") {
                 command_queue = {};
             } else {

@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "config.hpp"
 #include "signal.hpp"
 
 #include <iostream>

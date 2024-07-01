@@ -31,7 +31,7 @@ class Application
   public:
     ~Application();
 
-    auto initialize() -> std::expected<void, std::string>;
+    auto initialize() noexcept -> std::expected<void, std::string>;
 
     static void run();
     static auto get_version() -> std::string;

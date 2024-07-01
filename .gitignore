@@ -18,3 +18,4 @@ build/
 .idea/
 cmake-build-*/
 .cache/
+compile_commands.json
