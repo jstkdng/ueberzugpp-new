@@ -22,9 +22,9 @@
 
 #include <charconv>
 #include <expected>
-#include <format>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 namespace util
@@ -37,11 +37,10 @@ auto get_process_pid_tree(int pid) -> std::vector<int>;
 auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string>;
 
 template <typename T>
-constexpr auto view_to_numeral(std::string_view view) -> std::expected<T, std::string>
+constexpr auto view_to_numeral(const std::string_view view) noexcept -> std::expected<T, std::string>
 {
     T result{};
-    const auto last_char = view.data() + view.size();
-    auto [ptr, err] = std::from_chars(view.data(), last_char, result);
+    auto [ptr, err] = std::from_chars(view.data(), view.data() + view.size(), result);
     if (err == std::errc()) {
         return result;
     }
