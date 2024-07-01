@@ -150,18 +150,9 @@ auto os::getenv(const std::string &var) noexcept -> std::optional<std::string>
 
 auto os::fork_process() -> std::expected<int, std::string>
 {
-    const int result = fork();
+    int result = fork();
     if (result == -1) {
         return system_error("could not fork process");
-    }
-    return result;
-}
-
-auto os::create_new_session() -> std::expected<int, std::string>
-{
-    const int result = setsid();
-    if (result == -1) {
-        return system_error("could not create session id");
     }
     return result;
 }

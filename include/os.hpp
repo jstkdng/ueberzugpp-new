@@ -42,7 +42,6 @@ auto wait_for_data_on_stdin(int waitms) noexcept -> std::expected<bool, std::str
 
 auto system_error(std::string_view message = "") noexcept -> std::unexpected<std::string>;
 auto fork_process() -> std::expected<int, std::string>;
-auto create_new_session() -> std::expected<int, std::string>;
 auto daemonize() -> std::expected<void, std::string>;
 
 } // namespace os

@@ -45,13 +45,8 @@ constexpr auto view_to_numeral(std::string_view view) -> std::expected<T, std::s
     if (err == std::errc()) {
         return result;
     }
-    if (err == std::errc::invalid_argument) {
-        return std::unexpected(std::format("{} is not a number", view));
-    }
-    if (err == std::errc::result_out_of_range) {
-        return std::unexpected(std::format("{} is out of range", view));
-    }
-    return std::unexpected("unknown error");
+    auto error = std::make_error_code(err);
+    return std::unexpected(error.message());
 }
 
 } // namespace util
