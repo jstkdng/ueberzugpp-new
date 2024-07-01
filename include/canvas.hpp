@@ -14,38 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef APPLICATION_HPP
-#define APPLICATION_HPP
+#ifndef CANVAS_HPP
+#define CANVAS_HPP
 
-#include "canvas.hpp"
 #include "command.hpp"
-#include "config.hpp"
-#include "terminal.hpp"
 
-#include <atomic>
 #include <expected>
 #include <memory>
 
-class Application
+class Canvas
 {
   public:
-    ~Application();
-
-    auto initialize() -> std::expected<void, std::string>;
-
-    static void run();
-    static auto get_version() -> std::string;
-    static void print_header();
-    static auto setup_loggers() -> std::expected<void, std::string>;
-    inline static std::atomic_bool stop_flag = false; // NOLINT
-
-  private:
-    std::shared_ptr<Config> config = Config::instance();
-    Terminal terminal;
-    CommandManager command_manager;
-    std::unique_ptr<Canvas> canvas;
-
-    [[nodiscard]] auto daemonize() const -> std::expected<void, std::string>;
+    static auto create() -> std::expected<std::unique_ptr<Canvas>, std::string>;
+    virtual auto initialize(CommandManager *command_manager) -> std::expected<void, std::string> = 0;
+    virtual ~Canvas() = default;
 };
 
-#endif // APPLICATION_HPP
+#endif // CANVAS_HPP

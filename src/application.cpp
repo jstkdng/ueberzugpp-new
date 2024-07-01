@@ -55,7 +55,15 @@ auto Application::initialize() -> std::expected<void, std::string>
     }
     return result.and_then([this] { return terminal.initialize(); })
         .and_then([this] { return daemonize(); })
-        .and_then([this] { return command_manager.initialize(); });
+        .and_then([this] { return command_manager.initialize(); })
+        .and_then([this] {
+            auto canvas_ok = Canvas::create();
+            if (canvas_ok) {
+                canvas = std::move(*canvas_ok);
+            }
+            return canvas_ok;
+        })
+        .and_then([this](auto...) { return canvas->initialize(&command_manager); });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>

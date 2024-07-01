@@ -93,6 +93,10 @@ if (ENABLE_X11)
     pkg_check_modules(XCB REQUIRED IMPORTED_TARGET xcb)
     pkg_check_modules(XCB_IMAGE REQUIRED IMPORTED_TARGET xcb-image)
     pkg_check_modules(XCB_RES REQUIRED IMPORTED_TARGET xcb-res)
+    target_sources(ueberzugpp PRIVATE
+        include/canvas/x11_canvas.hpp
+        src/canvas/x11_canvas.cpp
+    )
     #    list(APPEND UEBERZUG_SOURCES "src/util/x11.cpp" "src/canvas/x11/x11.cpp"
     #        "src/canvas/x11/window/x11.cpp")
     target_link_libraries(ueberzugpp PRIVATE PkgConfig::XCB PkgConfig::XCB_IMAGE PkgConfig::XCB_RES)
@@ -145,6 +149,9 @@ target_sources(ueberzugpp PRIVATE
     src/main.cpp
     include/util/ptr.hpp
     include/process.hpp
+
+    include/canvas.hpp
+    src/canvas.cpp
 
     include/crypto.hpp
     src/crypto.cpp
