@@ -150,7 +150,7 @@ auto os::getenv(const std::string &var) noexcept -> std::optional<std::string>
 
 auto os::fork_process() -> std::expected<int, std::string>
 {
-    int result = fork();
+    const int result = fork();
     if (result == -1) {
         return system_error("could not fork process");
     }

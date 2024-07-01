@@ -11,7 +11,7 @@ Checks: -*,
   -cppcoreguidelines-non-private-member-variables-in-classes,
   -cppcoreguidelines-owning-memory,
   -cppcoreguidelines-prefer-member-initializer,
-  misc-*, -misc-non-private-member-variables-in-classes,
+  misc-*, -misc-non-private-member-variables-in-classes, -misc-include-cleaner,
   bugprone-*, -bugprone-easily-swappable-parameters, -bugprone-exception-escape,
   google-*, -google-runtime-references, -google-readability-todo
 WarningsAsErrors: '*'

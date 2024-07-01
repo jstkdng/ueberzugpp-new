@@ -61,9 +61,9 @@ void TerminalInfo::check_output_support()
     }
 }
 
-auto TerminalInfo::guess_padding(int chars, int pixels) -> double
+auto TerminalInfo::guess_padding(const int chars, const int pixels) -> double
 {
-    double font_size = std::floor(static_cast<double>(pixels) / chars);
+    const double font_size = std::floor(static_cast<double>(pixels) / chars);
     return (pixels - font_size * chars) / 2;
 }
 
