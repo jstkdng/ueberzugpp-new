@@ -35,11 +35,19 @@ class TerminalInfo
     int rows = 0;
     int cols = 0;
 
+    int font_width = 0;
+    int font_height = 0;
+    int padding_horizontal = 0;
+    int padding_vertical = 0;
+
   private:
     int pty_fd = -1;
     termios old_term{};
     termios new_term{};
     std::shared_ptr<Config> config = Config::instance();
+
+    int fallback_xpixel = 0;
+    int fallback_ypixel = 0;
 
     void init_termios();
     void check_output_support();
