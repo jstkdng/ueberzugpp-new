@@ -30,6 +30,8 @@ class TerminalInfo
   public:
     auto initialize(int cur_pty_fd) -> std::expected<void, std::string>;
 
+    static double guess_padding(int chars, int pixels);
+    static double guess_font_size(int chars, int pixels, int padding);
     int xpixel = 0;
     int ypixel = 0;
     int rows = 0;
@@ -51,6 +53,7 @@ class TerminalInfo
 
     void init_termios();
     void check_output_support();
+    void set_padding_values();
     void reset_termios() const;
     auto read_raw_terminal_command(std::string_view command) -> std::expected<std::string, std::string>;
     auto set_size_ioctl() -> std::expected<void, std::string>;

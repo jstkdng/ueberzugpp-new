@@ -18,10 +18,11 @@
 #include "os.hpp"
 #include "util.hpp"
 
+#include <cmath>
 #include <iostream>
-#include <spdlog/spdlog.h>
 #include <unordered_set>
 
+#include <spdlog/spdlog.h>
 #include <sys/ioctl.h>
 
 using std::unexpected;
@@ -43,6 +44,7 @@ auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::
                      });
         check_output_support();
     }
+    set_padding_values();
     return result;
 }
 
@@ -57,6 +59,29 @@ void TerminalInfo::check_output_support()
     if (!supports_kitty) {
         SPDLOG_DEBUG("kitty not supported: {}", supports_kitty.error());
     }
+}
+
+double TerminalInfo::guess_padding(int chars, int pixels)
+{
+    double font_size = std::floor(static_cast<double>(pixels) / chars);
+    return (pixels - font_size * chars) / 2;
+}
+
+double TerminalInfo::guess_font_size(const int chars, const int pixels, const int padding)
+{
+    return static_cast<double>(pixels - 2 * padding) / chars;
+}
+
+void TerminalInfo::set_padding_values()
+{
+    const double padding_horiz = guess_padding(cols, xpixel);
+    const double padding_vert = guess_padding(rows, ypixel);
+    padding_horizontal = static_cast<int>(std::max(padding_horiz, padding_vert));
+    padding_vertical = padding_horizontal;
+    font_width = static_cast<int>(std::floor(guess_font_size(cols, xpixel, padding_horizontal)));
+    font_height = static_cast<int>(std::floor(guess_font_size(rows, ypixel, padding_vertical)));
+    SPDLOG_DEBUG("padding_horiz={} padding_vert={}", padding_horizontal, padding_vertical);
+    SPDLOG_DEBUG("font_width={} font_height={}", font_width, font_height);
 }
 
 auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
