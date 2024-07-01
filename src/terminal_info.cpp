@@ -33,11 +33,11 @@ auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::
 
     if (config->use_escape_codes) {
         result = result
-                     .or_else([this](const std::string &err) {
+                     .or_else([this]([[maybe_unused]] std::string_view err) {
                          SPDLOG_DEBUG(err);
                          return set_size_escape_code();
                      })
-                     .or_else([this](const std::string &err) {
+                     .or_else([this]([[maybe_unused]] std::string_view err) {
                          SPDLOG_DEBUG(err);
                          return set_size_xtsm();
                      });

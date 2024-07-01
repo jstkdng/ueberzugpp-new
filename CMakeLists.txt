@@ -67,7 +67,7 @@ if (HAVE_STD_JTHREAD)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_JTHREAD)
 endif ()
 
-#find_package(spdlog CONFIG QUIET)
+find_package(spdlog CONFIG QUIET)
 if (NOT spdlog_FOUND)
     set(SPDLOG_USE_STD_FORMAT ON)
     FetchContent_Declare(

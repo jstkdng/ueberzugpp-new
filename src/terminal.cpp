@@ -56,7 +56,7 @@ void Terminal::open_first_pty()
         const auto pty_path = proc.pty_path.c_str();
         const int stat_result = stat(pty_path, &stat_info);
         if (stat_result == -1) {
-            const auto err = std::error_code(errno, std::generic_category());
+            [[maybe_unused]] const auto err = std::error_code(errno, std::generic_category());
             SPDLOG_DEBUG("stat failed for pty {}: {}", pty_path, err.message());
             continue;
         }
@@ -66,7 +66,7 @@ void Terminal::open_first_pty()
         }
         pty_fd = open(pty_path, O_RDONLY | O_NOCTTY);
         if (pty_fd == -1) {
-            const auto err = std::error_code(errno, std::generic_category());
+            [[maybe_unused]] const auto err = std::error_code(errno, std::generic_category());
             SPDLOG_DEBUG("could not open pty {}: {}", pty_path, err.message());
             continue;
         }

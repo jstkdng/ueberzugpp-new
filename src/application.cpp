@@ -45,7 +45,13 @@ auto Application::initialize() -> std::expected<void, std::string>
     print_header();
     auto result = setup_loggers();
     if (result) {
-        SPDLOG_INFO("starting ueberzugpp");
+#ifdef DEBUG
+        SPDLOG_INFO("starting ueberzugpp v{}.{}.{} (debug build)", UEBERZUGPP_VERSION_MAJOR, UEBERZUGPP_VERSION_MINOR,
+                    UEBERZUGPP_VERSION_PATCH);
+#else
+        SPDLOG_INFO("starting ueberzugpp v{}.{}.{}", UEBERZUGPP_VERSION_MAJOR, UEBERZUGPP_VERSION_MINOR,
+                    UEBERZUGPP_VERSION_PATCH);
+#endif
     }
     return result.and_then([this] { return terminal.initialize(); })
         .and_then([this] { return daemonize(); })
@@ -88,16 +94,15 @@ auto Application::daemonize() const -> std::expected<void, std::string>
 void Application::print_header()
 {
     const auto log_path = util::get_log_path();
-    const auto art = std::format(R"(
+    const auto art = R"(
  _   _      _
 | | | |    | |                                _     _
 | | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_
 | | | |/ _ \ '_ \ / _ \ '__|_  / | | |/ _` |_   _|_   _|
 | |_| |  __/ |_) |  __/ |   / /| |_| | (_| | |_|   |_|
- \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |    new
-                                       __/ |
-                                      |___/     v{}.{}.{})",
-                                 UEBERZUGPP_VERSION_MAJOR, UEBERZUGPP_VERSION_MINOR, UEBERZUGPP_VERSION_PATCH);
+ \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
+                                       __/ |    new
+                                      |___/ )";
     std::ofstream ofs(log_path, std::ios::out | std::ios::app);
     ofs << art << '\n' << std::flush;
 }
