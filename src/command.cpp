@@ -18,6 +18,7 @@
 #include "application.hpp"
 #include "os.hpp"
 
+#include <chrono>
 #include <format>
 #include <string>
 #include <string_view>
@@ -83,6 +84,19 @@ void CommandManager::wait_for_input_on_socket()
     }
 }
 
+auto CommandManager::unqueue() -> std::expected<nlohmann::json, std::string>
+{
+    std::unique_lock lock{queue_mutex};
+    const bool command_available =
+        cond.wait_for(lock, std::chrono::milliseconds(waitms), [this] { return !command_queue.empty(); });
+    if (!command_available) {
+        return std::unexpected("no command available");
+    }
+    auto value = command_queue.front();
+    command_queue.pop();
+    return value;
+}
+
 // parse any commands, return remaining data for next batches
 // could turn into a memory hog if invalid data keeps coming in
 auto CommandManager::extract_commands(std::string_view view) -> std::string
@@ -98,13 +112,15 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
             const auto json = njson::parse(substr);
             const auto action = json.value("action", "");
 
-            const std::lock_guard lock{queue_mutex};
+            std::unique_lock lock{queue_mutex};
             if (action == "clear_queue") {
                 command_queue = {};
             } else {
                 SPDLOG_INFO("Received command {}.", substr);
                 command_queue.emplace(json);
             }
+            lock.unlock();
+            cond.notify_one(); // there's only one consumer
         } catch (const njson::parse_error &) {
             SPDLOG_WARN("Received invalid json.");
         }

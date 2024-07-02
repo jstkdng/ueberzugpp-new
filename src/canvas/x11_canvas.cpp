@@ -38,10 +38,8 @@ auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::
     if (!conn_ok) {
         return std::unexpected(conn_ok.error());
     }
-    event_handler = std::jthread([this](auto token) {
-        SPDLOG_DEBUG("started event handler");
-        handle_events(token);
-    });
+    event_handler = std::jthread([this](auto token) { handle_events(token); });
+    command_reader = std::jthread([this](auto token) { read_commands(token); });
     SPDLOG_INFO("canvas initialized");
     return {};
 }
@@ -59,12 +57,25 @@ auto X11Canvas::connect_to_x11() -> std::expected<void, std::string>
     return {};
 }
 
+void X11Canvas::read_commands(const std::stop_token &token) const
+{
+    while (!token.stop_requested()) {
+        auto command_ok = command_manager->unqueue();
+        if (!command_ok) {
+            continue;
+        }
+        auto json = *command_ok;
+        SPDLOG_DEBUG("received command: {}", json.dump());
+    }
+}
+
 void X11Canvas::handle_events(const std::stop_token &token) const
 {
     constexpr int waitms = 100;
     constexpr std::byte event_mask{0x80};
     const int connfd = xcb_get_file_descriptor(connection);
 
+    SPDLOG_DEBUG("started event handler");
     while (!token.stop_requested()) {
         auto in_event = os::wait_for_data_on_fd(connfd, waitms);
         if (!in_event) {

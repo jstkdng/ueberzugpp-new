@@ -46,9 +46,11 @@ class X11Canvas final : public Canvas
 #endif
 
     std::jthread event_handler;
+    std::jthread command_reader;
 
     auto connect_to_x11() -> std::expected<void, std::string>;
     void handle_events(const std::stop_token &token) const;
+    void read_commands(const std::stop_token &token) const;
     void print_xcb_error(xcb_generic_error_t *err) const;
 };
 

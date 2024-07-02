@@ -24,6 +24,7 @@
 #  include "jthread/jthread.hpp"
 #endif
 
+#include <condition_variable>
 #include <expected>
 #include <queue>
 #include <string>
@@ -38,6 +39,8 @@ class CommandManager
   public:
     auto initialize() -> std::expected<void, std::string>;
 
+    auto unqueue() -> std::expected<nlohmann::json, std::string>;
+
   private:
     static constexpr int waitms = 100;
 
@@ -46,6 +49,7 @@ class CommandManager
 
     std::queue<nlohmann::json> command_queue;
     std::mutex queue_mutex;
+    std::condition_variable cond;
     std::string stdin_buffer;
     std::jthread stdin_thread;
     std::jthread socket_thread;
