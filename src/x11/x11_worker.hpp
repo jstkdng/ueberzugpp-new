@@ -14,12 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "../include/canvas/canvas.hpp"
-#ifdef ENABLE_X11
-#  include "x11/x11_canvas.hpp"
-#endif
+#ifndef X11_WORKER_HPP
+#define X11_WORKER_HPP
 
-auto Canvas::create() -> std::expected<std::unique_ptr<Canvas>, std::string>
+#include "canvas/canvas_worker.hpp"
+
+#include <xcb/xcb.h>
+
+class X11Worker final : public CanvasWorker
 {
-    return std::make_unique<X11Canvas>();
-}
+  public:
+    [[nodiscard]] auto get_string_id() const -> std::string override;
+    [[nodiscard]] auto get_internal_id() const -> std::size_t override;
+    ~X11Worker() override = default;
+
+  private:
+    std::string image_id;
+    xcb_window_t window_id = 0;
+};
+
+#endif // X11_WORKER_HPP

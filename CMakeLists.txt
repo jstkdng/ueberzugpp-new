@@ -98,8 +98,12 @@ if (ENABLE_X11)
     pkg_check_modules(XCB_IMAGE REQUIRED IMPORTED_TARGET xcb-image)
     pkg_check_modules(XCB_RES REQUIRED IMPORTED_TARGET xcb-res)
     target_sources(ueberzugpp PRIVATE
-        include/canvas/x11_canvas.hpp
-        src/canvas/x11_canvas.cpp
+        src/x11/x11_canvas.hpp
+        src/x11/x11_worker.hpp
+        src/x11/x11_worker.hpp
+
+        src/x11/x11_canvas.cpp
+        src/x11/x11_worker.cpp
     )
     #    list(APPEND UEBERZUG_SOURCES "src/util/x11.cpp" "src/canvas/x11/x11.cpp"
     #        "src/canvas/x11/window/x11.cpp")
@@ -153,8 +157,10 @@ target_sources(ueberzugpp PRIVATE
     src/main.cpp
     include/util/ptr.hpp
     include/process.hpp
+    include/canvas/canvas_worker.hpp
+    include/canvas/worker_pool.hpp
 
-    include/canvas.hpp
+    include/canvas/canvas.hpp
     src/canvas.cpp
 
     include/crypto.hpp

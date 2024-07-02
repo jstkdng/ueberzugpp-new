@@ -14,12 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "../include/canvas/canvas.hpp"
-#ifdef ENABLE_X11
-#  include "x11/x11_canvas.hpp"
-#endif
+#include "x11_worker.hpp"
 
-auto Canvas::create() -> std::expected<std::unique_ptr<Canvas>, std::string>
+auto X11Worker::get_internal_id() const -> std::size_t
 {
-    return std::make_unique<X11Canvas>();
+    return window_id;
+}
+
+auto X11Worker::get_string_id() const -> std::string
+{
+    return image_id;
 }

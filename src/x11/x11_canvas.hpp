@@ -17,8 +17,10 @@
 #ifndef X11_CANVAS_HPP
 #define X11_CANVAS_HPP
 
-#include "canvas.hpp"
+#include "canvas/canvas.hpp"
+#include "canvas/worker_pool.hpp"
 #include "config.hpp"
+#include "x11_worker.hpp"
 
 #include <thread>
 
@@ -49,6 +51,8 @@ class X11Canvas final : public Canvas
 
     std::jthread event_handler;
     std::jthread command_reader;
+
+    WorkerPool<X11Worker> worker_pool;
 
     auto connect_to_x11() -> std::expected<void, std::string>;
     void handle_events(const std::stop_token &token) const;

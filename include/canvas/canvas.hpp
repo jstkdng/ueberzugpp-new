@@ -17,7 +17,7 @@
 #ifndef CANVAS_HPP
 #define CANVAS_HPP
 
-#include "command.hpp"
+#include "../command.hpp"
 
 #include <expected>
 #include <memory>
