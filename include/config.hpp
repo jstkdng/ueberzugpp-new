@@ -34,10 +34,13 @@ class Config
 
     Config(const Config &) = delete;
     Config(Config &&) = delete;
-    Config &operator=(const Config &) = delete;
-    Config &operator=(Config &&) = delete;
+    auto operator=(const Config &) -> Config & = delete;
+    auto operator=(Config &&) -> Config & = delete;
 
     auto read_config_file() -> std::expected<void, std::string>;
+
+    // some globals
+    const int waitms = 10;
 
     // configurable with config file
     bool silent = false;

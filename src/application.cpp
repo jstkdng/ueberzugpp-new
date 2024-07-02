@@ -33,11 +33,10 @@ Application::~Application()
     SPDLOG_INFO("ueberzugpp terminated");
 }
 
-void Application::run()
+void Application::run() const
 {
-    constexpr int waitms = 10;
     while (!stop_flag) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(waitms));
+        std::this_thread::sleep_for(std::chrono::milliseconds(config->waitms));
     }
 }
 

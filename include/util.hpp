@@ -21,7 +21,9 @@
 #include "process.hpp"
 
 #include <charconv>
+#include <chrono>
 #include <expected>
+#include <iostream>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -35,6 +37,20 @@ auto get_log_path() -> std::string;
 auto get_process_tree(int pid) -> std::vector<Process>;
 auto get_process_pid_tree(int pid) -> std::vector<int>;
 auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string>;
+
+void benchmark(auto Func)
+{
+    using std::chrono::duration;
+    using std::chrono::duration_cast;
+    using std::chrono::high_resolution_clock;
+    using std::chrono::milliseconds;
+
+    const auto time1 = high_resolution_clock::now();
+    Func();
+    const auto time2 = high_resolution_clock::now();
+    const duration<double, std::milli> ms_double = time2 - time1;
+    std::cout << ms_double.count() << "ms\n";
+}
 
 template <typename T>
 constexpr auto view_to_numeral(const std::string_view view) noexcept -> std::expected<T, std::string>

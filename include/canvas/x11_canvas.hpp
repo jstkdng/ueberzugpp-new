@@ -18,6 +18,7 @@
 #define X11_CANVAS_HPP
 
 #include "canvas.hpp"
+#include "config.hpp"
 
 #include <thread>
 
@@ -37,6 +38,7 @@ class X11Canvas final : public Canvas
     auto initialize(CommandManager *manager) -> std::expected<void, std::string> override;
 
   private:
+    std::shared_ptr<Config> config = Config::instance();
     CommandManager *command_manager = nullptr;
     xcb_connection_t *connection = nullptr;
     xcb_screen_t *screen = nullptr;

@@ -17,6 +17,7 @@
 #include "command.hpp"
 #include "application.hpp"
 #include "os.hpp"
+#include "util.hpp"
 
 #include <chrono>
 #include <format>
@@ -34,10 +35,10 @@ auto CommandManager::initialize() -> std::expected<void, std::string>
     const auto result = socket_server.start();
     if (result.has_value()) {
         SPDLOG_INFO("listening for commands on socket");
-        socket_thread = std::jthread([this] { wait_for_input_on_socket(); });
+        socket_thread = std::jthread([this](auto token) { wait_for_input_on_socket(token); });
         if (!config->no_stdin) {
             SPDLOG_INFO("listening for commands on stdin");
-            stdin_thread = std::jthread([this] { wait_for_input_on_stdin(); });
+            stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
         }
     } else {
         SPDLOG_DEBUG(result.error());
@@ -45,9 +46,9 @@ auto CommandManager::initialize() -> std::expected<void, std::string>
     return result;
 }
 
-void CommandManager::wait_for_input_on_stdin()
+void CommandManager::wait_for_input_on_stdin(const std::stop_token &token)
 {
-    while (!Application::stop_flag) {
+    while (!token.stop_requested()) {
         auto in_event = os::wait_for_data_on_stdin(waitms);
         if (!in_event.has_value()) {
             SPDLOG_DEBUG(std::format("stdin thread terminated: {}", in_event.error()));
@@ -62,16 +63,15 @@ void CommandManager::wait_for_input_on_stdin()
             SPDLOG_DEBUG(data.error());
             return;
         }
-
         // append new data to old data and search
         stdin_buffer.append(data.value());
         stdin_buffer = extract_commands(stdin_buffer);
     }
 }
 
-void CommandManager::wait_for_input_on_socket()
+void CommandManager::wait_for_input_on_socket(const std::stop_token &token)
 {
-    while (!Application::stop_flag) {
+    while (!token.stop_requested()) {
         auto data = socket_server.read_data_from_connection();
         if (!data.has_value()) {
             SPDLOG_DEBUG(data.error());
@@ -84,7 +84,7 @@ void CommandManager::wait_for_input_on_socket()
     }
 }
 
-auto CommandManager::unqueue() -> std::expected<nlohmann::json, std::string>
+auto CommandManager::unqueue() -> std::expected<njson, std::string>
 {
     std::unique_lock lock{queue_mutex};
     const bool command_available =

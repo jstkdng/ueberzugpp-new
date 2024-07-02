@@ -17,11 +17,15 @@
 #ifndef UNIX_SOCKET_HPP
 #define UNIX_SOCKET_HPP
 
+#include "config.hpp"
+
 #include <expected>
+#include <stop_token>
 #include <string>
-#include <sys/un.h>
 #include <thread>
 #include <vector>
+
+#include <sys/un.h>
 
 #ifndef HAVE_STD_JTHREAD
 #  include "jthread/jthread.hpp"
@@ -47,13 +51,14 @@ class Server
     std::string endpoint;
     sockfd socket{};
 
+    std::shared_ptr<Config> config = Config::instance();
     std::vector<int> accepted_connections;
     std::jthread accept_thread;
 
     auto bind_to_endpoint() -> std::expected<void, std::string>;
     auto bind_to_socket() -> std::expected<void, std::string>;
     auto create_socket() -> std::expected<void, std::string>;
-    void accept_connections();
+    void accept_connections(const std::stop_token &token);
     void remove_accepted_connection(int filde);
 
     [[nodiscard]] auto accept_connection() const -> std::expected<int, std::string>;

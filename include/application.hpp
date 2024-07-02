@@ -33,7 +33,7 @@ class Application
 
     auto initialize() noexcept -> std::expected<void, std::string>;
 
-    static void run();
+    void run() const;
     static auto get_version() -> std::string;
     static void print_header();
     static auto setup_loggers() -> std::expected<void, std::string>;

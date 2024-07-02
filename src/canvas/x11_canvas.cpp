@@ -71,13 +71,12 @@ void X11Canvas::read_commands(const std::stop_token &token) const
 
 void X11Canvas::handle_events(const std::stop_token &token) const
 {
-    constexpr int waitms = 100;
     constexpr std::byte event_mask{0x80};
     const int connfd = xcb_get_file_descriptor(connection);
 
     SPDLOG_DEBUG("started event handler");
     while (!token.stop_requested()) {
-        auto in_event = os::wait_for_data_on_fd(connfd, waitms);
+        auto in_event = os::wait_for_data_on_fd(connfd, config->waitms);
         if (!in_event) {
             SPDLOG_DEBUG("stopping event handler: {}", in_event.error());
             return;

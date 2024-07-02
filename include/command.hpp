@@ -27,6 +27,7 @@
 #include <condition_variable>
 #include <expected>
 #include <queue>
+#include <stop_token>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -48,14 +49,14 @@ class CommandManager
     std::shared_ptr<Config> config = Config::instance();
 
     std::queue<nlohmann::json> command_queue;
-    std::mutex queue_mutex;
+    mutable std::mutex queue_mutex;
     std::condition_variable cond;
     std::string stdin_buffer;
     std::jthread stdin_thread;
     std::jthread socket_thread;
 
-    void wait_for_input_on_stdin();
-    void wait_for_input_on_socket();
+    void wait_for_input_on_stdin(const std::stop_token &token);
+    void wait_for_input_on_socket(const std::stop_token &token);
     auto extract_commands(std::string_view view) -> std::string;
 };
 

@@ -180,11 +180,10 @@ auto TerminalInfo::set_size_escape_code() -> std::expected<void, std::string>
 
 auto TerminalInfo::read_raw_terminal_command(const std::string_view command) -> std::expected<std::string, std::string>
 {
-    constexpr int waitms = 100;
     std::expected<std::string, std::string> result;
     init_termios();
     std::cout << command << std::flush;
-    const auto in_event = os::wait_for_data_on_stdin(waitms);
+    const auto in_event = os::wait_for_data_on_stdin(config->waitms);
     if (in_event.has_value()) {
         if (*in_event) {
             result = os::read_data_from_stdin();

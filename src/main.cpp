@@ -96,7 +96,7 @@ auto main(const int argc, char *argv[]) -> int
             std::cerr << result.error() << '\n';
             return 1;
         }
-        Application::run();
+        application.run();
     }
 
     return 0;

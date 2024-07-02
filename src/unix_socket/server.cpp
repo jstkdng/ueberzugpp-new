@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
 #include "os.hpp"
 #include "unix_socket.hpp"
 #include "util.hpp"
@@ -48,18 +47,17 @@ auto Server::start() -> std::expected<void, std::string>
     auto bind_ok = bind_to_endpoint();
     if (bind_ok) {
         SPDLOG_INFO("listening for connections on {}", endpoint);
-        accept_thread = std::jthread([this] { accept_connections(); });
+        accept_thread = std::jthread([this](auto token) { accept_connections(token); });
     } else {
         SPDLOG_DEBUG(bind_ok.error());
     }
     return bind_ok;
 }
 
-void Server::accept_connections()
+void Server::accept_connections(const std::stop_token &token)
 {
-    while (!Application::stop_flag) {
-        constexpr int waitms = 100;
-        const auto in_event = os::wait_for_data_on_fd(socket.fd, waitms);
+    while (!token.stop_requested()) {
+        const auto in_event = os::wait_for_data_on_fd(socket.fd, config->waitms);
         if (!in_event.has_value()) {
             SPDLOG_DEBUG(in_event.error());
             return;
