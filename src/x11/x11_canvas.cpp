@@ -41,7 +41,7 @@ auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::
     }
     event_handler = std::jthread([this](auto token) { handle_events(token); });
     command_reader = std::jthread([this](auto token) { read_commands(token); });
-    worker_pool.start(connection);
+    worker_pool.start(connection, screen);
     SPDLOG_INFO("canvas initialized");
     return {};
 }
@@ -66,7 +66,7 @@ void X11Canvas::read_commands(const std::stop_token &token) const
         if (!command_ok) {
             continue;
         }
-        auto &json = *command_ok;
+        const auto &json = *command_ok;
         SPDLOG_DEBUG("received command: {}", json.dump());
     }
 }

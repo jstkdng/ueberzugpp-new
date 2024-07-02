@@ -22,7 +22,6 @@
 
 #include <chrono>
 #include <condition_variable>
-#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -37,11 +36,12 @@ template <WorkerType T>
 class WorkerPool
 {
   public:
-    void start(auto &&...args)
+    template <class... Params>
+    void start(Params &&...params)
     {
-        const uint32_t num_threads = std::thread::hardware_concurrency();
-        for (uint32_t i = 0; i < num_threads; ++i) {
-            auto ptr = std::make_shared<T>(std::forward<decltype(args)>(args)...);
+        for (int i = 0; i < config->num_workers; ++i) {
+            auto ptr = std::make_shared<T>(std::forward<Params>(params)...);
+            ptr->initialize();
             auto thread = std::jthread([this, ptr](auto token) { do_work(token, ptr); });
             threads.emplace_back(std::move(ptr), std::move(thread));
         }

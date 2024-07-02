@@ -41,6 +41,7 @@ class Config
 
     // some globals
     const int waitms = 10;
+    const int num_workers = 5;
 
     // configurable with config file
     bool silent = false;

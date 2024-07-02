@@ -24,15 +24,19 @@
 class X11Worker final : public CanvasWorker
 {
   public:
-    X11Worker(xcb_connection_t *connection);
+    X11Worker(xcb_connection_t *connection, xcb_screen_t *screen);
+    void initialize() override;
     [[nodiscard]] auto get_string_id() const -> std::string override;
     [[nodiscard]] auto get_internal_id() const -> std::size_t override;
-    ~X11Worker() override = default;
+    ~X11Worker() override;
 
   private:
     std::string image_id;
-    xcb_window_t window_id = 0;
     xcb_connection_t *connection = nullptr;
+    xcb_screen_t *screen = nullptr;
+
+    xcb_window_t window_id = 0;
+    xcb_gcontext_t gc = 0;
 };
 
 #endif // X11_WORKER_HPP

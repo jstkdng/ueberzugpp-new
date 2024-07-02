@@ -25,6 +25,7 @@ class CanvasWorker
   public:
     [[nodiscard]] virtual auto get_string_id() const -> std::string = 0;
     [[nodiscard]] virtual auto get_internal_id() const -> std::size_t = 0;
+    virtual void initialize() = 0;
     virtual ~CanvasWorker() = default;
 };
 

@@ -16,9 +16,35 @@
 
 #include "x11_worker.hpp"
 
-X11Worker::X11Worker(xcb_connection_t *connection)
-    : connection(connection)
+#include <spdlog/spdlog.h>
+
+X11Worker::X11Worker(xcb_connection_t *connection, xcb_screen_t *screen)
+    : connection(connection),
+      screen(screen)
 {
+}
+
+X11Worker::~X11Worker()
+{
+    xcb_destroy_window(connection, window_id);
+    xcb_free_gc(connection, gc);
+    xcb_flush(connection);
+}
+
+void X11Worker::initialize()
+{
+    constexpr uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+    window_id = xcb_generate_id(connection);
+    xcb_create_window_value_list_t value_list{};
+    value_list.background_pixel = screen->black_pixel;
+    value_list.border_pixel = screen->black_pixel;
+    value_list.event_mask = XCB_EVENT_MASK_EXPOSURE;
+    value_list.colormap = screen->default_colormap;
+
+    xcb_create_window_aux(connection, screen->root_depth, window_id, screen->root, 0, 0, 0, 0, 0,
+                          XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, value_mask, &value_list);
+    xcb_create_gc(connection, gc, window_id, 0, nullptr);
+    SPDLOG_DEBUG("created window with id {}", window_id);
 }
 
 auto X11Worker::get_internal_id() const -> std::size_t
