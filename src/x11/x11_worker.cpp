@@ -16,6 +16,11 @@
 
 #include "x11_worker.hpp"
 
+X11Worker::X11Worker(xcb_connection_t *connection)
+    : connection(connection)
+{
+}
+
 auto X11Worker::get_internal_id() const -> std::size_t
 {
     return window_id;

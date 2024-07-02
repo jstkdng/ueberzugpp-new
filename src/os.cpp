@@ -22,7 +22,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <algorithm>
 #include <format>
 #include <spdlog/spdlog.h>
 #include <vector>

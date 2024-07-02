@@ -18,6 +18,7 @@
 #define WORKER_POOL_HPP
 
 #include "canvas_worker.hpp"
+#include "config.hpp"
 
 #include <chrono>
 #include <condition_variable>
@@ -36,11 +37,11 @@ template <WorkerType T>
 class WorkerPool
 {
   public:
-    void start()
+    void start(auto &&...args)
     {
         const uint32_t num_threads = std::thread::hardware_concurrency();
         for (uint32_t i = 0; i < num_threads; ++i) {
-            auto ptr = std::make_shared<T>();
+            auto ptr = std::make_shared<T>(std::forward<decltype(args)>(args)...);
             auto thread = std::jthread([this, ptr](auto token) { do_work(token, ptr); });
             threads.emplace_back(std::move(ptr), std::move(thread));
         }
@@ -49,7 +50,7 @@ class WorkerPool
     void do_work(const std::stop_token &token, [[maybe_unused]] std::shared_ptr<T> worker)
     {
         while (!token.stop_requested()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(config->waitms));
         }
     }
 
@@ -61,6 +62,7 @@ class WorkerPool
     }
 
   private:
+    std::shared_ptr<Config> config = Config::instance();
     std::vector<std::pair<std::shared_ptr<T>, std::jthread>> threads;
     std::mutex queue_mutex;
     std::condition_variable condition;
