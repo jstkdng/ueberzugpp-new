@@ -24,8 +24,8 @@
 #include <string_view>
 #include <thread>
 
-#include <poll.h>
 #include <spdlog/spdlog.h>
+#include <sys/poll.h>
 
 using njson = nlohmann::json;
 
