@@ -59,7 +59,7 @@ auto Application::initialize() noexcept -> std::expected<void, std::string>
         .and_then([this] { return daemonize(); })
         .and_then([this] { return command_manager.initialize(); })
         .and_then([this] {
-            auto canvas_ok = Canvas::create();
+            auto canvas_ok = Canvas::create(config.get());
             if (canvas_ok) {
                 canvas = std::move(*canvas_ok);
             }

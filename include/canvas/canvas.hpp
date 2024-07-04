@@ -17,7 +17,8 @@
 #ifndef CANVAS_HPP
 #define CANVAS_HPP
 
-#include "../command.hpp"
+#include "command.hpp"
+#include "config.hpp"
 
 #include <expected>
 #include <memory>
@@ -25,7 +26,7 @@
 class Canvas
 {
   public:
-    static auto create() -> std::expected<std::unique_ptr<Canvas>, std::string>;
+    static auto create(const Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>;
     virtual auto initialize(CommandManager *command_manager) -> std::expected<void, std::string> = 0;
     virtual ~Canvas() = default;
 };

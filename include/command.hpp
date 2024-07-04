@@ -20,15 +20,16 @@
 #include "config.hpp"
 #include "unix_socket.hpp"
 
-#ifndef HAVE_STD_JTHREAD
-#  include "jthread/jthread.hpp"
-#endif
-
 #include <condition_variable>
 #include <expected>
 #include <queue>
-#include <stop_token>
 #include <string>
+#ifdef HAVE_STD_JTHREAD
+#  include <stop_token>
+#  include <thread>
+#else
+#  include "jthread/jthread.hpp"
+#endif
 
 #include <nlohmann/json.hpp>
 

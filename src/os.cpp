@@ -18,18 +18,23 @@
 #include "util/ptr.hpp"
 
 #include <cerrno>
-#include <poll.h>
+#include <format>
+#include <vector>
+
+#include <spdlog/spdlog.h>
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <format>
-#include <spdlog/spdlog.h>
-#include <vector>
-
-using std::error_code;
 using std::expected;
 using std::string;
 using std::unexpected;
+
+auto os::system_error(const std::string_view message) noexcept -> std::unexpected<std::string>
+{
+    const std::error_condition econd(errno, std::generic_category());
+    return std::unexpected(std::format("{}: {}", message, econd.message()));
+}
 
 auto os::exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>
 {

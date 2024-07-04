@@ -18,21 +18,16 @@
 #define OS_HPP
 
 #include <expected>
-#include <format>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <system_error>
 
 namespace os
 {
-constexpr int bufsize = 4 * 1024; // 4K at a time
-constexpr auto system_error(const std::string_view message = "os error") noexcept -> std::unexpected<std::string>
-{
-    const std::error_condition econd(errno, std::generic_category());
-    return std::unexpected(std::format("{}: {}", message, econd.message()));
-}
 
+constexpr int bufsize = 4 * 1024; // 4K at a time
+
+auto system_error(std::string_view message = "os error") noexcept -> std::unexpected<std::string>;
 auto get_poll_err(int event) noexcept -> std::string_view;
 auto exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>;
 auto getenv(const std::string &var) noexcept -> std::optional<std::string>;

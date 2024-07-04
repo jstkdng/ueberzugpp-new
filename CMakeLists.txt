@@ -147,7 +147,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(ueberzugpp PRIVATE
         src/linux/process.cpp
     )
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Apple")
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_sources(ueberzugpp PRIVATE
         src/apple/process.cpp
     )

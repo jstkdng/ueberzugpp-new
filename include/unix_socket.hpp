@@ -21,12 +21,12 @@
 
 #include <cstddef>
 #include <expected>
-#include <stop_token>
 #include <string>
-#include <thread>
 #include <vector>
-
-#ifndef HAVE_STD_JTHREAD
+#ifdef HAVE_STD_JTHREAD
+#  include <stop_token>
+#  include <thread>
+#else
 #  include "jthread/jthread.hpp"
 #endif
 
