@@ -55,9 +55,10 @@ auto main(const int argc, char *argv[]) -> int
 
     cmd_subcommand cmd{};
     auto *cmd_comand = program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance.");
-    cmd_comand->add_option("-s,--socket", cmd.socket, "UNIX socket of running instance");
+    cmd_comand->add_option("-s,--socket", cmd.socket, "UNIX socket of running instance")->required();
+    cmd_comand->add_option("-a,--action", cmd.action, "Action to send")
+        ->check(CLI::IsMember({"add", "remove", "exit", "flush"}));
     cmd_comand->add_option("-i,--identifier", cmd.id, "Preview identifier");
-    cmd_comand->add_option("-a,--action", cmd.action, "Action to send");
     cmd_comand->add_option("-f,--file", cmd.file_path, "Path of image file");
     cmd_comand->add_option("-x,--xpos", cmd.x, "X position of preview");
     cmd_comand->add_option("-y,--ypos", cmd.y, "Y position of preview");

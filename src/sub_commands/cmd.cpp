@@ -16,7 +16,6 @@
 
 #include "sub_commands/cmd.hpp"
 #include "unix_socket.hpp"
-#include "util.hpp"
 
 #include <cstddef>
 #include <format>
@@ -39,16 +38,12 @@ auto cmd_subcommand::send() const -> std::expected<void, std::string>
     }
 
     if (action == "remove") {
-        json = {{"action", "remove"}, {"identifier", id}};
+        json = {{"action", action}, {"identifier", id}};
     }
 
     if (action == "add") {
-        json = {{"action", "add"}, {"identifier", id}, {"max_width", max_width}, {"max_height", max_height},
-                {"x", x},          {"y", y},           {"path", file_path}};
-    }
-
-    if (json.empty()) {
-        return std::unexpected("unknown command");
+        json = {{"action", action}, {"identifier", id}, {"max_width", max_width}, {"max_height", max_height},
+                {"x", x},           {"y", y},           {"path", file_path}};
     }
 
     auto payload = std::format("{}\n", json.dump());
