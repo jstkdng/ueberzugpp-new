@@ -22,6 +22,8 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+
+#include <spdlog/cfg/env.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
@@ -71,8 +73,9 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
     using spdlog::set_default_logger;
     using spdlog::set_pattern;
 
-    spdlog::set_level(spdlog::level::trace);
-    spdlog::flush_on(spdlog::level::trace);
+    spdlog::cfg::load_env_levels();
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::flush_on(spdlog::level::debug);
 
     const auto log_path = util::get_log_path();
     try {

@@ -84,7 +84,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
         fds.emplace_back(tmp);
     }
 
-    const int res = poll(fds.data(), fds.size(), 100);
+    const int res = poll(fds.data(), fds.size(), config->waitms);
     if (res == -1) {
         return os::system_error("can't poll for connections");
     }
@@ -92,7 +92,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
     std::vector<std::string> result;
     for (const auto &[fd, events, revents] : fds) {
         if ((revents & (POLLERR | POLLNVAL)) != 0) {
-            SPDLOG_DEBUG("received {} on fd {}, removing connection", os::get_poll_err(revents), fd);
+            SPDLOG_TRACE("received {} on fd {}, removing connection", os::get_poll_err(revents), fd);
             remove_accepted_connection(fd);
             continue;
         }
@@ -105,7 +105,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
             }
         }
         if ((revents & POLLHUP) != 0) {
-            SPDLOG_DEBUG("received {} on fd {}, removing connection", os::get_poll_err(revents), fd);
+            SPDLOG_TRACE("received {} on fd {}, removing connection", os::get_poll_err(revents), fd);
             remove_accepted_connection(fd);
         }
     }

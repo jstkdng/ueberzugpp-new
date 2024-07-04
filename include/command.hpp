@@ -43,8 +43,6 @@ class CommandManager
     auto unqueue() -> std::expected<nlohmann::json, std::string>;
 
   private:
-    static constexpr int waitms = 100;
-
     unix_socket::Server socket_server;
     std::shared_ptr<Config> config = Config::instance();
 

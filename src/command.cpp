@@ -48,7 +48,7 @@ auto CommandManager::initialize() -> std::expected<void, std::string>
 void CommandManager::wait_for_input_on_stdin(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
-        auto in_event = os::wait_for_data_on_stdin(waitms);
+        auto in_event = os::wait_for_data_on_stdin(config->waitms);
         if (!in_event.has_value()) {
             SPDLOG_DEBUG(std::format("stdin thread terminated: {}", in_event.error()));
             Application::stop_flag = true; // stop this program if this thread dies
@@ -87,7 +87,7 @@ auto CommandManager::unqueue() -> std::expected<njson, std::string>
 {
     std::unique_lock lock{queue_mutex};
     const bool command_available =
-        cond.wait_for(lock, std::chrono::milliseconds(waitms), [this] { return !command_queue.empty(); });
+        cond.wait_for(lock, std::chrono::milliseconds(config->waitms), [this] { return !command_queue.empty(); });
     if (!command_available) {
         return std::unexpected("no command available");
     }
