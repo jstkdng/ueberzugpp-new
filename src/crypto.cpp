@@ -51,15 +51,17 @@ auto crypto::base64_encode(const std::string_view str) -> std::string
     const auto length = str.length();
     const size_t bufsize = 4 * ((length + 2) / 3);
     std::string buffer(bufsize, 0);
-    base64_encode_internal(std::bit_cast<const uint8_t *>(str.data()), length, std::bit_cast<uint8_t *>(buffer.data()));
+    base64_encode_internal(std::bit_cast<const std::byte *>(str.data()), length,
+                           std::bit_cast<std::byte *>(buffer.data()));
     return buffer;
 }
 
-void crypto::base64_encode_internal(const uint8_t *input, size_t length, uint8_t *out)
+void crypto::base64_encode_internal(const std::byte *input, size_t length, std::byte *out)
 {
 #ifdef ENABLE_TURBOBASE64
     tb64enc(input, length, out);
 #else
-    EVP_EncodeBlock(out, input, static_cast<int>(length));
+    EVP_EncodeBlock(std::bit_cast<unsigned char *>(out), std::bit_cast<const unsigned char *>(input),
+                    static_cast<int>(length));
 #endif
 }
