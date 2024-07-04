@@ -40,7 +40,7 @@ class Config
     auto read_config_file() -> std::expected<void, std::string>;
 
     // some globals
-    const int waitms = 10;
+    const int waitms = 50;
     const int num_workers = 5;
 
     // configurable with config file
