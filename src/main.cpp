@@ -19,7 +19,7 @@
 #include "signal.hpp"
 #include "sub_commands/cmd.hpp"
 
-#include <iostream>
+#include <print>
 
 #include "CLI11.hpp"
 
@@ -34,7 +34,6 @@ auto main(const int argc, char *argv[]) -> int
         return 1;
     }
 
-    cmd_subcommand cmd{};
     CLI::App program("Display images in the terminal", "ueberzug");
     program.add_flag("-V,--version", config->print_version, "Print version information.");
 
@@ -54,6 +53,7 @@ auto main(const int argc, char *argv[]) -> int
     layer_command->add_option("-p,--parser", nullptr, "**UNUSED**, only present for backwards compatibility.");
     layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility.");
 
+    cmd_subcommand cmd{};
     auto *cmd_comand = program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance.");
     cmd_comand->add_option("-s,--socket", cmd.socket, "UNIX socket of running instance");
     cmd_comand->add_option("-i,--identifier", cmd.id, "Preview identifier");
@@ -82,7 +82,7 @@ auto main(const int argc, char *argv[]) -> int
     }
 
     if (config->print_version) {
-        std::cout << Application::get_version() << '\n';
+        std::print("{}\n", Application::get_version());
         return 0;
     }
 
@@ -95,10 +95,18 @@ auto main(const int argc, char *argv[]) -> int
         Application application;
         const auto result = application.initialize();
         if (!result) {
-            std::cerr << result.error() << '\n';
+            std::print(stderr, "{}\n", result.error());
             return 1;
         }
         application.run();
+    }
+
+    if (cmd_comand->parsed()) {
+        auto send_ok = cmd.send();
+        if (!send_ok) {
+            std::print(stderr, "{}\n", send_ok.error());
+            return 1;
+        }
     }
 
     return 0;

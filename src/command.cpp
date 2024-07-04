@@ -112,10 +112,12 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
             const auto action = json.value("action", "");
 
             std::unique_lock lock{queue_mutex};
-            if (action == "clear_queue") {
+            if (action == "flush") {
+                SPDLOG_DEBUG("flushing command queue");
                 command_queue = {};
+            } else if (action == "exit") {
+                Application::stop_flag = true;
             } else {
-                SPDLOG_INFO("Received command {}.", substr);
                 command_queue.emplace(json);
             }
             lock.unlock();

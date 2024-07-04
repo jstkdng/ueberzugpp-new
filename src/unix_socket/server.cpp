@@ -43,7 +43,7 @@ Server::~Server()
 
 auto Server::start() -> std::expected<void, std::string>
 {
-    endpoint = ::util::get_socket_path();
+    endpoint = util::get_socket_path();
     auto bind_ok = bind_to_endpoint();
     if (bind_ok) {
         SPDLOG_INFO("listening for connections on {}", endpoint);

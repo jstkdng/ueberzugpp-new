@@ -24,11 +24,12 @@ struct cmd_subcommand {
     std::string id;
     std::string action;
     std::string socket;
-    std::string x;
-    std::string y;
-    std::string max_width;
-    std::string max_height;
     std::string file_path;
+
+    int x = -1;
+    int y = -1;
+    int max_width = -1;
+    int max_height = -1;
 
     [[nodiscard]] auto send() const -> std::expected<void, std::string>;
 };

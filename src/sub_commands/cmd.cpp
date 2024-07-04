@@ -16,9 +16,41 @@
 
 #include "sub_commands/cmd.hpp"
 #include "unix_socket.hpp"
+#include "util.hpp"
+
+#include <cstddef>
+#include <format>
+
+#include <nlohmann/json.hpp>
+
+using njson = nlohmann::json;
 
 auto cmd_subcommand::send() const -> std::expected<void, std::string>
 {
     unix_socket::Client client;
-    return client.initialize(socket);
+    auto init_ok = client.initialize(socket);
+    if (!init_ok) {
+        return std::unexpected(init_ok.error());
+    }
+
+    njson json;
+    if (action == "exit" || action == "flush") {
+        json = {{"action", action}};
+    }
+
+    if (action == "remove") {
+        json = {{"action", "remove"}, {"identifier", id}};
+    }
+
+    if (action == "add") {
+        json = {{"action", "add"}, {"identifier", id}, {"max_width", max_width}, {"max_height", max_height},
+                {"x", x},          {"y", y},           {"path", file_path}};
+    }
+
+    if (json.empty()) {
+        return std::unexpected("unknown command");
+    }
+
+    auto payload = std::format("{}\n", json.dump());
+    return client.write(std::bit_cast<const std::byte *>(payload.data()), payload.length());
 }
