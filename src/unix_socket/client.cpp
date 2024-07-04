@@ -39,7 +39,7 @@ auto Client::write(const std::byte *buffer, std::size_t buflen) const -> std::ex
     while (buflen != 0) {
         const auto bytes_sent = send(sockfd, runner, buflen, MSG_NOSIGNAL);
         if (bytes_sent == -1) {
-            return std::unexpected("could not write to socket");
+            return os::system_error("could not write to socket");
         }
         buflen -= bytes_sent;
         runner += bytes_sent;
