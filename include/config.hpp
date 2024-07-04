@@ -57,16 +57,6 @@ class Config
     bool origin_center = false;
     std::string pid_file;
 
-    // for the cmd subcommand
-    std::string cmd_id;
-    std::string cmd_action;
-    std::string cmd_socket;
-    std::string cmd_x;
-    std::string cmd_y;
-    std::string cmd_max_width;
-    std::string cmd_max_height;
-    std::string cmd_file_path;
-
   private:
     Config();
 

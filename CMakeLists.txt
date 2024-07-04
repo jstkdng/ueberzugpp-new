@@ -160,6 +160,9 @@ target_sources(ueberzugpp PRIVATE
     include/canvas/canvas_worker.hpp
     include/canvas/worker_pool.hpp
 
+    include/sub_commands/cmd.hpp
+    src/sub_commands/cmd.cpp
+
     include/canvas/canvas.hpp
     src/canvas.cpp
 
@@ -192,7 +195,6 @@ target_sources(ueberzugpp PRIVATE
     include/unix_socket.hpp
     src/unix_socket/server.cpp
     src/unix_socket/client.cpp
-    src/unix_socket/util.cpp
 )
 
 target_link_libraries(ueberzugpp PRIVATE

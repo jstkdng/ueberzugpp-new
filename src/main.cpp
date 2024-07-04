@@ -17,6 +17,7 @@
 #include "application.hpp"
 #include "config.hpp"
 #include "signal.hpp"
+#include "sub_commands/cmd.hpp"
 
 #include <iostream>
 
@@ -33,6 +34,7 @@ auto main(const int argc, char *argv[]) -> int
         return 1;
     }
 
+    cmd_subcommand cmd{};
     CLI::App program("Display images in the terminal", "ueberzug");
     program.add_flag("-V,--version", config->print_version, "Print version information.");
 
@@ -53,14 +55,14 @@ auto main(const int argc, char *argv[]) -> int
     layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility.");
 
     auto *cmd_comand = program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance.");
-    cmd_comand->add_option("-s,--socket", config->cmd_socket, "UNIX socket of running instance");
-    cmd_comand->add_option("-i,--identifier", config->cmd_id, "Preview identifier");
-    cmd_comand->add_option("-a,--action", config->cmd_action, "Action to send");
-    cmd_comand->add_option("-f,--file", config->cmd_file_path, "Path of image file");
-    cmd_comand->add_option("-x,--xpos", config->cmd_x, "X position of preview");
-    cmd_comand->add_option("-y,--ypos", config->cmd_y, "Y position of preview");
-    cmd_comand->add_option("--max-width", config->cmd_max_width, "Max width of preview");
-    cmd_comand->add_option("--max-height", config->cmd_max_height, "Max height of preview");
+    cmd_comand->add_option("-s,--socket", cmd.socket, "UNIX socket of running instance");
+    cmd_comand->add_option("-i,--identifier", cmd.id, "Preview identifier");
+    cmd_comand->add_option("-a,--action", cmd.action, "Action to send");
+    cmd_comand->add_option("-f,--file", cmd.file_path, "Path of image file");
+    cmd_comand->add_option("-x,--xpos", cmd.x, "X position of preview");
+    cmd_comand->add_option("-y,--ypos", cmd.y, "Y position of preview");
+    cmd_comand->add_option("--max-width", cmd.max_width, "Max width of preview");
+    cmd_comand->add_option("--max-height", cmd.max_height, "Max height of preview");
 
     auto *tmux_command = program.add_subcommand("tmux", "Handle tmux hooks. Used internaly.");
     tmux_command->allow_extras();

@@ -31,9 +31,9 @@ using unix_socket::Server;
 
 Server::~Server()
 {
-    if (socket.fd != -1) {
-        shutdown(socket.fd, SHUT_RDWR);
-        close(socket.fd);
+    if (sockfd != -1) {
+        shutdown(sockfd, SHUT_RDWR);
+        close(sockfd);
     }
     for (const auto filde : accepted_connections) {
         shutdown(filde, SHUT_RDWR);
@@ -57,7 +57,7 @@ auto Server::start() -> std::expected<void, std::string>
 void Server::accept_connections(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
-        const auto in_event = os::wait_for_data_on_fd(socket.fd, config->waitms);
+        const auto in_event = os::wait_for_data_on_fd(sockfd, config->waitms);
         if (!in_event.has_value()) {
             SPDLOG_DEBUG(in_event.error());
             return;
@@ -130,7 +130,7 @@ auto Server::bind_to_endpoint() -> std::expected<void, std::string>
 
 auto Server::accept_connection() const -> std::expected<int, std::string>
 {
-    const int result = accept(socket.fd, nullptr, nullptr);
+    const int result = accept(sockfd, nullptr, nullptr);
     if (result == -1) {
         return os::system_error("could not accept connection");
     }
@@ -139,16 +139,20 @@ auto Server::accept_connection() const -> std::expected<int, std::string>
 
 auto Server::listen_to_socket() const -> std::expected<void, std::string>
 {
-    const int result = listen(socket.fd, SOMAXCONN);
+    const int result = listen(sockfd, SOMAXCONN);
     if (result == -1) {
         return os::system_error("could not listen to endpoint");
     }
     return {};
 }
 
-auto Server::bind_to_socket() -> std::expected<void, std::string>
+auto Server::bind_to_socket() const -> std::expected<void, std::string>
 {
-    const int result = bind(socket.fd, std::bit_cast<const sockaddr *>(&(socket.addr)), sizeof(sockaddr_un));
+    sockaddr_un addr{};
+    addr.sun_family = AF_UNIX;
+    endpoint.copy(addr.sun_path, endpoint.length());
+
+    const int result = bind(sockfd, std::bit_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("could not bind to endpoint");
     }
@@ -157,10 +161,9 @@ auto Server::bind_to_socket() -> std::expected<void, std::string>
 
 auto Server::create_socket() -> std::expected<void, std::string>
 {
-    auto socket_res = util::create_socket(endpoint);
-    if (!socket_res) {
-        return std::unexpected(socket_res.error());
+    sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        return os::system_error("could not create socket");
     }
-    socket = *socket_res;
     return {};
 }

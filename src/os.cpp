@@ -31,22 +31,13 @@ using std::expected;
 using std::string;
 using std::unexpected;
 
-auto os::system_error(const std::string_view message) noexcept -> std::unexpected<std::string>
-{
-    const auto err = error_code(errno, std::system_category());
-    if (message.empty()) {
-        return unexpected(std::format("{}", err.message()));
-    }
-    return unexpected(std::format("{}: {}", message, err.message()));
-}
-
 auto os::exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>
 {
     std::vector<char> buffer(bufsize);
     std::string result;
     const c_unique_ptr<FILE, pclose> pipe{popen(cmd.c_str(), "r")};
     if (!pipe) {
-        return system_error("Could not open pipe");
+        return system_error("could not open pipe");
     }
     while (fgets(buffer.data(), bufsize, pipe.get()) != nullptr) {
         result.append(buffer.data());

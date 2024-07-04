@@ -18,24 +18,47 @@
 #include "unix_socket.hpp"
 
 #include <bit>
+
 #include <sys/socket.h>
 #include <sys/un.h>
 
 using unix_socket::Client;
 
-Client::Client(const std::string_view endpoint)
-    : endpoint(endpoint)
+Client::~Client()
 {
+    if (sockfd != -1) {
+        shutdown(sockfd, SHUT_RDWR);
+        close(sockfd);
+    }
 }
 
-auto Client::connect_to_endpoint() -> std::expected<void, std::string>
+auto Client::write(const std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>
 {
-    return create_socket().and_then([this] { return connect_to_socket(); });
+    const auto *runner = buffer;
+    while (buflen != 0) {
+        const auto bytes_sent = send(sockfd, runner, buflen, MSG_NOSIGNAL);
+        if (bytes_sent == -1) {
+            return std::unexpected("could not write to socket");
+        }
+        buflen -= bytes_sent;
+        runner += bytes_sent;
+    }
+    return {};
 }
 
-auto Client::connect_to_socket() -> std::expected<void, std::string>
+auto Client::initialize(const std::string_view new_endpoint) -> std::expected<void, std::string>
 {
-    const int result = connect(socket.fd, std::bit_cast<const sockaddr *>(&socket.addr), sizeof(sockaddr_un));
+    endpoint = new_endpoint;
+    return create_socket().and_then([this] { return connect_socket(); });
+}
+
+auto Client::connect_socket() const -> std::expected<void, std::string>
+{
+    sockaddr_un addr{};
+    addr.sun_family = AF_UNIX;
+    endpoint.copy(addr.sun_path, endpoint.length());
+
+    const int result = connect(sockfd, std::bit_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("coud not connect to endpoint");
     }
@@ -44,10 +67,9 @@ auto Client::connect_to_socket() -> std::expected<void, std::string>
 
 auto Client::create_socket() -> std::expected<void, std::string>
 {
-    auto socket_res = util::create_socket(endpoint);
-    if (!socket_res) {
-        return std::unexpected(socket_res.error());
+    sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        return os::system_error("could not create socket");
     }
-    socket = socket_res.value();
     return {};
 }

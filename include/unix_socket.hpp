@@ -19,13 +19,12 @@
 
 #include "config.hpp"
 
+#include <cstddef>
 #include <expected>
 #include <stop_token>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include <sys/un.h>
 
 #ifndef HAVE_STD_JTHREAD
 #  include "jthread/jthread.hpp"
@@ -33,11 +32,6 @@
 
 namespace unix_socket
 {
-
-struct sockfd {
-    int fd = -1;
-    sockaddr_un addr{};
-};
 
 class Server
 {
@@ -48,19 +42,19 @@ class Server
     auto read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>;
 
   private:
+    int sockfd = -1;
     std::string endpoint;
-    sockfd socket{};
 
     std::shared_ptr<Config> config = Config::instance();
     std::vector<int> accepted_connections;
     std::jthread accept_thread;
 
     auto bind_to_endpoint() -> std::expected<void, std::string>;
-    auto bind_to_socket() -> std::expected<void, std::string>;
     auto create_socket() -> std::expected<void, std::string>;
     void accept_connections(const std::stop_token &token);
     void remove_accepted_connection(int filde);
 
+    [[nodiscard]] auto bind_to_socket() const -> std::expected<void, std::string>;
     [[nodiscard]] auto accept_connection() const -> std::expected<int, std::string>;
     [[nodiscard]] auto listen_to_socket() const -> std::expected<void, std::string>;
 };
@@ -68,21 +62,18 @@ class Server
 class Client
 {
   public:
-    explicit Client(std::string_view endpoint);
-    auto connect_to_endpoint() -> std::expected<void, std::string>;
+    ~Client();
+
+    auto initialize(std::string_view new_endpoint) -> std::expected<void, std::string>;
+    [[nodiscard]] auto write(const std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>;
 
   private:
+    int sockfd = -1;
     std::string endpoint;
-    sockfd socket;
 
     auto create_socket() -> std::expected<void, std::string>;
-    auto connect_to_socket() -> std::expected<void, std::string>;
+    [[nodiscard]] auto connect_socket() const -> std::expected<void, std::string>;
 };
-
-namespace util
-{
-auto create_socket(std::string_view endpoint) -> std::expected<sockfd, std::string>;
-}
 
 } // namespace unix_socket
 

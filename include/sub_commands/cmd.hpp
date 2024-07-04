@@ -14,26 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "os.hpp"
-#include "unix_socket.hpp"
+#ifndef CMD_HPP
+#define CMD_HPP
 
-#include <format>
-#include <sys/socket.h>
+#include <expected>
+#include <string>
 
-namespace unix_socket
-{
+struct cmd_subcommand {
+    std::string id;
+    std::string action;
+    std::string socket;
+    std::string x;
+    std::string y;
+    std::string max_width;
+    std::string max_height;
+    std::string file_path;
 
-auto util::create_socket(const std::string_view endpoint) -> std::expected<sockfd, std::string>
-{
-    sockfd result{};
-    result.addr.sun_family = AF_UNIX;
-    endpoint.copy(result.addr.sun_path, endpoint.length());
+    [[nodiscard]] auto send() const -> std::expected<void, std::string>;
+};
 
-    result.fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (result.fd == -1) {
-        return os::system_error(std::format("could not create socket for {}", endpoint));
-    }
-    return result;
-}
-
-} // namespace unix_socket
+#endif // CMD_HPP
