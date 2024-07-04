@@ -65,7 +65,7 @@ auto Application::initialize() noexcept -> std::expected<void, std::string>
             }
             return canvas_ok;
         })
-        .and_then([this](auto...) { return canvas->initialize(&command_manager); });
+        .and_then([this](auto) { return canvas->initialize(&command_manager); });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>

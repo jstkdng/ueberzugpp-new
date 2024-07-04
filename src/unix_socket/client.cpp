@@ -21,6 +21,7 @@
 
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <unistd.h>
 
 using unix_socket::Client;
 
