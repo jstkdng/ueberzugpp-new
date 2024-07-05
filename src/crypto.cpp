@@ -17,12 +17,22 @@
 #include "crypto.hpp"
 #include "util/ptr.hpp"
 
+#include <algorithm>
 #include <format>
-#include <iomanip>
-#include <ranges>
+#include <span>
 #include <vector>
 
 #include <openssl/evp.h>
+
+auto bytes_to_hexstring(std::span<std::byte> bytes) -> std::string
+{
+    std::string result;
+    result.reserve(bytes.size() * 2);
+    for (const auto byte : bytes) {
+        result.append(std::format("{:02x}", std::to_integer<int>(byte)));
+    }
+    return result;
+}
 
 auto crypto::get_b2_hash(const std::string_view str) -> std::string
 {
@@ -39,12 +49,7 @@ auto crypto::get_b2_hash(const std::string_view str) -> std::string
     unsigned int digest_len = 0;
     EVP_DigestFinal_ex(mdctx.get(), std::bit_cast<unsigned char *>(digest.data()), &digest_len);
 
-    std::string result;
-    result.reserve(EVP_MAX_MD_SIZE * 2);
-    for (const auto idx : std::views::iota(0U, digest_len)) {
-        result.append(std::format("{:02x}", std::to_integer<int>(digest.at(idx))));
-    }
-    return result;
+    return bytes_to_hexstring(std::span{digest.data(), digest_len});
 }
 
 auto crypto::base64_encode(const std::string_view str) -> std::string
