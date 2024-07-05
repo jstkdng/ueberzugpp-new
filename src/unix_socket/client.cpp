@@ -47,6 +47,23 @@ auto Client::write(const std::byte *buffer, std::size_t buflen) const -> std::ex
     return {};
 }
 
+auto Client::read(std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>
+{
+    auto *runner = buffer;
+    while (buflen != 0) {
+        const auto status = recv(sockfd, runner, buflen, 0);
+        if (status == 0) {
+            return {}; // no data
+        }
+        if (status == -1) {
+            return os::system_error("could not read from socket");
+        }
+        buflen -= status;
+        runner += status;
+    }
+    return {};
+}
+
 auto Client::initialize(const std::string_view new_endpoint) -> std::expected<void, std::string>
 {
     endpoint = new_endpoint;

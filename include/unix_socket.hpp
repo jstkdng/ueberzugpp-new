@@ -66,6 +66,7 @@ class Client
 
     auto initialize(std::string_view new_endpoint) -> std::expected<void, std::string>;
     [[nodiscard]] auto write(const std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>;
+    [[nodiscard]] auto read(std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>;
 
   private:
     int sockfd = -1;
