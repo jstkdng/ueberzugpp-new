@@ -66,7 +66,7 @@ void X11Canvas::read_commands(const std::stop_token &token) const
         if (!command_ok) {
             continue;
         }
-        const auto &json = *command_ok;
+        [[maybe_unused]] const auto &json = *command_ok;
         SPDLOG_DEBUG("received command: {}", json.dump());
     }
 }
@@ -98,7 +98,7 @@ void X11Canvas::handle_events(const std::stop_token &token) const
                     break;
                 }
                 case XCB_EXPOSE: {
-                    const auto *expose = std::bit_cast<xcb_expose_event_t *>(event.get());
+                    [[maybe_unused]] const auto *expose = std::bit_cast<xcb_expose_event_t *>(event.get());
                     SPDLOG_DEBUG("received expose event for window {}", expose->window);
                     break;
                 }

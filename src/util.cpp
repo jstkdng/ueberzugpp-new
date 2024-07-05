@@ -23,6 +23,32 @@
 
 namespace fs = std::filesystem;
 
+auto util::byte_to_hex(const std::byte byte) -> char
+{
+    constexpr int to_char = 48;
+    constexpr int to_char2 = 87;
+    constexpr int limit = 9;
+    const auto chr = std::to_integer<char>(byte);
+    if (chr >= 0 && chr <= limit) {
+        return static_cast<char>(chr + to_char);
+    }
+    return static_cast<char>(chr + to_char2);
+}
+
+auto util::bytes_to_hexstring(const std::span<const std::byte> bytes) noexcept -> std::string
+{
+    std::string result(bytes.size() * 2, 0);
+
+    constexpr std::byte mask{0xf};
+    std::size_t idx = 0;
+    for (const auto byte : bytes) {
+        result.at(idx) = byte_to_hex(byte >> 4);
+        result.at(idx + 1) = byte_to_hex(byte & mask);
+        idx += 2;
+    }
+    return result;
+}
+
 auto util::get_socket_path(int pid) -> std::string
 {
     const auto sockname = std::format("ueberzugpp-{}.socket", pid);
