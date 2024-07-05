@@ -17,33 +17,34 @@
 #include "crypto.hpp"
 #include "util/ptr.hpp"
 
-#include <array>
+#include <format>
 #include <iomanip>
-#include <sstream>
+#include <ranges>
+#include <vector>
 
 #include <openssl/evp.h>
 
 auto crypto::get_b2_hash(const std::string_view str) -> std::string
 {
-    std::stringstream sstream;
     const auto mdctx = c_unique_ptr<EVP_MD_CTX, EVP_MD_CTX_free>{EVP_MD_CTX_new()};
 #ifdef LIBRESSL_VERSION_NUMBER
     const auto *evp = EVP_sha256();
 #else
     const auto *evp = EVP_blake2b512();
 #endif
-    auto digest = std::array<unsigned char, EVP_MAX_MD_SIZE>();
 
+    std::vector<std::byte> digest(EVP_MAX_MD_SIZE);
     EVP_DigestInit_ex(mdctx.get(), evp, nullptr);
     EVP_DigestUpdate(mdctx.get(), str.data(), str.size());
     unsigned int digest_len = 0;
-    EVP_DigestFinal_ex(mdctx.get(), digest.data(), &digest_len);
+    EVP_DigestFinal_ex(mdctx.get(), std::bit_cast<unsigned char *>(digest.data()), &digest_len);
 
-    sstream << std::hex << std::setw(2) << std::setfill('0');
-    for (unsigned int i = 0; i < digest_len; ++i) {
-        sstream << static_cast<int>(digest.at(i));
+    std::string result;
+    result.reserve(EVP_MAX_MD_SIZE * 2);
+    for (const auto idx : std::views::iota(0U, digest_len)) {
+        result.append(std::format("{:02x}", std::to_integer<int>(digest.at(idx))));
     }
-    return sstream.str();
+    return result;
 }
 
 auto crypto::base64_encode(const std::string_view str) -> std::string
@@ -51,17 +52,12 @@ auto crypto::base64_encode(const std::string_view str) -> std::string
     const auto length = str.length();
     const size_t bufsize = 4 * ((length + 2) / 3);
     std::string buffer(bufsize, 0);
-    base64_encode_internal(std::bit_cast<const std::byte *>(str.data()), length,
-                           std::bit_cast<std::byte *>(buffer.data()));
-    return buffer;
-}
-
-void crypto::base64_encode_internal(const std::byte *input, size_t length, std::byte *out)
-{
 #ifdef ENABLE_TURBOBASE64
     tb64enc(input, length, out);
 #else
-    EVP_EncodeBlock(std::bit_cast<unsigned char *>(out), std::bit_cast<const unsigned char *>(input),
+    EVP_EncodeBlock(std::bit_cast<unsigned char *>(buffer.data()), std::bit_cast<unsigned char *>(str.data()),
                     static_cast<int>(length));
 #endif
+
+    return buffer;
 }

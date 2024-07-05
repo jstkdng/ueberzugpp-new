@@ -33,9 +33,10 @@ Client::~Client()
     }
 }
 
-auto Client::write(const std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>
+auto Client::write(const std::span<const std::byte> buffer) const -> std::expected<void, std::string>
 {
-    const auto *runner = buffer;
+    const auto *runner = buffer.data();
+    auto buflen = buffer.size();
     while (buflen != 0) {
         const auto bytes_sent = send(sockfd, runner, buflen, MSG_NOSIGNAL);
         if (bytes_sent == -1) {
@@ -47,9 +48,10 @@ auto Client::write(const std::byte *buffer, std::size_t buflen) const -> std::ex
     return {};
 }
 
-auto Client::read(std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>
+auto Client::read(std::span<std::byte> buffer) const -> std::expected<void, std::string>
 {
-    auto *runner = buffer;
+    auto *runner = buffer.data();
+    auto buflen = buffer.size();
     while (buflen != 0) {
         const auto status = recv(sockfd, runner, buflen, 0);
         if (status == 0) {

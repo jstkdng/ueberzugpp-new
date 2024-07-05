@@ -17,8 +17,8 @@
 #include "sub_commands/cmd.hpp"
 #include "unix_socket.hpp"
 
-#include <cstddef>
 #include <format>
+#include <span>
 
 #include <nlohmann/json.hpp>
 
@@ -47,5 +47,5 @@ auto cmd_subcommand::send() const -> std::expected<void, std::string>
     }
 
     auto payload = std::format("{}\n", json.dump());
-    return client.write(std::bit_cast<const std::byte *>(payload.data()), payload.length());
+    return client.write(std::as_bytes(std::span{payload}));
 }

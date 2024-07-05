@@ -19,24 +19,9 @@
 #include <algorithm>
 #include <filesystem>
 #include <format>
-#include <print>
 #include <ranges>
 
 namespace fs = std::filesystem;
-
-void util::benchmark(auto Func)
-{
-    using std::chrono::duration;
-    using std::chrono::duration_cast;
-    using std::chrono::high_resolution_clock;
-    using std::chrono::milliseconds;
-
-    const auto time1 = high_resolution_clock::now();
-    Func();
-    const auto time2 = high_resolution_clock::now();
-    const duration<double, std::milli> ms_double = time2 - time1;
-    std::print("{}ms\n", ms_double.count());
-}
 
 auto util::get_socket_path(int pid) -> std::string
 {

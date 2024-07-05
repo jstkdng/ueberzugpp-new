@@ -21,6 +21,7 @@
 
 #include <cstddef>
 #include <expected>
+#include <span>
 #include <string>
 #include <vector>
 #ifdef HAVE_STD_JTHREAD
@@ -65,8 +66,8 @@ class Client
     ~Client();
 
     auto initialize(std::string_view new_endpoint) -> std::expected<void, std::string>;
-    [[nodiscard]] auto write(const std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>;
-    [[nodiscard]] auto read(std::byte *buffer, std::size_t buflen) const -> std::expected<void, std::string>;
+    [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> std::expected<void, std::string>;
+    [[nodiscard]] auto read(std::span<std::byte> buffer) const -> std::expected<void, std::string>;
 
   private:
     int sockfd = -1;
