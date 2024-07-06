@@ -25,10 +25,10 @@
 class Terminal
 {
   public:
-    auto initialize() -> std::expected<void, std::string>;
     ~Terminal();
-
     auto operator=(Terminal &&) -> Terminal & = delete;
+
+    auto initialize() -> std::expected<void, std::string>;
 
   private:
     int opened_terminal_pid = -1;

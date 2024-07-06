@@ -38,11 +38,10 @@ class Server
 {
   public:
     ~Server();
+    auto operator=(Server &&) -> Server & = delete;
 
     auto start() -> std::expected<void, std::string>;
     auto read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>;
-
-    auto operator=(Server &&) -> Server & = delete;
 
   private:
     int sockfd = -1;
@@ -66,12 +65,11 @@ class Client
 {
   public:
     ~Client();
+    auto operator=(Client &&) -> Client & = delete;
 
     auto initialize(std::string_view new_endpoint) -> std::expected<void, std::string>;
     [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> std::expected<void, std::string>;
     [[nodiscard]] auto read(std::span<std::byte> buffer) const -> std::expected<void, std::string>;
-
-    auto operator=(Client &&) -> Client & = delete;
 
   private:
     int sockfd = -1;
