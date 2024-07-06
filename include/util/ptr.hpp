@@ -17,6 +17,7 @@
 #ifndef UTIL_PTR_HPP
 #define UTIL_PTR_HPP
 
+#include <cstdlib>
 #include <memory>
 
 template <auto &Fn>

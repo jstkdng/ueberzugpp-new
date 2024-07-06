@@ -40,7 +40,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
 endif ()
 
-if (ENABLE_LIBXX)
+if (ENABLE_LIBCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif ()
