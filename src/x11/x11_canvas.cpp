@@ -19,7 +19,7 @@
 #include "util/ptr.hpp"
 
 #include <spdlog/spdlog.h>
-
+// and another one
 using std::unexpected;
 
 X11Canvas::~X11Canvas()
