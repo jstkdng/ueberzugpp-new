@@ -28,6 +28,8 @@ class Terminal
     auto initialize() -> std::expected<void, std::string>;
     ~Terminal();
 
+    auto operator=(Terminal &&) -> Terminal & = delete;
+
   private:
     int opened_terminal_pid = -1;
     int pty_fd = -1;

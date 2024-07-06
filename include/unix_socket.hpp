@@ -42,6 +42,8 @@ class Server
     auto start() -> std::expected<void, std::string>;
     auto read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>;
 
+    auto operator=(Server &&) -> Server & = delete;
+
   private:
     int sockfd = -1;
     std::string endpoint;
@@ -68,6 +70,8 @@ class Client
     auto initialize(std::string_view new_endpoint) -> std::expected<void, std::string>;
     [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> std::expected<void, std::string>;
     [[nodiscard]] auto read(std::span<std::byte> buffer) const -> std::expected<void, std::string>;
+
+    auto operator=(Client &&) -> Client & = delete;
 
   private:
     int sockfd = -1;
