@@ -32,7 +32,6 @@ X11Canvas::~X11Canvas()
 
 auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::string>
 {
-    // test
     SPDLOG_DEBUG("initializing canvas");
     command_manager = manager;
     auto conn_ok = connect_to_x11();
