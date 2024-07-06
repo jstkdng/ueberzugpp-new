@@ -17,7 +17,7 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#include "canvas/canvas.hpp"
+#include "canvas.hpp"
 #include "command.hpp"
 #include "config.hpp"
 #include "terminal.hpp"

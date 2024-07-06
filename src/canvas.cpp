@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "canvas/canvas.hpp"
+#include "canvas.hpp"
 #ifdef ENABLE_X11
-#  include "x11/x11_canvas.hpp"
+#  include "canvas/x11_canvas.hpp"
 #endif
 
 auto Canvas::create([[maybe_unused]] const Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>

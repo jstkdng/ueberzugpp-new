@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "x11_canvas.hpp"
+#include "canvas/x11_canvas.hpp"
 #include "os.hpp"
 #include "util/ptr.hpp"
 
@@ -24,7 +24,6 @@ using std::unexpected;
 
 X11Canvas::~X11Canvas()
 {
-    worker_pool.stop();
 #ifdef ENABLE_XCB_ERRORS
     xcb_errors_context_free(err_ctx);
 #endif
@@ -41,7 +40,6 @@ auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::
     }
     event_handler = std::jthread([this](auto token) { handle_events(token); });
     command_reader = std::jthread([this](auto token) { read_commands(token); });
-    worker_pool.start(connection, screen);
     SPDLOG_INFO("canvas initialized");
     return {};
 }
