@@ -19,10 +19,11 @@
 
 #include "canvas.hpp"
 #include "config.hpp"
+#include "map/str_map.hpp"
 #include "x11_window.hpp"
 
 #include <thread>
-#include <unordered_set>
+#include <unordered_map>
 
 #ifndef HAVE_STD_JTHREAD
 #  include "jthread/jthread.hpp"
@@ -52,7 +53,7 @@ class X11Canvas final : public Canvas
     std::jthread event_handler;
     std::jthread command_reader;
 
-    std::unordered_set<std::shared_ptr<X11Window>> windows;
+    string_map<std::shared_ptr<X11Window>> windows;
 
     auto connect_to_x11() -> std::expected<void, std::string>;
     void handle_events(const std::stop_token &token) const;

@@ -154,6 +154,7 @@ target_sources(ueberzugpp PRIVATE
     src/main.cpp
     include/util/ptr.hpp
     include/process.hpp
+    include/map/str_map.hpp
 
     include/sub_commands/cmd.hpp
     src/sub_commands/cmd.cpp

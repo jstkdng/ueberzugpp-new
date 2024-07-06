@@ -14,24 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef X11_WINDOW_HPP
-#define X11_WINDOW_HPP
+#ifndef STR_MAP_HPP
+#define STR_MAP_HPP
 
-#include <expected>
 #include <string>
-#include <xcb/xcb.h>
+#include <string_view>
+#include <unordered_map>
 
-class X11Window
-{
-  public:
-    auto initialize(xcb_connection_t *connection, xcb_screen_t *screen) -> std::expected<void, std::string>;
+struct StringHash {
+    using is_transparent = void; // Enables heterogeneous operations.
 
-    std::string image_id;
-
-  private:
-    xcb_connection_t *connection = nullptr;
-    xcb_screen_t *screen = nullptr;
-    xcb_window_t window = 0;
+    auto operator()(const std::string_view view) const noexcept -> std::size_t
+    {
+        constexpr std::hash<std::string_view> hasher;
+        return hasher(view);
+    }
 };
 
-#endif // X11_WINDOW_HPP
+template <class T>
+using string_map = std::unordered_map<std::string, T, StringHash, std::equal_to<>>;
+
+#endif // STR_MAP_HPP
