@@ -35,6 +35,6 @@ Process::Process(int pid)
     if (status == PROC_PIDTBSDINFO_SIZE) {
         tty_nr = static_cast<int>(proc.e_tdev);
         minor_dev = minor(tty_nr);
-        pty_path = std::format("/dev/ttys{:0>3}", minor_dev);
+        pty_path = std::format("/dev/ttys{:03}", minor_dev);
     }
 }
