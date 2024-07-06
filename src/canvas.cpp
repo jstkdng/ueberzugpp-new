@@ -16,7 +16,7 @@
 
 #include "canvas.hpp"
 #ifdef ENABLE_X11
-#  include "canvas/x11_canvas.hpp"
+#  include "x11/x11_canvas.hpp"
 #endif
 
 auto Canvas::create([[maybe_unused]] const Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>
