@@ -38,7 +38,6 @@ auto get_log_path() -> std::string;
 auto get_process_tree(int pid) -> std::vector<Process>;
 auto get_process_pid_tree(int pid) -> std::vector<int>;
 auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string>;
-auto byte_to_hex(std::byte byte) -> char;
 auto bytes_to_hexstring(std::span<const std::byte> bytes) noexcept -> std::string;
 
 template <typename Func>
