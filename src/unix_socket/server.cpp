@@ -19,7 +19,6 @@
 #include "util.hpp"
 
 #include <algorithm>
-#include <bit>
 
 #include <spdlog/spdlog.h>
 #include <sys/poll.h>

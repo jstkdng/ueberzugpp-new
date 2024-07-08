@@ -17,8 +17,6 @@
 #include "os.hpp"
 #include "unix_socket.hpp"
 
-#include <bit>
-
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
