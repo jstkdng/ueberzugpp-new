@@ -64,8 +64,15 @@ void X11Canvas::read_commands(const std::stop_token &token) const
         if (!command_ok) {
             continue;
         }
-        [[maybe_unused]] const auto &json = *command_ok;
-        SPDLOG_DEBUG("received command: {}", json.dump());
+        const auto &json = *command_ok;
+        const auto &action = json.value("action", "");
+        if (action == "add") {
+
+        } else if (action == "remove") {
+
+        } else {
+            SPDLOG_WARN("unknown command received: {}", json.dump());
+        }
     }
 }
 

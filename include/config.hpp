@@ -32,9 +32,6 @@ class Config
         return ptr;
     }
 
-    Config(const Config &) = delete;
-    Config(Config &&) = delete;
-    auto operator=(const Config &) -> Config & = delete;
     auto operator=(Config &&) -> Config & = delete;
 
     auto read_config_file() -> std::expected<void, std::string>;

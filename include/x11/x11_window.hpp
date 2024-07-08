@@ -17,14 +17,14 @@
 #ifndef X11_WINDOW_HPP
 #define X11_WINDOW_HPP
 
-#include <expected>
+#include <memory>
 #include <string>
 #include <xcb/xcb.h>
 
-class X11Window
+class X11Window : public std::enable_shared_from_this<X11Window>
 {
   public:
-    auto initialize(xcb_connection_t *connection, xcb_screen_t *screen) -> std::expected<void, std::string>;
+    X11Window(xcb_connection_t *connection, xcb_screen_t *screen);
 
     std::string image_id;
 

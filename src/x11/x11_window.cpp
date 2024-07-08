@@ -15,3 +15,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "x11/x11_window.hpp"
+
+X11Window::X11Window(xcb_connection_t *connection, xcb_screen_t *screen)
+    : connection(connection),
+      screen(screen)
+{
+}

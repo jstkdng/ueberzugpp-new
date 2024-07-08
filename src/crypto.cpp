@@ -32,13 +32,13 @@ auto crypto::get_b2_hash(const std::string_view str) -> std::string
     const auto *evp = EVP_blake2b512();
 #endif
 
-    std::vector<std::byte> digest(EVP_MAX_MD_SIZE);
+    std::vector<unsigned char> digest(EVP_MAX_MD_SIZE);
     EVP_DigestInit_ex(mdctx.get(), evp, nullptr);
     EVP_DigestUpdate(mdctx.get(), str.data(), str.size());
     unsigned int digest_len = 0;
-    EVP_DigestFinal_ex(mdctx.get(), std::bit_cast<unsigned char *>(digest.data()), &digest_len);
+    EVP_DigestFinal_ex(mdctx.get(), digest.data(), &digest_len);
 
-    return util::bytes_to_hexstring(std::span{digest.data(), digest_len});
+    return util::bytes_to_hexstring(std::as_bytes(std::span{digest.data(), digest_len}));
 }
 
 auto crypto::base64_encode(const std::string_view str) -> std::string
@@ -49,8 +49,8 @@ auto crypto::base64_encode(const std::string_view str) -> std::string
 #ifdef ENABLE_TURBOBASE64
     tb64enc(input, length, out);
 #else
-    EVP_EncodeBlock(std::bit_cast<unsigned char *>(buffer.data()), std::bit_cast<unsigned char *>(str.data()),
-                    static_cast<int>(length));
+    EVP_EncodeBlock(reinterpret_cast<unsigned char *>(buffer.data()),
+                    reinterpret_cast<const unsigned char *>(str.data()), static_cast<int>(length));
 #endif
 
     return buffer;
