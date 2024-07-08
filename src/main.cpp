@@ -16,10 +16,8 @@
 
 #include "application.hpp"
 #include "config.hpp"
-#include "crypto.hpp"
 #include "signal.hpp"
 #include "sub_commands/cmd.hpp"
-#include "util.hpp"
 
 #include <print>
 
@@ -28,8 +26,6 @@
 auto main(const int argc, char *argv[]) -> int
 {
     signal_manager::setup_signals();
-
-    util::benchmark([] { std::print("{}\n", crypto::get_b2_hash("hello world")); });
 
     const auto config = Config::instance();
     const auto config_read = config->read_config_file();
