@@ -152,7 +152,7 @@ auto Server::bind_to_socket() const -> std::expected<void, std::string>
     addr.sun_family = AF_UNIX;
     endpoint.copy(addr.sun_path, endpoint.length());
 
-    const int result = bind(sockfd, std::bit_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
+    const int result = bind(sockfd, reinterpret_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("could not bind to endpoint");
     }

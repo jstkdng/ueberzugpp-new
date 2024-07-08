@@ -98,12 +98,12 @@ void X11Canvas::handle_events(const std::stop_token &token) const
             auto real_event = std::to_integer<int>(res_type & ~event_mask);
             switch (real_event) {
                 case 0: {
-                    auto *err = std::bit_cast<xcb_generic_error_t *>(event.get());
+                    auto *err = reinterpret_cast<xcb_generic_error_t *>(event.get());
                     print_xcb_error(err);
                     break;
                 }
                 case XCB_EXPOSE: {
-                    [[maybe_unused]] const auto *expose = std::bit_cast<xcb_expose_event_t *>(event.get());
+                    [[maybe_unused]] const auto *expose = reinterpret_cast<xcb_expose_event_t *>(event.get());
                     SPDLOG_DEBUG("received expose event for window {}", expose->window);
                     break;
                 }

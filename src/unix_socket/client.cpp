@@ -78,7 +78,7 @@ auto Client::connect_socket() const -> std::expected<void, std::string>
     addr.sun_family = AF_UNIX;
     endpoint.copy(addr.sun_path, endpoint.length());
 
-    const int result = connect(sockfd, std::bit_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
+    const int result = connect(sockfd, reinterpret_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
     if (result == -1) {
         return os::system_error("coud not connect to endpoint");
     }
