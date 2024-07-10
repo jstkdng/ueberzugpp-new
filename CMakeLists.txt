@@ -152,8 +152,6 @@ endif ()
 
 target_sources(ueberzugpp PRIVATE
     src/main.cpp
-    include/process.hpp
-    include/map/str_map.hpp
 
     include/sub_commands/cmd.hpp
     src/sub_commands/cmd.cpp
@@ -161,6 +159,8 @@ target_sources(ueberzugpp PRIVATE
     include/canvas.hpp
     src/canvas.cpp
 
+    include/util/process.hpp
+    include/util/str_map.hpp
     include/util/ptr.hpp
     include/util/crypto.hpp
     include/util/os.hpp

@@ -19,7 +19,7 @@
 
 #include "canvas.hpp"
 #include "config.hpp"
-#include "map/str_map.hpp"
+#include "util/str_map.hpp"
 #include "x11_window.hpp"
 
 #include <thread>
