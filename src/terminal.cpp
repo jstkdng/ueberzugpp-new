@@ -16,7 +16,7 @@
 
 #include "terminal.hpp"
 #include "os.hpp"
-#include "util.hpp"
+#include "util/util.hpp"
 
 #include <algorithm>
 #include <system_error>

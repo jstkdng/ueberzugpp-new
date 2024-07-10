@@ -57,7 +57,7 @@ auto X11Canvas::connect_to_x11() -> std::expected<void, std::string>
     return {};
 }
 
-void X11Canvas::read_commands(const std::stop_token &token) const
+void X11Canvas::read_commands(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
         auto command_ok = command_manager->unqueue();
@@ -66,10 +66,11 @@ void X11Canvas::read_commands(const std::stop_token &token) const
         }
         const auto &json = *command_ok;
         const auto &action = json.value("action", "");
+        const auto &image_id = json.value("id", "");
         if (action == "add") {
 
         } else if (action == "remove") {
-
+            windows.erase(image_id);
         } else {
             SPDLOG_WARN("unknown command received: {}", json.dump());
         }

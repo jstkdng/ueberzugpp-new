@@ -162,8 +162,8 @@ target_sources(ueberzugpp PRIVATE
     include/canvas.hpp
     src/canvas.cpp
 
-    include/crypto.hpp
-    src/crypto.cpp
+    include/util/crypto.hpp
+    src/util/crypto.cpp
 
     include/application.hpp
     src/application.cpp
@@ -175,7 +175,7 @@ target_sources(ueberzugpp PRIVATE
     src/command.cpp
 
     include/util.hpp
-    src/util.cpp
+    src/util/util.cpp
 
     include/signal.hpp
     src/signal.cpp

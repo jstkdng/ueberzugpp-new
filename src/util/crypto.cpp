@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "crypto.hpp"
-#include "util.hpp"
+#include "util/crypto.hpp"
 #include "util/ptr.hpp"
+#include "util/util.hpp"
 
 #include <span>
 #include <vector>

@@ -16,7 +16,7 @@
 
 #include "terminal_info.hpp"
 #include "os.hpp"
-#include "util.hpp"
+#include "util/util.hpp"
 
 #include <cmath>
 #include <iostream>

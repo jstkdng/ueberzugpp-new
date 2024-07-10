@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
-#include "util.hpp"
+#include "util/util.hpp"
 #include "version.hpp"
 
 #include <chrono>
