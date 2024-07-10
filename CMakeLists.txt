@@ -163,6 +163,8 @@ target_sources(ueberzugpp PRIVATE
     include/util/crypto.hpp
     include/util/util.hpp
     include/util/unix_socket.hpp
+    include/util/tmux.hpp
+    src/util/tmux.cpp
     src/util/crypto.cpp
     src/util/util.cpp
     src/util/unix_socket/server.cpp

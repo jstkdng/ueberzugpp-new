@@ -18,6 +18,7 @@
 #include "config.hpp"
 #include "os/signal.hpp"
 #include "sub_commands/cmd.hpp"
+#include "util/tmux.hpp"
 
 #include <print>
 
@@ -30,8 +31,16 @@ auto main(const int argc, char *argv[]) -> int
     const auto config = Config::instance();
     const auto config_read = config->read_config_file();
     if (!config_read) {
-        std::cerr << config_read.error() << '\n';
+        std::print(stderr, "{}\n", config_read.error());
         return 1;
+    }
+
+    TmuxClient tmux;
+    auto tmux_ok = tmux.initialize();
+    if (!tmux_ok) {
+        std::print("{}\n", tmux_ok.error());
+    } else {
+        tmux.get_session_id();
     }
 
     CLI::App program("Display images in the terminal", "ueberzug");
