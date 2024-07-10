@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "terminal.hpp"
-#include "os.hpp"
+#include "util/os.hpp"
 #include "util/util.hpp"
 
 #include <algorithm>
