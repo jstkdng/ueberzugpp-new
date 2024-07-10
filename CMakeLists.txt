@@ -165,9 +165,12 @@ target_sources(ueberzugpp PRIVATE
     include/util/crypto.hpp
     include/util/os.hpp
     include/util/util.hpp
+    include/util/unix_socket.hpp
     src/util/crypto.cpp
     src/util/os.cpp
     src/util/util.cpp
+    src/util/unix_socket/server.cpp
+    src/util/unix_socket/client.cpp
 
     include/application.hpp
     src/application.cpp
@@ -185,10 +188,6 @@ target_sources(ueberzugpp PRIVATE
 
     include/config.hpp
     src/config.cpp
-
-    include/unix_socket.hpp
-    src/unix_socket/server.cpp
-    src/unix_socket/client.cpp
 )
 
 target_link_libraries(ueberzugpp PRIVATE

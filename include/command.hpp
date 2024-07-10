@@ -18,7 +18,7 @@
 #define COMMAND_HPP
 
 #include "config.hpp"
-#include "unix_socket.hpp"
+#include "util/unix_socket.hpp"
 
 #include <condition_variable>
 #include <expected>

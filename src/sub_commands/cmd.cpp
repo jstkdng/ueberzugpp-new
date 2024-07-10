@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "sub_commands/cmd.hpp"
-#include "unix_socket.hpp"
+#include "util/unix_socket.hpp"
 
 #include <format>
 #include <span>
