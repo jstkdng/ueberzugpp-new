@@ -98,11 +98,10 @@ if (ENABLE_X11)
     pkg_check_modules(XCB_IMAGE REQUIRED IMPORTED_TARGET xcb-image)
     pkg_check_modules(XCB_RES REQUIRED IMPORTED_TARGET xcb-res)
     target_sources(ueberzugpp PRIVATE
-        include/x11/x11_canvas.hpp
-        src/x11/x11_canvas.cpp
-
-        include/x11/x11_window.hpp
-        src/x11/x11_window.cpp
+        include/canvas/x11/x11_canvas.hpp
+        include/canvas/x11/x11_window.hpp
+        src/canvas/x11/x11_canvas.cpp
+        src/canvas/x11/x11_window.cpp
     )
     target_link_libraries(ueberzugpp PRIVATE PkgConfig::XCB PkgConfig::XCB_IMAGE PkgConfig::XCB_RES)
 
@@ -156,8 +155,8 @@ target_sources(ueberzugpp PRIVATE
     include/sub_commands/cmd.hpp
     src/sub_commands/cmd.cpp
 
-    include/canvas.hpp
-    src/canvas.cpp
+    include/canvas/canvas.hpp
+    src/canvas/canvas.cpp
 
     include/util/process.hpp
     include/util/str_map.hpp

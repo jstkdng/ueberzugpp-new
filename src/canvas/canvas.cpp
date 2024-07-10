@@ -14,10 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "x11/x11_window.hpp"
+#include "canvas/canvas.hpp"
+#ifdef ENABLE_X11
+#  include "canvas/x11/x11_canvas.hpp"
+#endif
 
-X11Window::X11Window(xcb_connection_t *connection, xcb_screen_t *screen)
-    : connection(connection),
-      screen(screen)
+auto Canvas::create([[maybe_unused]] const Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>
 {
+#ifdef ENABLE_X11
+    if (config->output == "x11") {
+        return std::make_unique<X11Canvas>();
+    }
+#endif
+
+    return std::unexpected("could not create canvas");
 }

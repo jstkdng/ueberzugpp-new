@@ -17,7 +17,7 @@
 #ifndef X11_CANVAS_HPP
 #define X11_CANVAS_HPP
 
-#include "canvas.hpp"
+#include "canvas/canvas.hpp"
 #include "config.hpp"
 #include "util/str_map.hpp"
 #include "x11_window.hpp"

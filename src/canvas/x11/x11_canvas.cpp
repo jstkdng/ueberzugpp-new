@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "x11/x11_canvas.hpp"
+#include "canvas/x11/x11_canvas.hpp"
 #include "util/os.hpp"
 #include "util/ptr.hpp"
 
