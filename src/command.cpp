@@ -16,7 +16,7 @@
 
 #include "command.hpp"
 #include "application.hpp"
-#include "util/os.hpp"
+#include "os/os.hpp"
 
 #include <chrono>
 #include <format>

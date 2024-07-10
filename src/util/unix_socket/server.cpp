@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/os.hpp"
+#include "os/os.hpp"
 #include "util/unix_socket.hpp"
 #include "util/util.hpp"
 

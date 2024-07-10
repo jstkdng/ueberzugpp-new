@@ -141,11 +141,11 @@ target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_SOURCE_DIR}/third_
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(ueberzugpp PRIVATE
-        src/linux/process.cpp
+        src/os/linux/process.cpp
     )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_sources(ueberzugpp PRIVATE
-        src/apple/process.cpp
+        src/os/apple/process.cpp
     )
 endif ()
 
@@ -158,27 +158,27 @@ target_sources(ueberzugpp PRIVATE
     include/canvas/canvas.hpp
     src/canvas/canvas.cpp
 
-    include/util/process.hpp
     include/util/str_map.hpp
     include/util/ptr.hpp
     include/util/crypto.hpp
-    include/util/os.hpp
     include/util/util.hpp
     include/util/unix_socket.hpp
     src/util/crypto.cpp
-    src/util/os.cpp
     src/util/util.cpp
     src/util/unix_socket/server.cpp
     src/util/unix_socket/client.cpp
+
+    include/os/signal.hpp
+    include/os/process.hpp
+    include/os/os.hpp
+    src/os/os.cpp
+    src/os/signal.cpp
 
     include/application.hpp
     src/application.cpp
 
     include/command.hpp
     src/command.cpp
-
-    include/signal.hpp
-    src/signal.cpp
 
     include/terminal.hpp
     include/terminal_info.hpp

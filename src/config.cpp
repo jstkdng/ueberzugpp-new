@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "config.hpp"
-#include "util/os.hpp"
+#include "os/os.hpp"
 
 #include <filesystem>
 #include <format>

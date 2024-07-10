@@ -16,7 +16,7 @@
 
 #include "application.hpp"
 #include "config.hpp"
-#include "signal.hpp"
+#include "os/signal.hpp"
 #include "sub_commands/cmd.hpp"
 
 #include <print>

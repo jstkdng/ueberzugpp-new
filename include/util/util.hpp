@@ -17,8 +17,8 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
-#include "os.hpp"
-#include "process.hpp"
+#include "os/os.hpp"
+#include "os/process.hpp"
 
 #include <charconv>
 #include <chrono>

@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "canvas/x11/x11_canvas.hpp"
-#include "util/os.hpp"
+#include "os/os.hpp"
 #include "util/ptr.hpp"
 
 #include <spdlog/spdlog.h>

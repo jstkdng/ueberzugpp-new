@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "terminal_info.hpp"
-#include "util/os.hpp"
+#include "os/os.hpp"
 #include "util/util.hpp"
 
 #include <cmath>
