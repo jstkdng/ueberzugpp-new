@@ -1,24 +1,25 @@
 // Display images inside a terminal
 // Copyright (C) 2024  JustKidding
 //
-// This program is free software: you can redistribute it and/or modify
+// This file is part of ueberzugpp.
+//
+// ueberzugpp is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful,
+// ueberzugpp is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
 #include "config.hpp"
 #include "os/signal.hpp"
 #include "sub_commands/cmd.hpp"
-#include "util/tmux.hpp"
 
 #include <print>
 
@@ -33,14 +34,6 @@ auto main(const int argc, char *argv[]) -> int
     if (!config_read) {
         std::print(stderr, "{}\n", config_read.error());
         return 1;
-    }
-
-    TmuxClient tmux;
-    auto tmux_ok = tmux.initialize();
-    if (!tmux_ok) {
-        std::print("{}\n", tmux_ok.error());
-    } else {
-        tmux.get_session_id();
     }
 
     CLI::App program("Display images in the terminal", "ueberzug");
