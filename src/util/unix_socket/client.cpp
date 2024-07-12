@@ -80,7 +80,7 @@ auto Client::connect_socket() const -> std::expected<void, std::string>
 
     const int result = connect(sockfd, reinterpret_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
     if (result == -1) {
-        return os::system_error("coud not connect to endpoint");
+        return os::system_error("coud not connect to endpoint " + endpoint);
     }
     return {};
 }
