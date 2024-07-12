@@ -22,7 +22,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <unordered_set>
 
 #include <spdlog/spdlog.h>
 #include <sys/ioctl.h>
@@ -181,7 +180,7 @@ auto TerminalInfo::read_raw_terminal_command(const std::string_view command) -> 
         if (*in_event) {
             result = os::read_data_from_stdin();
         } else {
-            result = util::unexpected_err("could not read any data");
+            result = util::unexpected_err("could not read data from escape code");
         }
     } else {
         result = unexpected(in_event.error());
