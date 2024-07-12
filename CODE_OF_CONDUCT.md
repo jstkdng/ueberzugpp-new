@@ -17,10 +17,10 @@ to the accrued contribution. Seniority must be earned.
 5. Software is evolutive: the better implementations must supersede lesser
 implementations. Technical advantage is the primary evaluation metric.
 
-6. This is a space for technical prowess; topics outside of the project
+6. This is a space for technical prowess; topics outside the project
 will not be tolerated.
 
-7. Non technical conflicts will be discussed in a separate space. Disruption
+7. Non-technical conflicts will be discussed in a separate space. Disruption
 of the project will not be allowed.
 
 8. Individual characteristics, including but not limited to,

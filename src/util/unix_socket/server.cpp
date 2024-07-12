@@ -114,7 +114,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
     return result;
 }
 
-void Server::remove_accepted_connection(int filde)
+void Server::remove_accepted_connection(const int filde)
 {
     shutdown(filde, SHUT_RDWR);
     close(filde);
