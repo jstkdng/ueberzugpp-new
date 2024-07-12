@@ -18,6 +18,7 @@
 
 #include "os/os.hpp"
 #include "util/ptr.hpp"
+#include "util/util.hpp"
 
 #include <cerrno>
 #include <filesystem>
@@ -120,7 +121,7 @@ auto os::wait_for_data_on_fd(const int filde, const int waitms) noexcept -> std:
     }
 
     if ((fds.revents & (POLLERR | POLLNVAL | POLLHUP)) != 0) {
-        return std::unexpected(std::format("poll received {}", get_poll_err(fds.revents)));
+        return util::unexpected_err(std::format("poll received {}", get_poll_err(fds.revents)));
     }
 
     return (fds.revents & POLLIN) != 0;
@@ -150,24 +151,16 @@ auto os::getenv(const std::string &var) noexcept -> std::optional<std::string>
     return env_p;
 }
 
-auto os::fork_process() -> std::expected<int, std::string>
-{
-    const int result = fork();
-    if (result == -1) {
-        return system_error("could not fork process");
-    }
-    return result;
-}
-
 auto os::daemonize() -> std::expected<void, std::string>
 {
-    auto fork_ok = fork_process();
-    if (!fork_ok) {
-        return std::unexpected(fork_ok.error());
+    const int pid = fork();
+    if (pid == -1) {
+        return system_error("could not fork process");
     }
+
     // kill parent process
-    if (*fork_ok > 0) {
-        SPDLOG_DEBUG("child process {} created, terminating parent", *fork_ok);
+    if (pid > 0) {
+        SPDLOG_DEBUG("child process {} created, terminating parent", pid);
         std::exit(EXIT_SUCCESS); // NOLINT
     }
     return {};

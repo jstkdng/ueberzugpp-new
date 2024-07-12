@@ -25,6 +25,13 @@
 
 namespace fs = std::filesystem;
 
+auto util::unexpected_err(const std::string_view message, const std::source_location location)
+    -> std::unexpected<std::string>
+{
+    const fs::path file_path = location.file_name();
+    return std::unexpected(std::format("[{}:{}] {}", file_path.filename().string(), location.line(), message));
+}
+
 auto util::bytes_to_hexstring(const std::span<const std::byte> bytes) noexcept -> std::string
 {
     std::string result(bytes.size() * 2, 0);

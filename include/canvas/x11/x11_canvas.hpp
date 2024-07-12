@@ -57,7 +57,6 @@ class X11Canvas final : public Canvas
 
     string_map<std::shared_ptr<X11Window>> windows;
 
-    auto connect_to_x11() -> std::expected<void, std::string>;
     void handle_events(const std::stop_token &token) const;
     void read_commands(const std::stop_token &token);
     void print_xcb_error(xcb_generic_error_t *err) const;

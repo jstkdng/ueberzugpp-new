@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "canvas/canvas.hpp"
+#include "util/util.hpp"
 #ifdef ENABLE_X11
 #  include "canvas/x11/x11_canvas.hpp"
 #endif
@@ -29,5 +30,5 @@ auto Canvas::create([[maybe_unused]] const Config *config) -> std::expected<std:
     }
 #endif
 
-    return std::unexpected("could not create canvas");
+    return util::unexpected_err("could not create canvas");
 }

@@ -19,6 +19,7 @@
 #include "canvas/x11/x11_canvas.hpp"
 #include "os/os.hpp"
 #include "util/ptr.hpp"
+#include "util/util.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -36,26 +37,18 @@ auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::
 {
     SPDLOG_DEBUG("initializing canvas");
     command_manager = manager;
-    auto conn_ok = connect_to_x11();
-    if (!conn_ok) {
-        return std::unexpected(conn_ok.error());
-    }
-    event_handler = std::jthread([this](auto token) { handle_events(token); });
-    command_reader = std::jthread([this](auto token) { read_commands(token); });
-    SPDLOG_INFO("canvas initialized");
-    return {};
-}
-
-auto X11Canvas::connect_to_x11() -> std::expected<void, std::string>
-{
     connection = xcb_connect(nullptr, nullptr);
     if (xcb_connection_has_error(connection) > 0) {
-        return unexpected("can't connect to x11 server");
+        return util::unexpected_err("can't connect to x11 server");
     }
     screen = xcb_setup_roots_iterator(xcb_get_setup(connection)).data;
 #ifdef ENABLE_XCB_ERRORS
     xcb_errors_context_new(connection, &err_ctx);
 #endif
+
+    event_handler = std::jthread([this](auto token) { handle_events(token); });
+    command_reader = std::jthread([this](auto token) { read_commands(token); });
+    SPDLOG_INFO("canvas initialized");
     return {};
 }
 

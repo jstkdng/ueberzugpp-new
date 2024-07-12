@@ -119,13 +119,11 @@ auto Manager::handle_cmd_subcommand() const noexcept -> std::expected<void, std:
         return std::unexpected("");
     }
     unix_socket::Client client;
-    auto init_ok = client.initialize(cmd.socket);
-    if (!init_ok) {
-        return std::unexpected(init_ok.error());
-    }
-    auto json = cmd.get_json();
-    json.push_back('\n');
-    return client.write(std::as_bytes(std::span{json}));
+    return client.initialize(cmd.socket).and_then([this, &client] {
+        auto json = cmd.get_json();
+        json.push_back('\n');
+        return client.write(std::as_bytes(std::span{json}));
+    });
 }
 
 auto Manager::handle_tmux_subcommand() const noexcept -> std::expected<void, std::string>
@@ -134,13 +132,11 @@ auto Manager::handle_tmux_subcommand() const noexcept -> std::expected<void, std
         return std::unexpected("");
     }
     unix_socket::Client client;
-    auto init_ok = client.initialize(util::get_socket_path(tmux.pid));
-    if (!init_ok) {
-        return std::unexpected(init_ok.error());
-    }
-    auto json = tmux.get_json();
-    json.push_back('\n');
-    return client.write(std::as_bytes(std::span{json}));
+    return client.initialize(util::get_socket_path(tmux.pid)).and_then([this, &client] {
+        auto json = tmux.get_json();
+        json.push_back('\n');
+        return client.write(std::as_bytes(std::span{json}));
+    });
 }
 
 auto Manager::handle_layer_subcommand() const noexcept -> std::expected<void, std::string>

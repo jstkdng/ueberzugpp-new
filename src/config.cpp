@@ -18,6 +18,7 @@
 
 #include "config.hpp"
 #include "os/os.hpp"
+#include "util/util.hpp"
 
 #include <filesystem>
 #include <format>
@@ -46,7 +47,7 @@ auto Config::read_config_file() -> std::expected<void, std::string>
     try {
         json = njson::parse(ifs);
     } catch (const njson::parse_error &err) {
-        return std::unexpected(std::format("could not read config file: {}", err.what()));
+        return util::unexpected_err(std::format("could not read config file: {}", err.what()));
     }
 
     if (!json.contains("layer")) {

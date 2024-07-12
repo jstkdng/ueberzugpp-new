@@ -47,7 +47,6 @@ auto read_data_from_stdin() noexcept -> std::expected<std::string, std::string>;
 auto wait_for_data_on_fd(int filde, int waitms) noexcept -> std::expected<bool, std::string>;
 auto wait_for_data_on_stdin(int waitms) noexcept -> std::expected<bool, std::string>;
 
-auto fork_process() -> std::expected<int, std::string>;
 auto daemonize() -> std::expected<void, std::string>;
 
 } // namespace os

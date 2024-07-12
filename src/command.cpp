@@ -19,6 +19,7 @@
 #include "command.hpp"
 #include "application.hpp"
 #include "os/os.hpp"
+#include "util/util.hpp"
 
 #include <chrono>
 #include <string>
@@ -90,7 +91,7 @@ auto CommandManager::unqueue() -> std::expected<njson, std::string>
     const bool command_available =
         cond.wait_for(lock, std::chrono::milliseconds(config->waitms), [this] { return !command_queue.empty(); });
     if (!command_available) {
-        return std::unexpected("no command available");
+        return util::unexpected_err("no command available");
     }
     auto value = command_queue.front();
     command_queue.pop();

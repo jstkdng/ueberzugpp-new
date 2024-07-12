@@ -79,7 +79,7 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
         set_default_logger(main_logger);
         set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%L] [%s:%#] %v");
     } catch (const spdlog::spdlog_ex &ex) {
-        return std::unexpected(std::format("log init failed: {}", ex.what()));
+        return util::unexpected_err(std::format("log init failed: {}", ex.what()));
     }
 
     return {};

@@ -60,7 +60,7 @@ void Server::accept_connections(const std::stop_token &token)
     while (!token.stop_requested()) {
         const auto in_event = os::wait_for_data_on_fd(sockfd, config->waitms);
         if (!in_event.has_value()) {
-            SPDLOG_DEBUG(in_event.error());
+            SPDLOG_TRACE(in_event.error());
             return;
         }
         if (!in_event.value()) {
@@ -68,7 +68,7 @@ void Server::accept_connections(const std::stop_token &token)
         }
         const auto accepted_fd = accept_connection();
         if (!accepted_fd.has_value()) {
-            SPDLOG_DEBUG(accepted_fd.error());
+            SPDLOG_TRACE(accepted_fd.error());
             return;
         }
         accepted_connections.push_back(*accepted_fd);

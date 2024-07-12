@@ -26,10 +26,10 @@
 #include <chrono>
 #include <expected>
 #include <print>
+#include <source_location>
 #include <span>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <vector>
 
 namespace util
@@ -41,6 +41,8 @@ auto get_process_tree(int pid) -> std::vector<Process>;
 auto get_process_pid_tree(int pid) -> std::vector<int>;
 auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string>;
 auto bytes_to_hexstring(std::span<const std::byte> bytes) noexcept -> std::string;
+auto unexpected_err(std::string_view message, std::source_location location = std::source_location::current())
+    -> std::unexpected<std::string>;
 
 template <typename Func>
 void benchmark(Func func)
