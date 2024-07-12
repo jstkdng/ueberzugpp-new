@@ -20,6 +20,7 @@
 #include "util/ptr.hpp"
 
 #include <cerrno>
+#include <filesystem>
 #include <format>
 #include <vector>
 
@@ -28,14 +29,18 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+namespace fs = std::filesystem;
 using std::expected;
 using std::string;
 using std::unexpected;
 
-auto os::system_error(const std::string_view message) noexcept -> std::unexpected<std::string>
+auto os::system_error(const std::string_view message, const std::source_location location) noexcept
+    -> std::unexpected<std::string>
 {
+    const fs::path file_path = location.file_name();
     const std::error_condition econd(errno, std::generic_category());
-    return std::unexpected(std::format("{}: {}", message, econd.message()));
+    return std::unexpected(
+        std::format("[{}:{}] {}: {}", file_path.filename().string(), location.line(), message, econd.message()));
 }
 
 auto os::exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>

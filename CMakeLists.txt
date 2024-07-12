@@ -169,8 +169,8 @@ target_sources(ueberzugpp PRIVATE
     src/util/tmux.cpp
     src/util/crypto.cpp
     src/util/util.cpp
-    src/util/unix_socket/server.cpp
-    src/util/unix_socket/client.cpp
+    src/util/unix/socket_server.cpp
+    src/util/unix/socket_client.cpp
 
     include/os/signal.hpp
     include/os/process.hpp

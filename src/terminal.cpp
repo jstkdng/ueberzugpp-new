@@ -21,7 +21,6 @@
 #include "util/util.hpp"
 
 #include <algorithm>
-#include <system_error>
 
 #include <fcntl.h>
 #include <sys/stat.h>

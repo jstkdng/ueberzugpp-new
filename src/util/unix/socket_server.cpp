@@ -142,7 +142,7 @@ auto Server::listen_to_socket() const -> std::expected<void, std::string>
 {
     const int result = listen(sockfd, SOMAXCONN);
     if (result == -1) {
-        return os::system_error("could not listen to endpoint");
+        return os::system_error("could not listen to endpoint " + endpoint);
     }
     return {};
 }
@@ -155,7 +155,7 @@ auto Server::bind_to_socket() const -> std::expected<void, std::string>
 
     const int result = bind(sockfd, reinterpret_cast<const sockaddr *>(&addr), sizeof(sockaddr_un));
     if (result == -1) {
-        return os::system_error("could not bind to endpoint");
+        return os::system_error("could not bind to endpoint " + endpoint);
     }
     return {};
 }

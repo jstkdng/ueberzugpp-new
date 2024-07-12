@@ -21,6 +21,7 @@
 
 #include <expected>
 #include <optional>
+#include <source_location>
 #include <string>
 #include <string_view>
 
@@ -29,7 +30,9 @@ namespace os
 
 constexpr int bufsize = 4 * 1024; // 4K at a time
 
-auto system_error(std::string_view message = "os error") noexcept -> std::unexpected<std::string>;
+auto system_error(std::string_view message = "os error",
+                  std::source_location location = std::source_location::current()) noexcept
+    -> std::unexpected<std::string>;
 auto get_poll_err(int event) noexcept -> std::string_view;
 auto exec(const std::string &cmd) noexcept -> std::expected<std::string, std::string>;
 auto getenv(const std::string &var) noexcept -> std::optional<std::string>;
