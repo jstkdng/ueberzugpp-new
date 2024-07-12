@@ -21,6 +21,7 @@
 
 #include "config.hpp"
 
+#include <expected>
 #include <memory>
 #include <span>
 
@@ -34,27 +35,44 @@ struct cmd_subcommand {
     std::string action;
     std::string socket;
     std::string file_path;
-
     int x = -1;
     int y = -1;
     int max_width = -1;
     int max_height = -1;
+
+    [[nodiscard]] auto get_json() const noexcept -> std::string;
+};
+
+struct tmux_subcommand {
+    std::string hook;
+    int pid = -1;
+
+    [[nodiscard]] auto get_json() const noexcept -> std::string;
 };
 
 class Manager
 {
   public:
-    Manager();
-    auto initialize(std::span<char *> args) -> int;
+    auto initialize(std::span<char *> args) -> std::expected<void, int>;
+
+    [[nodiscard]] auto handle_tmux_subcommand() const noexcept -> std::expected<void, std::string>;
+    [[nodiscard]] auto handle_cmd_subcommand() const noexcept -> std::expected<void, std::string>;
+    [[nodiscard]] auto handle_layer_subcommand() const noexcept -> std::expected<void, std::string>;
 
   private:
-    CLI::App program;
+    CLI::App program{"Display images in the terminal", "ueberzugpp"};
     std::shared_ptr<Config> config = Config::instance();
 
+    CLI::App *layer_command = nullptr;
+    CLI::App *cmd_command = nullptr;
+    CLI::App *tmux_command = nullptr;
+
     cmd_subcommand cmd{};
+    tmux_subcommand tmux{};
 
     void setup_layer_subcommand();
     void setup_cmd_subcommand();
+    void setup_tmux_subcommand();
 };
 
 } // namespace cli

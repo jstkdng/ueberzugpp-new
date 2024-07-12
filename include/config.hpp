@@ -50,7 +50,6 @@ class Config
     std::string output;
 
     // configurable with cmd line switches
-    bool print_version = false;
     bool use_escape_codes = false;
     bool no_stdin = false;
     bool origin_center = false;

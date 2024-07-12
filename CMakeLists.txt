@@ -154,9 +154,6 @@ endif ()
 target_sources(ueberzugpp PRIVATE
     src/main.cpp
 
-    include/sub_commands/cmd.hpp
-    src/sub_commands/cmd.cpp
-
     include/canvas/canvas.hpp
     src/canvas/canvas.cpp
 
