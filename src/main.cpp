@@ -40,15 +40,31 @@ auto main(const int argc, char *argv[]) -> int
         return init_ok.error();
     }
 
-    auto cli_ok = manager.handle_layer_subcommand()
-                      .or_else([&manager](auto) { return manager.handle_cmd_subcommand(); })
-                      .or_else([&manager](auto) { return manager.handle_tmux_subcommand(); });
-    if (!cli_ok) {
-        const auto &err = cli_ok.error();
+    auto layer_ok = manager.handle_layer_subcommand();
+    if (!layer_ok) {
+        const auto &err = layer_ok.error();
         if (!err.empty()) {
             std::cerr << err << '\n';
+            return 1;
         }
-        return 1;
+    }
+
+    auto cmd_ok = manager.handle_cmd_subcommand();
+    if (!cmd_ok) {
+        const auto &err = cmd_ok.error();
+        if (!err.empty()) {
+            std::cerr << err << '\n';
+            return 1;
+        }
+    }
+
+    auto tmux_ok = manager.handle_tmux_subcommand();
+    if (!tmux_ok) {
+        const auto &err = tmux_ok.error();
+        if (!err.empty()) {
+            std::cerr << err << '\n';
+            return 1;
+        }
     }
 
     return 0;

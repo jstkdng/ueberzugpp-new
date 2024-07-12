@@ -55,6 +55,8 @@ auto cli::tmux_subcommand::get_json() const noexcept -> std::string
 auto Manager::initialize(const std::span<char *> args) -> std::expected<void, int>
 {
     program.set_version_flag("-V,--version", version_str, "Print version information");
+    program.allow_extras(false);
+    program.require_subcommand(1);
 
     setup_tmux_subcommand();
     setup_layer_subcommand();
@@ -77,8 +79,8 @@ auto Manager::initialize(const std::span<char *> args) -> std::expected<void, in
 void Manager::setup_tmux_subcommand()
 {
     tmux_command = program.add_subcommand("tmux", "Handle tmux hooks. Used internaly.");
-    tmux_command->add_option("--pid", tmux.pid, "Pid of running ueberzugpp instance");
-    tmux_command->add_option("--hook", tmux.hook, "Tmux hook name");
+    tmux_command->add_option("--pid", tmux.pid, "Pid of running ueberzugpp instance")->required();
+    tmux_command->add_option("--hook", tmux.hook, "Tmux hook name")->required();
 }
 
 void Manager::setup_cmd_subcommand()
@@ -93,6 +95,7 @@ void Manager::setup_cmd_subcommand()
     cmd_command->add_option("-y,--ypos", cmd.y, "Y position of preview");
     cmd_command->add_option("--max-width", cmd.max_width, "Max width of preview");
     cmd_command->add_option("--max-height", cmd.max_height, "Max height of preview");
+    cmd_command->allow_extras(false);
 }
 
 void Manager::setup_layer_subcommand()
