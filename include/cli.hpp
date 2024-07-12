@@ -16,37 +16,47 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef APPLICATION_HPP
-#define APPLICATION_HPP
+#ifndef CLI_HPP
+#define CLI_HPP
 
-#include "canvas/canvas.hpp"
-#include "command.hpp"
 #include "config.hpp"
-#include "terminal.hpp"
 
-#include <atomic>
-#include <expected>
 #include <memory>
+#include <span>
 
-class Application
+#include "CLI11/CLI11.hpp"
+
+namespace cli
 {
-  public:
-    ~Application();
 
-    auto initialize() noexcept -> std::expected<void, std::string>;
+struct cmd_subcommand {
+    std::string id;
+    std::string action;
+    std::string socket;
+    std::string file_path;
 
-    void run() const;
-    static void print_header();
-    static auto setup_loggers() -> std::expected<void, std::string>;
-    inline static std::atomic_bool stop_flag = false; // NOLINT
-
-  private:
-    std::shared_ptr<Config> config = Config::instance();
-    Terminal terminal;
-    CommandManager command_manager;
-    std::unique_ptr<Canvas> canvas;
-
-    [[nodiscard]] auto daemonize() const -> std::expected<void, std::string>;
+    int x = -1;
+    int y = -1;
+    int max_width = -1;
+    int max_height = -1;
 };
 
-#endif // APPLICATION_HPP
+class Manager
+{
+  public:
+    Manager();
+    auto initialize(std::span<char *> args) -> int;
+
+  private:
+    CLI::App program;
+    std::shared_ptr<Config> config = Config::instance();
+
+    cmd_subcommand cmd{};
+
+    void setup_layer_subcommand();
+    void setup_cmd_subcommand();
+};
+
+} // namespace cli
+
+#endif // CLI_HPP

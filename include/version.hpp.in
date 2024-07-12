@@ -16,7 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-// clang-format off
-#define UEBERZUGPP_VERSION_MAJOR @ueberzugpp-new_VERSION_MAJOR@
-#define UEBERZUGPP_VERSION_MINOR @ueberzugpp-new_VERSION_MINOR@
-#define UEBERZUGPP_VERSION_PATCH @ueberzugpp-new_VERSION_PATCH@
+#ifndef VERSION_HPP
+#define VERSION_HPP
+
+#ifdef DEBUG
+constexpr auto version_str = "ueberzugpp @ueberzugpp-new_VERSION_MAJOR@.@ueberzugpp-new_VERSION_MINOR@.@ueberzugpp-new_VERSION_PATCH@ (debug build)";
+#else
+constexpr auto version_str = "ueberzugpp @ueberzugpp-new_VERSION_MAJOR@.@ueberzugpp-new_VERSION_MINOR@.@ueberzugpp-new_VERSION_PATCH@";
+#endif
+
+#endif

@@ -160,6 +160,9 @@ target_sources(ueberzugpp PRIVATE
     include/canvas/canvas.hpp
     src/canvas/canvas.cpp
 
+    include/cli.hpp
+    src/cli.cpp
+
     include/util/str_map.hpp
     include/util/ptr.hpp
     include/util/crypto.hpp
