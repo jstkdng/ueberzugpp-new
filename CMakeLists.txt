@@ -118,16 +118,16 @@ if (ENABLE_X11)
     endif ()
 endif ()
 
-#if (ENABLE_OPENCV)
-#    target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
-#    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
-#    target_link_libraries(ueberzugpp PRIVATE
-#        opencv_core
-#        opencv_imgproc
-#        opencv_imgcodecs
-#        opencv_videoio
-#    )
-#endif ()
+if (ENABLE_OPENCV)
+    target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
+    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+    target_link_libraries(ueberzugpp PRIVATE
+        opencv_core
+        opencv_imgproc
+        opencv_imgcodecs
+        opencv_videoio
+    )
+endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
@@ -195,7 +195,7 @@ target_sources(ueberzugpp PRIVATE
 
 target_link_libraries(ueberzugpp PRIVATE
     OpenSSL::Crypto
-    #    TBB::tbb
+    TBB::tbb
     Threads::Threads
     spdlog::spdlog
     nlohmann_json::nlohmann_json
