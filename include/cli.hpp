@@ -61,18 +61,18 @@ class Manager
 
   private:
     CLI::App program{"Display images in the terminal", "ueberzugpp"};
-    std::shared_ptr<Config> config = Config::instance();
+    CLI::App *layer_command{program.add_subcommand("layer", "Display images on the terminal.")};
+    CLI::App *cmd_command{program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance.")};
+    CLI::App *tmux_command{program.add_subcommand("tmux", "Handle tmux hooks. Used internaly.")};
 
-    CLI::App *layer_command = nullptr;
-    CLI::App *cmd_command = nullptr;
-    CLI::App *tmux_command = nullptr;
+    std::shared_ptr<Config> config = Config::instance();
 
     cmd_subcommand cmd{};
     tmux_subcommand tmux{};
 
-    void setup_layer_subcommand();
-    void setup_cmd_subcommand();
-    void setup_tmux_subcommand();
+    void setup_layer_subcommand() const noexcept;
+    void setup_cmd_subcommand() noexcept;
+    void setup_tmux_subcommand() noexcept;
 };
 
 } // namespace cli

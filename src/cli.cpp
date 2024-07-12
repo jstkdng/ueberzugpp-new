@@ -66,8 +66,6 @@ auto Manager::initialize(const std::span<char *> args) -> std::expected<void, in
         program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility.");
     query_win_command->allow_extras();
 
-    program.failure_message(CLI::FailureMessage::help);
-
     try {
         program.parse(static_cast<int>(args.size()), args.data());
     } catch (const CLI::ParseError &e) {
@@ -76,16 +74,15 @@ auto Manager::initialize(const std::span<char *> args) -> std::expected<void, in
     return {};
 }
 
-void Manager::setup_tmux_subcommand()
+void Manager::setup_tmux_subcommand() noexcept
 {
-    tmux_command = program.add_subcommand("tmux", "Handle tmux hooks. Used internaly.");
     tmux_command->add_option("--pid", tmux.pid, "Pid of running ueberzugpp instance")->required();
     tmux_command->add_option("--hook", tmux.hook, "Tmux hook name")->required();
+    tmux_command->allow_extras(false);
 }
 
-void Manager::setup_cmd_subcommand()
+void Manager::setup_cmd_subcommand() noexcept
 {
-    cmd_command = program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance.");
     cmd_command->add_option("-s,--socket", cmd.socket, "UNIX socket of running instance")->required();
     cmd_command->add_option("-a,--action", cmd.action, "Action to send")
         ->check(CLI::IsMember({"add", "remove", "exit", "flush"}));
@@ -98,9 +95,8 @@ void Manager::setup_cmd_subcommand()
     cmd_command->allow_extras(false);
 }
 
-void Manager::setup_layer_subcommand()
+void Manager::setup_layer_subcommand() const noexcept
 {
-    layer_command = program.add_subcommand("layer", "Display images on the terminal.");
     layer_command->add_flag("-s,--silent", config->silent, "Print stderr to /dev/null.");
     layer_command
         ->add_flag("--use-escape-codes", config->use_escape_codes, "Use escape codes to get terminal capabilities.")
@@ -119,7 +115,7 @@ void Manager::setup_layer_subcommand()
 
 auto Manager::handle_cmd_subcommand() const noexcept -> std::expected<void, std::string>
 {
-    if (cmd_command == nullptr || !cmd_command->parsed()) {
+    if (!cmd_command->parsed()) {
         return std::unexpected("");
     }
     unix_socket::Client client;
@@ -134,7 +130,7 @@ auto Manager::handle_cmd_subcommand() const noexcept -> std::expected<void, std:
 
 auto Manager::handle_tmux_subcommand() const noexcept -> std::expected<void, std::string>
 {
-    if (tmux_command == nullptr || !tmux_command->parsed()) {
+    if (!tmux_command->parsed()) {
         return std::unexpected("");
     }
     unix_socket::Client client;
@@ -149,7 +145,7 @@ auto Manager::handle_tmux_subcommand() const noexcept -> std::expected<void, std
 
 auto Manager::handle_layer_subcommand() const noexcept -> std::expected<void, std::string>
 {
-    if (layer_command == nullptr || !layer_command->parsed()) {
+    if (!layer_command->parsed()) {
         return std::unexpected("");
     }
     Application application;
