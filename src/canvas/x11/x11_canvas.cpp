@@ -63,7 +63,7 @@ void X11Canvas::read_commands(const std::stop_token &token)
         const auto &action = json.value("action", "");
         const auto &image_id = json.value("id", "");
         if (action == "add") {
-
+            SPDLOG_INFO("adding image");
         } else if (action == "remove") {
             windows.erase(image_id);
         } else {
@@ -81,7 +81,7 @@ void X11Canvas::handle_events(const std::stop_token &token) const
     while (!token.stop_requested()) {
         auto in_event = os::wait_for_data_on_fd(connfd, config->waitms);
         if (!in_event) {
-            SPDLOG_DEBUG("stopping event handler: {}", in_event.error());
+            SPDLOG_TRACE("stopping event handler: {}", in_event.error());
             return;
         }
         if (!*in_event) {

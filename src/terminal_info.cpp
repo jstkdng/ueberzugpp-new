@@ -88,34 +88,29 @@ void TerminalInfo::set_padding_values()
 
 auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
 {
-    // some terminals support sixel but don't respond to escape sequences
-    const auto supported_terms = std::unordered_set<std::string_view>{"yaft-256color", "iTerm.app"};
-    const auto resp = read_raw_terminal_command("\033[?1;1;0S");
-    if (!resp) {
-        return unexpected(resp.error());
-    }
-    std::string_view view = resp.value();
-    view.remove_prefix(3);
-    view.remove_suffix(1);
-    const auto vals = util::str_split(view, ";");
-    if (vals.size() <= 2) {
-        return unexpected("invalid escape code results");
-    }
-    SPDLOG_DEBUG("sixel is supported");
-    return {};
+    return read_raw_terminal_command("\033[?1;1;0S")
+        .and_then([](std::string_view view) -> std::expected<void, std::string> {
+            view.remove_prefix(3);
+            view.remove_suffix(1);
+            const auto vals = util::str_split(view, ";");
+            if (vals.size() <= 2) {
+                return util::unexpected_err("invalid escape code results");
+            }
+            SPDLOG_DEBUG("sixel is supported");
+            return {};
+        });
 }
 
 auto TerminalInfo::check_kitty_support() -> std::expected<void, std::string>
 {
-    const auto resp = read_raw_terminal_command("\033_Gi=31,s=1,v=1,a=q,t=d,f=24;AAAA\033\\\033[c");
-    if (!resp) {
-        return unexpected(resp.error());
-    }
-    if (resp.value().find("OK") == std::string_view::npos) {
-        return unexpected("invalid escape code results");
-    }
-    SPDLOG_INFO("kitty is supported");
-    return {};
+    return read_raw_terminal_command("\033_Gi=31,s=1,v=1,a=q,t=d,f=24;AAAA\033\\\033[c")
+        .and_then([](const std::string_view resp) -> std::expected<void, std::string> {
+            if (resp.find("OK") == std::string_view::npos) {
+                return util::unexpected_err("invalid escape code results");
+            }
+            SPDLOG_INFO("kitty is supported");
+            return {};
+        });
 }
 
 auto TerminalInfo::set_size_ioctl() -> std::expected<void, std::string>
@@ -131,53 +126,49 @@ auto TerminalInfo::set_size_ioctl() -> std::expected<void, std::string>
     ypixel = size.ws_ypixel;
     SPDLOG_DEBUG("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", cols, rows, xpixel, ypixel);
     if (xpixel == 0 || ypixel == 0) {
-        return unexpected("xpixel and ypixel not set by ioctl");
+        return util::unexpected_err("xpixel and ypixel not set by ioctl");
     }
     return {};
 }
 
 auto TerminalInfo::set_size_xtsm() -> std::expected<void, std::string>
 {
-    auto resp = read_raw_terminal_command("\033[?2;1;0S");
-    if (!resp) {
-        return unexpected(resp.error());
-    }
-    std::string_view view = resp.value();
-    view.remove_prefix(3);
-    view.remove_suffix(1);
-    const auto values = util::str_split(view, ";");
-    if (values.size() != 4) {
-        return unexpected("got bad values from xtsm");
-    }
-    xpixel = util::view_to_numeral<int>(values.at(2)).value_or(0);
-    ypixel = util::view_to_numeral<int>(values.at(3)).value_or(0);
-    SPDLOG_DEBUG("XTSM sizes XPIXEL={} YPIXEL={}", xpixel, ypixel);
-    if (xpixel == 0 || ypixel == 0) {
-        return unexpected("xpixel and/or ypixel not set by xtsm");
-    }
-    return {};
+    return read_raw_terminal_command("\033[?2;1;0S")
+        .and_then([this](std::string_view view) -> std::expected<void, std::string> {
+            view.remove_prefix(3);
+            view.remove_suffix(1);
+            const auto values = util::str_split(view, ";");
+            if (values.size() != 4) {
+                return util::unexpected_err("got bad values from xtsm");
+            }
+            xpixel = util::view_to_numeral<int>(values.at(2)).value_or(0);
+            ypixel = util::view_to_numeral<int>(values.at(3)).value_or(0);
+            SPDLOG_DEBUG("XTSM sizes XPIXEL={} YPIXEL={}", xpixel, ypixel);
+            if (xpixel == 0 || ypixel == 0) {
+                return util::unexpected_err("xpixel and/or ypixel not set by xtsm");
+            }
+            return {};
+        });
 }
 
 auto TerminalInfo::set_size_escape_code() -> std::expected<void, std::string>
 {
-    const auto resp = read_raw_terminal_command("\033[14t");
-    if (!resp) {
-        return unexpected(resp.error());
-    }
-    std::string_view view = resp.value();
-    view.remove_prefix(4);
-    view.remove_suffix(1);
-    const auto values = util::str_split(view, ";");
-    if (values.size() != 2) {
-        return unexpected("got bad values from escape code");
-    }
-    xpixel = util::view_to_numeral<int>(values.at(0)).value_or(0);
-    ypixel = util::view_to_numeral<int>(values.at(1)).value_or(0);
-    SPDLOG_DEBUG("ESC sizes XPIXEL = {} YPIXEL = {}", xpixel, ypixel);
-    if (xpixel == 0 || ypixel == 0) {
-        return unexpected("xpixel and/or ypixel not set by escape code");
-    }
-    return {};
+    return read_raw_terminal_command("\033[14t")
+        .and_then([this](std::string_view view) -> std::expected<void, std::string> {
+            view.remove_prefix(4);
+            view.remove_suffix(1);
+            const auto values = util::str_split(view, ";");
+            if (values.size() != 2) {
+                return util::unexpected_err("got bad values from escape code");
+            }
+            xpixel = util::view_to_numeral<int>(values.at(0)).value_or(0);
+            ypixel = util::view_to_numeral<int>(values.at(1)).value_or(0);
+            SPDLOG_DEBUG("ESC sizes XPIXEL = {} YPIXEL = {}", xpixel, ypixel);
+            if (xpixel == 0 || ypixel == 0) {
+                return util::unexpected_err("xpixel and/or ypixel not set by escape code");
+            }
+            return {};
+        });
 }
 
 auto TerminalInfo::read_raw_terminal_command(const std::string_view command) -> std::expected<std::string, std::string>
@@ -190,7 +181,7 @@ auto TerminalInfo::read_raw_terminal_command(const std::string_view command) -> 
         if (*in_event) {
             result = os::read_data_from_stdin();
         } else {
-            result = unexpected("could not read any data");
+            result = util::unexpected_err("could not read any data");
         }
     } else {
         result = unexpected(in_event.error());
