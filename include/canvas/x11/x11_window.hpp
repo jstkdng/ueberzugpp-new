@@ -26,7 +26,7 @@
 
 #include <nlohmann/json.hpp>
 
-class X11Window : public std::enable_shared_from_this<X11Window>
+class X11Window : private std::enable_shared_from_this<X11Window>
 {
   public:
     X11Window(xcb_connection_t *connection, xcb_screen_t *screen);
