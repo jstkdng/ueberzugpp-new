@@ -61,13 +61,36 @@ void X11Canvas::read_commands(const std::stop_token &token)
         }
         const auto &json = *command_ok;
         const auto &action = json.value("action", "");
-        const auto &image_id = json.value("id", "");
+        const auto &preview_id = json.value("identifier", "");
         if (action == "add") {
-            SPDLOG_INFO("adding image");
+            handle_add_command(preview_id, json);
         } else if (action == "remove") {
-            windows.erase(image_id);
+            windows.erase(preview_id);
         } else {
             SPDLOG_WARN("unknown command received: {}", json.dump());
+        }
+    }
+}
+
+void X11Canvas::handle_add_command(const std::string &preview_id, const nlohmann::json &json)
+{
+    const auto found = windows.find(preview_id);
+    if (found == windows.end()) {
+        SPDLOG_INFO("creating new window");
+        auto new_win = std::make_shared<X11Window>(connection, screen);
+        auto init_ok = new_win->initialize(json);
+        if (!init_ok) {
+            SPDLOG_WARN("could not initialize window with id {}: {}", preview_id, init_ok.error());
+            return;
+        }
+        auto [entry, inserted] = windows.try_emplace(preview_id, new_win);
+        if (!inserted) {
+            SPDLOG_WARN("could not insert new window with id {}", preview_id);
+        }
+    } else {
+        auto init_ok = found->second->initialize(json);
+        if (!init_ok) {
+            SPDLOG_WARN("could not reinitialize window with id {}: {}", preview_id, init_ok.error());
         }
     }
 }

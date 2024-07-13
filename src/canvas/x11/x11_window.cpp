@@ -18,8 +18,15 @@
 
 #include "canvas/x11/x11_window.hpp"
 
+using njson = nlohmann::json;
+
 X11Window::X11Window(xcb_connection_t *connection, xcb_screen_t *screen)
     : connection(connection),
       screen(screen)
 {
+}
+
+auto X11Window::initialize([[maybe_unused]] const nlohmann::json &command) -> std::expected<void, std::string>
+{
+    return {};
 }

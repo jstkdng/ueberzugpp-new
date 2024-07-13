@@ -60,6 +60,8 @@ class X11Canvas final : public Canvas
     void handle_events(const std::stop_token &token) const;
     void read_commands(const std::stop_token &token);
     void print_xcb_error(xcb_generic_error_t *err) const;
+
+    void handle_add_command(const std::string &preview_id, const nlohmann::json &json);
 };
 
 #endif // X11_CANVAS_HPP

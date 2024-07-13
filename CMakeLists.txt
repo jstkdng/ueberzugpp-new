@@ -141,6 +141,14 @@ target_include_directories(ueberzugpp PRIVATE
 )
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_SOURCE_DIR}/third_party")
 
+pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
+pkg_check_modules(SIXEL REQUIRED IMPORTED_TARGET libsixel)
+pkg_check_modules(CHAFA REQUIRED IMPORTED_TARGET chafa>=1.6)
+
+if (CMAKE_HOST_SYSTEM_VERSION MATCHES "^.*microsoft.*$")
+    target_compile_definitions(ueberzug PRIVATE WSL)
+endif ()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(ueberzugpp PRIVATE
         src/os/linux/process.cpp
@@ -199,6 +207,9 @@ target_link_libraries(ueberzugpp PRIVATE
     Threads::Threads
     spdlog::spdlog
     nlohmann_json::nlohmann_json
+    PkgConfig::VIPS
+    PkgConfig::SIXEL
+    PkgConfig::CHAFA
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
