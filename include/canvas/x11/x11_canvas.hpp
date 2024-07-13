@@ -41,6 +41,7 @@ class X11Canvas final : public Canvas
   public:
     ~X11Canvas() override;
     auto initialize(CommandManager *manager) -> std::expected<void, std::string> override;
+    static auto supported() -> bool;
 
   private:
     std::shared_ptr<Config> config = Config::instance();

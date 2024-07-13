@@ -52,6 +52,17 @@ auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::
     return {};
 }
 
+auto X11Canvas::supported() -> bool
+{
+    bool supported = true;
+    auto *connection = xcb_connect(nullptr, nullptr);
+    if (xcb_connection_has_error(connection) > 0) {
+        supported = false;
+    }
+    xcb_disconnect(connection);
+    return supported;
+}
+
 void X11Canvas::read_commands(const std::stop_token &token)
 {
     while (!token.stop_requested()) {

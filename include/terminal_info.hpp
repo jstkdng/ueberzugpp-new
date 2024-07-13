@@ -54,13 +54,15 @@ class TerminalInfo
     int fallback_ypixel = 0;
 
     void init_termios();
-    void check_output_support();
     void set_padding_values();
     void reset_termios() const;
     auto read_raw_terminal_command(std::string_view command) -> std::expected<std::string, std::string>;
+
     auto set_size_ioctl() -> std::expected<void, std::string>;
     auto set_size_xtsm() -> std::expected<void, std::string>;
     auto set_size_escape_code() -> std::expected<void, std::string>;
+
+    auto check_output_support() -> std::expected<void, std::string>;
     auto check_sixel_support() -> std::expected<void, std::string>;
     auto check_kitty_support() -> std::expected<void, std::string>;
 };

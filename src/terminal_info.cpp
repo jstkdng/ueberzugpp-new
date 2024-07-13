@@ -42,24 +42,17 @@ auto TerminalInfo::initialize(const int cur_pty_fd) -> std::expected<void, std::
                      .or_else([this]([[maybe_unused]] const std::string_view err) {
                          SPDLOG_DEBUG(err);
                          return set_size_xtsm();
-                     });
-        check_output_support();
+                     })
+                     .and_then([this] { return check_output_support(); });
     }
     set_padding_values();
     return result;
 }
 
-void TerminalInfo::check_output_support()
+auto TerminalInfo::check_output_support() -> std::expected<void, std::string>
 {
     SPDLOG_DEBUG("checking output support");
-    auto supports_sixel = check_sixel_support();
-    if (!supports_sixel) {
-        SPDLOG_DEBUG("sixel not supported: {}", supports_sixel.error());
-    }
-    auto supports_kitty = check_kitty_support();
-    if (!supports_kitty) {
-        SPDLOG_DEBUG("kitty not supported: {}", supports_kitty.error());
-    }
+    return check_kitty_support().or_else([this](auto) { return check_sixel_support(); });
 }
 
 auto TerminalInfo::guess_padding(const int chars, const int pixels) -> double
@@ -88,13 +81,14 @@ void TerminalInfo::set_padding_values()
 auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
 {
     return read_raw_terminal_command("\033[?1;1;0S")
-        .and_then([](std::string_view view) -> std::expected<void, std::string> {
+        .and_then([this](std::string_view view) -> std::expected<void, std::string> {
             view.remove_prefix(3);
             view.remove_suffix(1);
             const auto vals = util::str_split(view, ";");
             if (vals.size() <= 2) {
                 return util::unexpected_err("invalid escape code results");
             }
+            config->output = "sixel";
             SPDLOG_DEBUG("sixel is supported");
             return {};
         });
@@ -103,11 +97,12 @@ auto TerminalInfo::check_sixel_support() -> std::expected<void, std::string>
 auto TerminalInfo::check_kitty_support() -> std::expected<void, std::string>
 {
     return read_raw_terminal_command("\033_Gi=31,s=1,v=1,a=q,t=d,f=24;AAAA\033\\\033[c")
-        .and_then([](const std::string_view resp) -> std::expected<void, std::string> {
+        .and_then([this](const std::string_view resp) -> std::expected<void, std::string> {
             if (resp.find("OK") == std::string_view::npos) {
                 return util::unexpected_err("invalid escape code results");
             }
-            SPDLOG_INFO("kitty is supported");
+            config->output = "kitty";
+            SPDLOG_DEBUG("kitty is supported");
             return {};
         });
 }

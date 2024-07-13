@@ -28,7 +28,9 @@
 class Canvas
 {
   public:
-    static auto create(const Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>;
+    static auto create(Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>;
+    static void check_supported_canvas(Config *config);
+
     virtual auto initialize(CommandManager *command_manager) -> std::expected<void, std::string> = 0;
     virtual ~Canvas() = default;
 };

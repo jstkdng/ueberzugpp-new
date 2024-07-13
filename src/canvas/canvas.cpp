@@ -22,8 +22,11 @@
 #  include "canvas/x11/x11_canvas.hpp"
 #endif
 
-auto Canvas::create([[maybe_unused]] const Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>
+#include <string_view>
+
+auto Canvas::create(Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>
 {
+    check_supported_canvas(config);
 #ifdef ENABLE_X11
     if (config->output == "x11") {
         return std::make_unique<X11Canvas>();
@@ -31,4 +34,19 @@ auto Canvas::create([[maybe_unused]] const Config *config) -> std::expected<std:
 #endif
 
     return util::unexpected_err("could not create canvas");
+}
+
+void Canvas::check_supported_canvas(Config *config)
+{
+    if (!config->output.empty()) {
+        return;
+    }
+
+    std::string_view detected_canvas = "chafa";
+#ifdef ENABLE_X11
+    if (X11Canvas::supported()) {
+        detected_canvas = "x11";
+    }
+#endif
+    config->output = detected_canvas;
 }
