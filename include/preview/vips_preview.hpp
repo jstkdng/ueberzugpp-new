@@ -19,12 +19,21 @@
 #ifndef VIPS_PREVIEW_HPP
 #define VIPS_PREVIEW_HPP
 
+#include "config.hpp"
 #include "preview.hpp"
+
+#include <vips/vips8>
+
+#include <memory>
 
 class VipsPreview final : public Preview
 {
   public:
+    VipsPreview();
     void draw() override;
+
+  private:
+    std::shared_ptr<Config> config = Config::instance();
 };
 
 #endif // VIPS_PREVIEW_HPP

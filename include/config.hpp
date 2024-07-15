@@ -44,6 +44,7 @@ class Config
     const int waitms = 50;
     const int num_workers = 5;
     opencl_status ocl = opencl_status::UNCHECKED;
+    bool vips_initialized = false;
 
     // configurable with config file
     bool silent = false;

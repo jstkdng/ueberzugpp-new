@@ -18,6 +18,17 @@
 
 #include "preview/vips_preview.hpp"
 
+VipsPreview::VipsPreview()
+{
+    if (!config->vips_initialized) {
+        if (VIPS_INIT("ueberzugpp")) {
+            vips_error_exit(nullptr);
+        }
+        vips_cache_set_max(1);
+        config->vips_initialized = true;
+    }
+}
+
 void VipsPreview::draw()
 {
 }
