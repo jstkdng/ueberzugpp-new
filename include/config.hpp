@@ -23,6 +23,8 @@
 #include <memory>
 #include <string>
 
+enum class opencl_status : std::uint8_t { UNCHECKED, AVAILABLE, UNAVAILABLE };
+
 class Config
 {
   public:
@@ -41,6 +43,7 @@ class Config
     // some globals
     const int waitms = 50;
     const int num_workers = 5;
+    opencl_status ocl = opencl_status::UNCHECKED;
 
     // configurable with config file
     bool silent = false;

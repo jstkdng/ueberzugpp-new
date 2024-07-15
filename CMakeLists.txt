@@ -121,6 +121,10 @@ endif ()
 if (ENABLE_OPENCV)
     target_compile_definitions(ueberzugpp PRIVATE ENABLE_OPENCV)
     find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+    target_sources(ueberzugpp PRIVATE
+        include/preview/opencv_preview.hpp
+        src/preview/opencv_preview.cpp
+    )
     target_link_libraries(ueberzugpp PRIVATE
         opencv_core
         opencv_imgproc
@@ -164,6 +168,11 @@ target_sources(ueberzugpp PRIVATE
 
     include/canvas/canvas.hpp
     src/canvas/canvas.cpp
+
+    include/preview/preview.hpp
+    include/preview/vips_preview.hpp
+    src/preview/preview.cpp
+    src/preview/vips_preview.cpp
 
     include/cli.hpp
     src/cli.cpp
