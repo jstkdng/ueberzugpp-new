@@ -25,12 +25,10 @@
 #include <memory>
 #include <string>
 
-#include <nlohmann/json.hpp>
-
 class Preview
 {
   public:
-    static auto create(const Config *config, const nlohmann::json &command)
+    static auto create(const Config *config, const std::string &file_path)
         -> std::expected<std::unique_ptr<Preview>, std::string>;
 
     virtual void draw() = 0;

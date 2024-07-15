@@ -26,21 +26,16 @@
 
 #include <vips/vips.h>
 
-auto Preview::create(const Config *config, const nlohmann::json &command)
+auto Preview::create(const Config *config, const std::string &file_path)
     -> std::expected<std::unique_ptr<Preview>, std::string>
 {
-    const std::string &path = command.value("path", "");
-    if (path.empty()) {
-        return std::unexpected("file path not found in command");
-    }
-
 #ifdef ENABLE_OPENCV
-    if (cv::haveImageReader(path) && !config->no_opencv) {
+    if (!config->no_opencv && cv::haveImageReader(file_path)) {
         return std::make_unique<OpencvPreview>();
     }
 #endif
 
-    const auto *vips_loader = vips_foreign_find_load(path.c_str());
+    const auto *vips_loader = vips_foreign_find_load(file_path.c_str());
     if (vips_loader != nullptr) {
         return std::make_unique<VipsPreview>();
     }
