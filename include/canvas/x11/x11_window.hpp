@@ -19,12 +19,15 @@
 #ifndef X11_WINDOW_HPP
 #define X11_WINDOW_HPP
 
+#include "config.hpp"
+#include "preview/preview.hpp"
+
 #include <expected>
 #include <memory>
 #include <string>
-#include <xcb/xcb.h>
 
 #include <nlohmann/json.hpp>
+#include <xcb/xcb.h>
 
 class X11Window : private std::enable_shared_from_this<X11Window>
 {
@@ -36,6 +39,9 @@ class X11Window : private std::enable_shared_from_this<X11Window>
     xcb_connection_t *connection = nullptr;
     xcb_screen_t *screen = nullptr;
     xcb_window_t window = 0;
+
+    std::shared_ptr<Config> config = Config::instance();
+    std::unique_ptr<Preview> preview;
 };
 
 #endif // X11_WINDOW_HPP

@@ -18,6 +18,7 @@
 
 #include "preview/preview.hpp"
 #include "preview/vips_preview.hpp"
+#include "util/util.hpp"
 
 #ifdef ENABLE_OPENCV
 #  include "preview/opencv_preview.hpp"
@@ -39,5 +40,5 @@ auto Preview::create(const Config *config, const std::string &file_path)
     if (vips_loader != nullptr) {
         return std::make_unique<VipsPreview>();
     }
-    return std::unexpected("no suitable preview backend found");
+    return util::unexpected_err("no suitable preview backend found");
 }

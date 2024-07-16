@@ -66,19 +66,19 @@ auto X11Canvas::supported() -> bool
 void X11Canvas::read_commands(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
-        auto command_ok = command_manager->unqueue();
-        if (!command_ok) {
+        auto json = command_manager->unqueue();
+        if (!json) {
             continue;
         }
-        const auto &json = *command_ok;
-        const auto &action = json.value("action", "");
-        const auto &preview_id = json.value("identifier", "");
+
+        const std::string &action = json->value("action", "");
+        const std::string &preview_id = json->value("identifier", "");
         if (action == "add") {
-            handle_add_command(preview_id, json);
+            handle_add_command(preview_id, *json);
         } else if (action == "remove") {
             windows.erase(preview_id);
         } else {
-            SPDLOG_WARN("unknown command received: {}", json.dump());
+            SPDLOG_WARN("unknown command received: {}", json->dump());
         }
     }
 }
