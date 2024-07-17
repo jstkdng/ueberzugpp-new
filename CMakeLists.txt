@@ -134,6 +134,8 @@ if (ENABLE_OPENCV)
 endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
+target_link_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
