@@ -20,7 +20,6 @@
 #include "util/util.hpp"
 #include "version.hpp"
 
-#include <chrono>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -75,9 +74,8 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
     spdlog::set_level(spdlog::level::debug);
     spdlog::flush_on(spdlog::level::debug);
 
-    const auto log_path = util::get_log_path();
     try {
-        const auto main_logger = spdlog::basic_logger_mt("main", log_path);
+        const auto main_logger = spdlog::basic_logger_mt("main", util::get_log_path());
         set_default_logger(main_logger);
         set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%L] [%s:%#] %v");
     } catch (const spdlog::spdlog_ex &ex) {
@@ -92,12 +90,11 @@ auto Application::daemonize() const -> std::expected<void, std::string>
     if (!config->no_stdin) {
         return {};
     }
-    auto daemon_ok = os::daemonize();
-    if (daemon_ok) {
+    return os::daemonize().and_then([this] -> std::expected<void, std::string> {
         std::ofstream ofs(config->pid_file);
         ofs << os::get_pid() << std::flush;
-    }
-    return daemon_ok;
+        return {};
+    });
 }
 
 void Application::print_header()
