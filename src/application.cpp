@@ -37,11 +37,15 @@ Application::~Application()
     SPDLOG_INFO("ueberzugpp terminated");
 }
 
-void Application::run() const
+void Application::run()
 {
-    while (!stop_flag) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(config->waitms));
-    }
+    stop_flag.wait(false);
+}
+
+void Application::terminate()
+{
+    stop_flag.test_and_set();
+    stop_flag.notify_one();
 }
 
 auto Application::initialize() noexcept -> std::expected<void, std::string>

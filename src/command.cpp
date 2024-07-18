@@ -53,7 +53,7 @@ void CommandManager::wait_for_input_on_stdin(const std::stop_token &token)
         auto in_event = os::wait_for_data_on_stdin(config->waitms);
         if (!in_event.has_value()) {
             SPDLOG_TRACE("stdin thread terminated: {}", in_event.error());
-            Application::stop_flag = true; // stop this program if this thread dies
+            Application::terminate(); // stop this program if this thread dies
             return;
         }
         if (!in_event.value()) {
@@ -118,7 +118,7 @@ auto CommandManager::extract_commands(std::string_view view) -> std::string
                 SPDLOG_DEBUG("flushing command queue");
                 command_queue = {};
             } else if (action == "exit") {
-                Application::stop_flag = true;
+                Application::terminate();
             } else {
                 command_queue.emplace(json);
             }

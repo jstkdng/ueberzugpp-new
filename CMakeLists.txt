@@ -102,8 +102,10 @@ if (ENABLE_X11)
     target_sources(ueberzugpp PRIVATE
         include/canvas/x11/x11_canvas.hpp
         include/canvas/x11/x11_window.hpp
+        include/canvas/x11/x11_preview.hpp
         src/canvas/x11/x11_canvas.cpp
         src/canvas/x11/x11_window.cpp
+        src/canvas/x11/x11_preview.cpp
     )
     target_link_libraries(ueberzugpp PRIVATE PkgConfig::XCB PkgConfig::XCB_IMAGE PkgConfig::XCB_RES)
 

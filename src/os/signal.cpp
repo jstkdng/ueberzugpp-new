@@ -57,6 +57,6 @@ constexpr auto signal_manager::get_signal_name(int signal) -> std::string_view
 
 void signal_manager::signal_handler(const int signal)
 {
-    Application::stop_flag = true;
-    SPDLOG_WARN("{} received, exiting...", get_signal_name(signal));
+    SPDLOG_WARN("{} received", get_signal_name(signal));
+    Application::terminate();
 }

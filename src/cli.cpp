@@ -145,8 +145,8 @@ auto Manager::handle_layer_subcommand() const noexcept -> std::expected<void, st
         return std::unexpected("");
     }
     Application application;
-    return application.initialize().and_then([&application] -> std::expected<void, std::string> {
-        application.run();
+    return application.initialize().and_then([] -> std::expected<void, std::string> {
+        Application::run();
         return {};
     });
 }

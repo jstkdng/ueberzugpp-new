@@ -35,10 +35,12 @@ class Application
 
     auto initialize() noexcept -> std::expected<void, std::string>;
 
-    void run() const;
+    static void run();
+    static void terminate();
     static void print_header();
     static auto setup_loggers() -> std::expected<void, std::string>;
-    inline static std::atomic_bool stop_flag = false; // NOLINT
+
+    inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 
   private:
     std::shared_ptr<Config> config = Config::instance();
