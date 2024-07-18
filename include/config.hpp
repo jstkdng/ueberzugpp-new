@@ -41,7 +41,7 @@ class Config
     auto read_config_file() -> std::expected<void, std::string>;
 
     // some globals
-    const int waitms = 50;
+    const int waitms = 20;
     opencl_status ocl = opencl_status::UNCHECKED;
     bool vips_initialized = false;
 

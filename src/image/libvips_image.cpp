@@ -16,19 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "preview/vips_preview.hpp"
+#include "image/libvips_image.hpp"
 
-VipsPreview::VipsPreview()
+auto LibvipsImage::data() -> unsigned char *
 {
-    if (!config->vips_initialized) {
-        if (VIPS_INIT("ueberzugpp")) {
-            vips_error_exit(nullptr);
-        }
-        vips_cache_set_max(1);
-        config->vips_initialized = true;
-    }
-}
-
-void VipsPreview::draw()
-{
+    return nullptr;
 }

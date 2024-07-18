@@ -16,32 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef X11_WINDOW_HPP
-#define X11_WINDOW_HPP
+#ifndef LIBVIPS_IMAGE_HPP
+#define LIBVIPS_IMAGE_HPP
 
-#include "config.hpp"
-#include "image/image.hpp"
+#include "image.hpp"
 
-#include <expected>
-#include <memory>
-#include <string>
-
-#include <nlohmann/json.hpp>
-#include <xcb/xcb.h>
-
-class X11Window : private std::enable_shared_from_this<X11Window>
+class LibvipsImage final : public Image
 {
   public:
-    X11Window(xcb_connection_t *connection, xcb_screen_t *screen);
-    auto initialize(const nlohmann::json &command) -> std::expected<void, std::string>;
-
-  private:
-    xcb_connection_t *connection = nullptr;
-    xcb_screen_t *screen = nullptr;
-    xcb_window_t window = 0;
-
-    std::shared_ptr<Config> config = Config::instance();
-    std::unique_ptr<Image> image;
+    auto data() -> unsigned char * override;
 };
 
-#endif // X11_WINDOW_HPP
+#endif // LIBVIPS_IMAGE_HPP

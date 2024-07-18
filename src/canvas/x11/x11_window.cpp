@@ -33,8 +33,8 @@ auto X11Window::initialize(const nlohmann::json &command) -> std::expected<void,
     if (path.empty()) {
         return util::unexpected_err("filename not found in command");
     }
-    return Preview::create(config.get(), path).and_then([this](auto ptr) -> std::expected<void, std::string> {
-        preview = std::move(ptr);
+    return Image::create(config.get(), path).and_then([this](auto ptr) -> std::expected<void, std::string> {
+        image = std::move(ptr);
         return {};
     });
 }

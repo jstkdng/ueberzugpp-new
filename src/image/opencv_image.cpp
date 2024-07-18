@@ -16,25 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "preview/opencv_preview.hpp"
+#include "image/opencv_image.hpp"
 
-#include <opencv2/core/ocl.hpp>
-#include <spdlog/spdlog.h>
-
-OpencvPreview::OpencvPreview()
+auto OpencvImage::data() -> unsigned char *
 {
-    if (config->ocl == opencl_status::UNCHECKED) {
-        const auto *opencl_ctx = cv::ocl::Context::getDefault().ptr();
-        if (opencl_ctx == nullptr) {
-            SPDLOG_DEBUG("opencl is unavailable");
-            config->ocl = opencl_status::UNAVAILABLE;
-        } else {
-            SPDLOG_DEBUG("opencl is available");
-            config->ocl = opencl_status::AVAILABLE;
-        }
-    }
-}
-
-void OpencvPreview::draw()
-{
+    return nullptr;
 }

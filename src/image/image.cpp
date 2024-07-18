@@ -16,32 +16,29 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef X11_WINDOW_HPP
-#define X11_WINDOW_HPP
-
-#include "config.hpp"
 #include "image/image.hpp"
+#include "image/libvips_image.hpp"
+#include "util/util.hpp"
 
-#include <expected>
-#include <memory>
-#include <string>
+#ifdef ENABLE_OPENCV
+#  include "image/opencv_image.hpp"
+#  include <opencv2/imgcodecs.hpp>
+#endif
 
-#include <nlohmann/json.hpp>
-#include <xcb/xcb.h>
+#include <vips/vips.h>
 
-class X11Window : private std::enable_shared_from_this<X11Window>
+auto Image::create(const Config *config, const std::string &file_path)
+    -> std::expected<std::unique_ptr<Image>, std::string>
 {
-  public:
-    X11Window(xcb_connection_t *connection, xcb_screen_t *screen);
-    auto initialize(const nlohmann::json &command) -> std::expected<void, std::string>;
+#ifdef ENABLE_OPENCV
+    if (!config->no_opencv && cv::haveImageReader(file_path)) {
+        return std::make_unique<OpencvImage>();
+    }
+#endif
 
-  private:
-    xcb_connection_t *connection = nullptr;
-    xcb_screen_t *screen = nullptr;
-    xcb_window_t window = 0;
-
-    std::shared_ptr<Config> config = Config::instance();
-    std::unique_ptr<Image> image;
-};
-
-#endif // X11_WINDOW_HPP
+    const auto *vips_loader = vips_foreign_find_load(file_path.c_str());
+    if (vips_loader != nullptr) {
+        return std::make_unique<LibvipsImage>();
+    }
+    return util::unexpected_err("no suitable preview backend found");
+}

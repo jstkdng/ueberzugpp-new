@@ -16,29 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "preview/preview.hpp"
-#include "preview/vips_preview.hpp"
-#include "util/util.hpp"
+#ifndef OPENCV_IMAGE_HPP
+#define OPENCV_IMAGE_HPP
 
-#ifdef ENABLE_OPENCV
-#  include "preview/opencv_preview.hpp"
-#  include <opencv2/imgcodecs.hpp>
-#endif
+#include "image.hpp"
 
-#include <vips/vips.h>
-
-auto Preview::create(const Config *config, const std::string &file_path)
-    -> std::expected<std::unique_ptr<Preview>, std::string>
+class OpencvImage final : public Image
 {
-#ifdef ENABLE_OPENCV
-    if (!config->no_opencv && cv::haveImageReader(file_path)) {
-        return std::make_unique<OpencvPreview>();
-    }
-#endif
+  public:
+    auto data() -> unsigned char * override;
+};
 
-    const auto *vips_loader = vips_foreign_find_load(file_path.c_str());
-    if (vips_loader != nullptr) {
-        return std::make_unique<VipsPreview>();
-    }
-    return util::unexpected_err("no suitable preview backend found");
-}
+#endif // OPENCV_IMAGE_HPP
