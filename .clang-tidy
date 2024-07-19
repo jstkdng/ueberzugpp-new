@@ -15,15 +15,13 @@ Checks: -*,
   bugprone-*, -bugprone-easily-swappable-parameters, -bugprone-exception-escape,
   google-*, -google-runtime-references, -google-readability-todo
 WarningsAsErrors: '*'
-HeaderFilterRegex: './include/*.hpp$'
-#AnalyzeTemporaryDtors: false
 SystemHeaders: false
 FormatStyle: file
 CheckOptions:
   - key: readability-identifier-naming.ClassMemberCase
     value: lower_case
   - key: readability-identifier-naming.ClassMemberSuffix
-    value: ''
+    value: '_'
   - key: readability-identifier-naming.VariableCase
     value: lower_case
   - key: readability-identifier-naming.FunctionCase

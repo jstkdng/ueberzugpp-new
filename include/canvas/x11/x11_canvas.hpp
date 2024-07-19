@@ -19,21 +19,21 @@
 #ifndef X11_CANVAS_HPP
 #define X11_CANVAS_HPP
 
+#include <thread>
+#include <unordered_map>
+
 #include "canvas/canvas.hpp"
 #include "config.hpp"
 #include "util/str_map.hpp"
 #include "x11_window.hpp"
 
-#include <thread>
-#include <unordered_map>
-
 #ifndef HAVE_STD_JTHREAD
-#  include "jthread/jthread.hpp"
+#include "jthread/jthread.hpp"
 #endif
 
 #include <xcb/xcb.h>
 #ifdef ENABLE_XCB_ERRORS
-#  include <xcb/xcb_errors.h>
+#include <xcb/xcb_errors.h>
 #endif
 
 class X11Canvas final : public Canvas
@@ -65,4 +65,4 @@ class X11Canvas final : public Canvas
     void handle_add_command(const std::string &preview_id, const nlohmann::json &json);
 };
 
-#endif // X11_CANVAS_HPP
+#endif  // X11_CANVAS_HPP

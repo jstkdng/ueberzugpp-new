@@ -16,28 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "canvas/x11/x11_window.hpp"
+#ifndef GEOMETRY_HPP
+#define GEOMETRY_HPP
 
-#include "util/util.hpp"
+#include <expected>
+#include <nlohmann/json.hpp>
+#include <string>
+#include <string_view>
 
-using njson = nlohmann::json;
+#include "terminal_info.hpp"
 
-X11Window::X11Window(xcb_connection_t *connection, xcb_screen_t *screen) :
-    connection(connection),
-    screen(screen)
+class Geometry
 {
-}
+  public:
+    auto initialize(const nlohmann::json &json) -> std::expected<void, std::string>;
+    static auto get_int_json(const nlohmann::json &json, std::string_view key) -> int;
 
-auto X11Window::initialize(const nlohmann::json &command) -> std::expected<void, std::string>
-{
-    const auto &path = command.value("path", "");
-    if (path.empty()) {
-        return util::unexpected_err("filename not found in command");
-    }
-    return Image::create(config.get(), path)
-        .and_then([this](auto ptr) -> std::expected<void, std::string> {
-            image = std::move(ptr);
-            return {};
-        })
-        .and_then([this, &command] { return geometry.initialize(command); });
-}
+  private:
+    TerminalInfo *terminal_ = nullptr;
+    std::string scaler;
+
+    int x = 0;
+    int y = 0;
+    int max_width = 0;
+    int max_height = 0;
+};
+
+#endif // GEOMETRY_HPP

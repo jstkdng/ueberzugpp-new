@@ -173,6 +173,9 @@ target_sources(ueberzugpp PRIVATE
     include/canvas/canvas.hpp
     src/canvas/canvas.cpp
 
+    include/canvas/geometry.hpp
+    src/canvas/geometry.cpp
+
     include/image/image.hpp
     src/image/image.cpp
     include/image/libvips_image.hpp

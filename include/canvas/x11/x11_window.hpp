@@ -19,15 +19,16 @@
 #ifndef X11_WINDOW_HPP
 #define X11_WINDOW_HPP
 
-#include "config.hpp"
-#include "image/image.hpp"
+#include <xcb/xcb.h>
 
 #include <expected>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
 
-#include <nlohmann/json.hpp>
-#include <xcb/xcb.h>
+#include "canvas/geometry.hpp"
+#include "config.hpp"
+#include "image/image.hpp"
 
 class X11Window : private std::enable_shared_from_this<X11Window>
 {
@@ -41,7 +42,8 @@ class X11Window : private std::enable_shared_from_this<X11Window>
     xcb_window_t window = 0;
 
     std::shared_ptr<Config> config = Config::instance();
+    Geometry geometry;
     std::unique_ptr<Image> image;
 };
 
-#endif // X11_WINDOW_HPP
+#endif  // X11_WINDOW_HPP
