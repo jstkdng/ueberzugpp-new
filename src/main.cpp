@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "application.hpp"
 #include "cli.hpp"
 #include "config.hpp"
 #include "os/signal.hpp"
@@ -25,6 +26,11 @@
 
 auto main(const int argc, char *argv[]) -> int
 {
+    auto log_ok = Application::setup_loggers();
+    if (!log_ok) {
+        std::cerr << log_ok.error() << '\n';
+        return 1;
+    }
     signal_manager::setup_signals();
 
     const auto config = Config::instance();

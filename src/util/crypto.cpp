@@ -63,5 +63,5 @@ auto crypto::generate_random_string(const int length) -> std::string
 {
     std::vector<unsigned char> buffer(length);
     RAND_bytes(buffer.data(), length);
-    return util::bytes_to_hexstring(std::as_bytes(std::span{buffer.data(), buffer.size()}));
+    return util::bytes_to_hexstring(std::as_bytes(std::span{buffer}));
 }

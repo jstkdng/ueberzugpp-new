@@ -50,11 +50,8 @@ void Application::terminate()
 auto Application::initialize() noexcept -> std::expected<void, std::string>
 {
     print_header();
-    auto loggers_ok = setup_loggers();
-    if (loggers_ok) {
-        SPDLOG_INFO("starting {}", version_str);
-    }
-    return loggers_ok.and_then([this] { return terminal.initialize(); })
+    SPDLOG_INFO("starting {}", version_str);
+    return terminal.initialize()
         .and_then([this] { return daemonize(); })
         .and_then([this] { return command_manager.initialize(); })
         .and_then([this] { return Canvas::create(config.get()); })
