@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <openssl/evp.h>
+#include <openssl/rand.h>
 
 auto crypto::get_b2_hash(const std::string_view str) -> std::string
 {
@@ -56,4 +57,11 @@ auto crypto::base64_encode(const std::string_view str) -> std::string
 #endif
 
     return buffer;
+}
+
+auto crypto::generate_random_string(const int length) -> std::string
+{
+    std::vector<unsigned char> buffer(length);
+    RAND_bytes(buffer.data(), length);
+    return util::bytes_to_hexstring(std::as_bytes(std::span{buffer.data(), buffer.size()}));
 }

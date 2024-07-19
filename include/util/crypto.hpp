@@ -27,6 +27,7 @@ namespace crypto
 
 auto get_b2_hash(std::string_view str) -> std::string;
 auto base64_encode(std::string_view str) -> std::string;
+auto generate_random_string(int length) -> std::string;
 
 } // namespace crypto
 
