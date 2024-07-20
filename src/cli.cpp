@@ -109,7 +109,8 @@ void Manager::setup_layer_subcommand() const noexcept
     layer_command->add_option("-o,--output", config->output, "Image output method")
         ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}));
     layer_command->add_flag("--origin-center", config->origin_center, "Location of the origin wrt the image");
-    layer_command->add_option("-p,--parser", nullptr, "**UNUSED**, only present for backwards compatibility.");
+    layer_command->add_option("-p,--parser", config->parser, "Command parser to use.")
+        ->check(CLI::IsMember({"json", "bash", "simple"}));
     layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility.");
 }
 

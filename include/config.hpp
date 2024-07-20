@@ -43,7 +43,6 @@ class Config
     // some globals
     const int waitms = 20;
     opencl_status ocl = opencl_status::UNCHECKED;
-    bool vips_initialized = false;
 
     // configurable with config file
     bool silent = false;
@@ -57,6 +56,7 @@ class Config
     bool no_stdin = false;
     bool origin_center = false;
     std::string pid_file;
+    std::string parser;
 
   private:
     Config();
