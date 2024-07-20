@@ -31,6 +31,7 @@
 class Application
 {
   public:
+    Application();
     ~Application();
 
     auto initialize() noexcept -> std::expected<void, std::string>;

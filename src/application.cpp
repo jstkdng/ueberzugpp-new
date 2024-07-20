@@ -27,8 +27,17 @@
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
+#include <vips/vips.h>
 
 namespace fs = std::filesystem;
+
+Application::Application()
+{
+    if (VIPS_INIT("ueberzugpp")) {
+        vips_error_exit(nullptr);
+    }
+    vips_cache_set_max(1);
+}
 
 Application::~Application()
 {
