@@ -43,13 +43,13 @@ auto cli::cmd_subcommand::get_json() const noexcept -> std::string
                 {"x", x},           {"y", y},           {"path", file_path}};
     }
 
-    return json;
+    return json.dump();
 }
 
 auto cli::tmux_subcommand::get_json() const noexcept -> std::string
 {
-    njson json = {{"action", "tmux"}, {"hook", hook}};
-    return json;
+    const njson json = {{"action", "tmux"}, {"hook", hook}};
+    return json.dump();
 }
 
 auto Manager::initialize(const std::span<char *> args) -> std::expected<void, int>
