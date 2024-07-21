@@ -76,9 +76,12 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
     using spdlog::set_default_logger;
     using spdlog::set_pattern;
 
-    spdlog::cfg::load_env_levels();
+#ifdef DEBUG
     spdlog::set_level(spdlog::level::debug);
     spdlog::flush_on(spdlog::level::debug);
+#else
+    spdlog::flush_on(spdlog::level::info);
+#endif
 
     try {
         const auto main_logger = spdlog::basic_logger_mt("main", util::get_log_path());
