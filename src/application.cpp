@@ -62,13 +62,13 @@ auto Application::initialize() noexcept -> std::expected<void, std::string>
     SPDLOG_INFO("starting {}", version_str);
     return terminal.initialize()
         .and_then([this] { return daemonize(); })
-        .and_then([this] { return command_manager.initialize(); })
+        .and_then([this] { return command_listener.initialize(&command_queue); })
         .and_then([this] { return Canvas::create(config.get()); })
         .and_then([this](auto ptr) -> std::expected<void, std::string> {
             canvas = std::move(ptr);
             return {};
         })
-        .and_then([this] { return canvas->initialize(&command_manager); });
+        .and_then([this] { return canvas->initialize(&command_queue); });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>

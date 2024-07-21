@@ -16,25 +16,26 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef CANVAS_HPP
-#define CANVAS_HPP
-
-#include "command/command.hpp"
-#include "config.hpp"
-#include "moodycamel/blockingconcurrentqueue.h"
+#ifndef COMMAND_HPP
+#define COMMAND_HPP
 
 #include <expected>
-#include <memory>
+#include <filesystem>
+#include <string>
+#include <string_view>
 
-class Canvas
-{
-  public:
-    static auto create(Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>;
-    static void check_supported_canvas(Config *config);
+struct Command {
+    static auto create(std::string_view parser, std::string_view line) -> std::expected<Command, std::string>;
+    static auto parse_json(std::string_view line) -> std::expected<Command, std::string>;
 
-    virtual auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue)
-        -> std::expected<void, std::string> = 0;
-    virtual ~Canvas() = default;
+    std::string action;
+    std::string preview_id;
+    std::filesystem::path image_path;
+    std::string image_scaler;
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
 };
 
-#endif // CANVAS_HPP
+#endif // COMMAND_HPP

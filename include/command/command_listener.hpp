@@ -16,49 +16,46 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef COMMAND_HPP
-#define COMMAND_HPP
+#ifndef COMMAND_LISTENER_HPP
+#define COMMAND_LISTENER_HPP
 
+#include <expected>
+#include <string>
+
+#include "command/command.hpp"
 #include "config.hpp"
 #include "util/unix_socket.hpp"
 
-#include <condition_variable>
-#include <expected>
-#include <queue>
-#include <string>
 #ifdef HAVE_STD_JTHREAD
-#  include <stop_token>
-#  include <thread>
+#include <stop_token>
+#include <thread>
 #else
-#  include "jthread/jthread.hpp"
+#include "jthread/jthread.hpp"
 #endif
 
-#include <nlohmann/json.hpp>
+#include "moodycamel/blockingconcurrentqueue.h"
 
 /**
  * Read for commands in stdin and unix_socket socket, divide them by newlines and parse them
  */
-class CommandManager
+class CommandListener
 {
   public:
-    auto initialize() -> std::expected<void, std::string>;
-
-    auto unqueue() -> std::expected<nlohmann::json, std::string>;
+    auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue) -> std::expected<void, std::string>;
 
   private:
-    unix_socket::Server socket_server;
     std::shared_ptr<Config> config = Config::instance();
+    moodycamel::BlockingConcurrentQueue<Command> *command_queue = nullptr;
+    unix_socket::Server socket_server;
 
-    std::queue<nlohmann::json> command_queue;
-    mutable std::mutex queue_mutex;
-    std::condition_variable cond;
     std::string stdin_buffer;
     std::jthread stdin_thread;
     std::jthread socket_thread;
 
     void wait_for_input_on_stdin(const std::stop_token &token);
     void wait_for_input_on_socket(const std::stop_token &token);
-    auto extract_commands(std::string_view view) -> std::string;
+    [[nodiscard]] auto extract_commands(std::string_view view) const -> std::string;
+    void flush_command_queue() const;
 };
 
-#endif // COMMAND_HPP
+#endif // COMMAND_LISTENER_HPP

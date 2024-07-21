@@ -19,15 +19,17 @@
 #ifndef X11_CANVAS_HPP
 #define X11_CANVAS_HPP
 
-#include <thread>
-#include <unordered_map>
-
 #include "canvas/canvas.hpp"
 #include "config.hpp"
 #include "util/str_map.hpp"
 #include "x11_window.hpp"
 
-#ifndef HAVE_STD_JTHREAD
+#include <unordered_map>
+
+#ifdef HAVE_STD_JTHREAD
+#include <stop_token>
+#include <thread>
+#else
 #include "jthread/jthread.hpp"
 #endif
 
@@ -40,12 +42,12 @@ class X11Canvas final : public Canvas
 {
   public:
     ~X11Canvas() override;
-    auto initialize(CommandManager *manager) -> std::expected<void, std::string> override;
+    auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue) -> std::expected<void, std::string> override;
     static auto supported() -> bool;
 
   private:
     std::shared_ptr<Config> config = Config::instance();
-    CommandManager *command_manager = nullptr;
+    moodycamel::BlockingConcurrentQueue<Command> *command_queue = nullptr;
     xcb_connection_t *connection = nullptr;
     xcb_screen_t *screen = nullptr;
 
@@ -62,7 +64,7 @@ class X11Canvas final : public Canvas
     void read_commands(const std::stop_token &token);
     void print_xcb_error(xcb_generic_error_t *err) const;
 
-    void handle_add_command(const std::string &preview_id, const nlohmann::json &json);
+    void handle_add_command(const Command &cmd);
 };
 
-#endif  // X11_CANVAS_HPP
+#endif // X11_CANVAS_HPP

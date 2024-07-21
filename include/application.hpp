@@ -20,9 +20,11 @@
 #define APPLICATION_HPP
 
 #include "canvas/canvas.hpp"
-#include "command.hpp"
+#include "command/command_listener.hpp"
 #include "config.hpp"
 #include "terminal.hpp"
+
+#include "moodycamel/blockingconcurrentqueue.h"
 
 #include <atomic>
 #include <expected>
@@ -45,8 +47,9 @@ class Application
 
   private:
     std::shared_ptr<Config> config = Config::instance();
+    moodycamel::BlockingConcurrentQueue<Command> command_queue;
     Terminal terminal;
-    CommandManager command_manager;
+    CommandListener command_listener;
     std::unique_ptr<Canvas> canvas;
 
     [[nodiscard]] auto daemonize() const -> std::expected<void, std::string>;

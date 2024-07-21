@@ -205,8 +205,10 @@ target_sources(ueberzugpp PRIVATE
     include/application.hpp
     src/application.cpp
 
-    include/command.hpp
-    src/command.cpp
+    include/command/command.hpp
+    include/command/command_listener.hpp
+    src/command/command.cpp
+    src/command/command_listener.cpp
 
     include/terminal.hpp
     include/terminal_info.hpp

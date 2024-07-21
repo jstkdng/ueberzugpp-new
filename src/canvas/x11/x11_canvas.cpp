@@ -21,6 +21,8 @@
 #include "util/ptr.hpp"
 #include "util/util.hpp"
 
+#include <chrono>
+
 #include <spdlog/spdlog.h>
 
 using std::unexpected;
@@ -33,10 +35,10 @@ X11Canvas::~X11Canvas()
     xcb_disconnect(connection);
 }
 
-auto X11Canvas::initialize(CommandManager *manager) -> std::expected<void, std::string>
+auto X11Canvas::initialize(moodycamel::BlockingConcurrentQueue<Command> *queue) -> std::expected<void, std::string>
 {
     SPDLOG_DEBUG("initializing canvas");
-    command_manager = manager;
+    command_queue = queue;
     connection = xcb_connect(nullptr, nullptr);
     if (xcb_connection_has_error(connection) > 0) {
         return util::unexpected_err("can't connect to x11 server");
@@ -66,44 +68,22 @@ auto X11Canvas::supported() -> bool
 void X11Canvas::read_commands(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
-        auto json = command_manager->unqueue();
-        if (!json) {
+        Command cmd;
+        if (!command_queue->wait_dequeue_timed(cmd, std::chrono::milliseconds(config->waitms))) {
             continue;
         }
 
-        const std::string &action = json->value("action", "");
-        const std::string &preview_id = json->value("identifier", "");
-        if (action == "add") {
-            handle_add_command(preview_id, *json);
-        } else if (action == "remove") {
-            windows.erase(preview_id);
-        } else {
-            SPDLOG_WARN("unknown command received: {}", json->dump());
+        if (cmd.action == "add") {
+            handle_add_command(cmd);
+        } else if (cmd.action == "remove") {
+            windows.erase(cmd.preview_id);
         }
     }
 }
 
-void X11Canvas::handle_add_command(const std::string &preview_id, const nlohmann::json &json)
+void X11Canvas::handle_add_command([[maybe_unused]] const Command &cmd)
 {
-    const auto found = windows.find(preview_id);
-    if (found == windows.end()) {
-        SPDLOG_INFO("creating new window");
-        auto new_win = std::make_shared<X11Window>(connection, screen);
-        auto init_ok = new_win->initialize(json);
-        if (!init_ok) {
-            SPDLOG_WARN("could not initialize window with id {}: {}", preview_id, init_ok.error());
-            return;
-        }
-        auto [entry, inserted] = windows.try_emplace(preview_id, new_win);
-        if (!inserted) {
-            SPDLOG_WARN("could not insert new window with id {}", preview_id);
-        }
-    } else {
-        auto init_ok = found->second->initialize(json);
-        if (!init_ok) {
-            SPDLOG_WARN("could not reinitialize window with id {}: {}", preview_id, init_ok.error());
-        }
-    }
+    SPDLOG_DEBUG("need to implement");
 }
 
 void X11Canvas::handle_events(const std::stop_token &token) const

@@ -45,14 +45,11 @@ Server::~Server()
 auto Server::start() -> std::expected<void, std::string>
 {
     endpoint = util::get_socket_path();
-    auto bind_ok = bind_to_endpoint();
-    if (bind_ok) {
-        SPDLOG_INFO("listening for connections on {}", endpoint);
+    return bind_to_endpoint().and_then([this] -> std::expected<void, std::string> {
+        SPDLOG_INFO("started unix socket server on {}", endpoint);
         accept_thread = std::jthread([this](auto token) { accept_connections(token); });
-    } else {
-        SPDLOG_DEBUG(bind_ok.error());
-    }
-    return bind_ok;
+        return {};
+    });
 }
 
 void Server::accept_connections(const std::stop_token &token)
