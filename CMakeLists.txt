@@ -211,9 +211,7 @@ target_sources(ueberzugpp PRIVATE
     src/command/command_listener.cpp
 
     include/terminal.hpp
-    include/terminal_info.hpp
     src/terminal.cpp
-    src/terminal_info.cpp
 
     include/config.hpp
     src/config.cpp

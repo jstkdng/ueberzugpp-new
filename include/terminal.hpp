@@ -19,10 +19,21 @@
 #ifndef TERMINAL_HPP
 #define TERMINAL_HPP
 
-#include "terminal_info.hpp"
+#include "config.hpp"
 
 #include <expected>
 #include <string>
+
+#include <termios.h>
+
+struct TerminalSize {
+    int fallback_xpixel = 0;
+    int fallback_ypixel = 0;
+    int xpixel = 0;
+    int ypixel = 0;
+    int rows = 0;
+    int cols = 0;
+};
 
 class Terminal
 {
@@ -32,13 +43,41 @@ class Terminal
 
     auto initialize() -> std::expected<void, std::string>;
 
-    TerminalInfo info;
+    bool supports_sixel = false;
+    bool supports_kitty = false;
+
+    std::string term;
+    std::string term_program;
+
+    TerminalSize size;
+
+    int font_width = 0;
+    int font_height = 0;
+    int padding_horizontal = 0;
+    int padding_vertical = 0;
 
   private:
-    int opened_terminal_pid = -1;
+    int pty_pid = -1;
     int pty_fd = -1;
 
+    termios old_term{};
+    termios new_term{};
+    std::shared_ptr<Config> config = Config::instance();
+
     void open_first_pty();
+
+    void init_termios();
+    void set_padding_values();
+    void reset_termios() const;
+    auto read_raw_terminal_command(std::string_view command) -> std::expected<std::string, std::string>;
+
+    auto set_size_ioctl() -> std::expected<void, std::string>;
+    auto set_size_xtsm() -> std::expected<void, std::string>;
+    auto set_size_escape_code() -> std::expected<void, std::string>;
+
+    auto check_output_support() -> std::expected<void, std::string>;
+    auto check_sixel_support() -> std::expected<void, std::string>;
+    auto check_kitty_support() -> std::expected<void, std::string>;
 };
 
 #endif // TERMINAL_HPP

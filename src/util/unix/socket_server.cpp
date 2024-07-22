@@ -79,7 +79,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
         pollfd fds{};
         fds.fd = filde;
         fds.events = POLLIN;
-        pollfds.emplace_back(fds);
+        pollfds.push_back(fds);
     }
 
     const int poll_res = poll(pollfds.data(), pollfds.size(), config->waitms);

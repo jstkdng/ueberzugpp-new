@@ -24,8 +24,6 @@
 #include <string>
 #include <string_view>
 
-#include "terminal_info.hpp"
-
 class Geometry
 {
   public:
@@ -33,7 +31,6 @@ class Geometry
     static auto get_int_json(const nlohmann::json &json, std::string_view key) -> int;
 
   private:
-    TerminalInfo *terminal_ = nullptr;
     std::string scaler;
 
     int x = 0;
