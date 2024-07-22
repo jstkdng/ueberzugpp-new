@@ -20,6 +20,7 @@
 
 #include "application.hpp"
 #include "os/os.hpp"
+#include "util/util.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -41,9 +42,9 @@ void CommandListener::wait_for_input_on_socket(const std::stop_token &token)
     SPDLOG_INFO("listening for commands on socket");
     while (!token.stop_requested()) {
         auto data = socket_server.read_data_from_connection();
-        if (!data.has_value()) {
-            SPDLOG_DEBUG(data.error());
-            return;
+        if (!data) {
+            SPDLOG_TRACE(data.error());
+            continue;
         }
 
         for (const auto &cmd : data.value()) {

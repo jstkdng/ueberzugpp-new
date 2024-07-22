@@ -20,8 +20,6 @@
 #include "util/unix_socket.hpp"
 #include "util/util.hpp"
 
-#include <algorithm>
-
 #include <spdlog/spdlog.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -35,10 +33,6 @@ Server::~Server()
     if (sockfd != -1) {
         shutdown(sockfd, SHUT_RDWR);
         close(sockfd);
-    }
-    for (const auto filde : accepted_connections) {
-        shutdown(filde, SHUT_RDWR);
-        close(filde);
     }
 }
 
@@ -55,45 +49,46 @@ auto Server::start() -> std::expected<void, std::string>
 void Server::accept_connections(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
-        const auto in_event = os::wait_for_data_on_fd(sockfd, config->waitms);
-        if (!in_event.has_value()) {
-            SPDLOG_TRACE(in_event.error());
-            return;
-        }
-        if (!in_event.value()) {
+        if (!os::wait_for_data_on_fd(sockfd, config->waitms).value_or(false)) {
             continue;
         }
-        const auto accepted_fd = accept_connection();
-        if (!accepted_fd.has_value()) {
-            SPDLOG_TRACE(accepted_fd.error());
-            return;
+
+        while (true) {
+            int filde = accept(sockfd, nullptr, nullptr);
+            if (filde == -1) {
+                break;
+            }
+            connection_queue.enqueue(filde);
+            SPDLOG_DEBUG("accepting connection with fd {}", filde);
         }
-        accepted_connections.push_back(*accepted_fd);
     }
 }
 
 auto Server::read_data_from_connection() -> std::expected<std::vector<std::string>, std::string>
 {
-    std::vector<pollfd> fds(accepted_connections.size());
-    for (const auto filde : accepted_connections) {
-        pollfd tmp{};
-        tmp.fd = filde;
-        tmp.events = POLLIN;
-        fds.emplace_back(tmp);
+    constexpr int max_conns = 5;
+    std::vector<int> descriptors;
+    connection_queue.wait_dequeue_bulk_timed(std::back_inserter(descriptors), max_conns,
+                                             std::chrono::milliseconds(config->waitms));
+    if (descriptors.empty()) {
+        return std::unexpected("no available connections to read");
     }
 
-    const int res = poll(fds.data(), fds.size(), config->waitms);
-    if (res == -1) {
-        return os::system_error("can't poll for connections");
+    std::vector<pollfd> pollfds;
+    for (const int filde : descriptors) {
+        pollfd fds{};
+        fds.fd = filde;
+        fds.events = POLLIN;
+        pollfds.emplace_back(fds);
+    }
+
+    const int poll_res = poll(pollfds.data(), pollfds.size(), config->waitms);
+    if (poll_res == -1) {
+        return std::unexpected("could not poll connections");
     }
 
     std::vector<std::string> result;
-    for (const auto &[fd, events, revents] : fds) {
-        if ((revents & (POLLERR | POLLNVAL)) != 0) {
-            SPDLOG_TRACE("received {} on fd {}, removing connection", os::get_poll_err(revents), fd);
-            remove_accepted_connection(fd);
-            continue;
-        }
+    for (auto [fd, events, revents] : pollfds) {
         if ((revents & (POLLIN | POLLHUP)) != 0) {
             const auto data = os::read_data_from_socket(fd);
             if (data.has_value()) {
@@ -102,21 +97,15 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
                 SPDLOG_DEBUG(data.error());
             }
         }
-        if ((revents & POLLHUP) != 0) {
-            SPDLOG_TRACE("received {} on fd {}, removing connection", os::get_poll_err(revents), fd);
-            remove_accepted_connection(fd);
+        if ((revents & (POLLHUP | POLLERR | POLLNVAL)) != 0) {
+            shutdown(fd, SHUT_RDWR);
+            close(fd);
+        } else {
+            connection_queue.enqueue(fd);
         }
     }
 
     return result;
-}
-
-void Server::remove_accepted_connection(const int filde)
-{
-    shutdown(filde, SHUT_RDWR);
-    close(filde);
-    auto [begin, end] = std::ranges::remove(accepted_connections, filde);
-    accepted_connections.erase(begin, end);
 }
 
 auto Server::bind_to_endpoint() -> std::expected<void, std::string>
@@ -124,15 +113,6 @@ auto Server::bind_to_endpoint() -> std::expected<void, std::string>
     return create_socket().and_then([this] { return bind_to_socket(); }).and_then([this] {
         return listen_to_socket();
     });
-}
-
-auto Server::accept_connection() const -> std::expected<int, std::string>
-{
-    const int result = accept(sockfd, nullptr, nullptr);
-    if (result == -1) {
-        return os::system_error("could not accept connection");
-    }
-    return result;
 }
 
 auto Server::listen_to_socket() const -> std::expected<void, std::string>
@@ -159,7 +139,7 @@ auto Server::bind_to_socket() const -> std::expected<void, std::string>
 
 auto Server::create_socket() -> std::expected<void, std::string>
 {
-    sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    sockfd = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (sockfd == -1) {
         return os::system_error("could not create socket");
     }

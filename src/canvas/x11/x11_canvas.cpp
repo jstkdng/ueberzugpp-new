@@ -81,9 +81,9 @@ void X11Canvas::read_commands(const std::stop_token &token)
     }
 }
 
-void X11Canvas::handle_add_command([[maybe_unused]] const Command &cmd)
+void X11Canvas::handle_add_command(const Command &cmd)
 {
-    SPDLOG_DEBUG("need to implement");
+    SPDLOG_INFO("need to implement preview for {}", cmd.image_path.string());
 }
 
 void X11Canvas::handle_events(const std::stop_token &token) const

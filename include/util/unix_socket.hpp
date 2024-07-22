@@ -20,17 +20,19 @@
 #define UNIX_SOCKET_HPP
 
 #include "config.hpp"
+#include "moodycamel/blockingconcurrentqueue.h"
 
 #include <cstddef>
 #include <expected>
 #include <span>
 #include <string>
 #include <vector>
+
 #ifdef HAVE_STD_JTHREAD
-#  include <stop_token>
-#  include <thread>
+#include <stop_token>
+#include <thread>
 #else
-#  include "jthread/jthread.hpp"
+#include "jthread/jthread.hpp"
 #endif
 
 namespace unix_socket
@@ -50,16 +52,14 @@ class Server
     std::string endpoint;
 
     std::shared_ptr<Config> config = Config::instance();
-    std::vector<int> accepted_connections;
+    moodycamel::BlockingConcurrentQueue<int> connection_queue;
     std::jthread accept_thread;
 
     auto bind_to_endpoint() -> std::expected<void, std::string>;
     auto create_socket() -> std::expected<void, std::string>;
     void accept_connections(const std::stop_token &token);
-    void remove_accepted_connection(int filde);
 
     [[nodiscard]] auto bind_to_socket() const -> std::expected<void, std::string>;
-    [[nodiscard]] auto accept_connection() const -> std::expected<int, std::string>;
     [[nodiscard]] auto listen_to_socket() const -> std::expected<void, std::string>;
 };
 
