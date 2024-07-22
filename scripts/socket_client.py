@@ -6,8 +6,7 @@ from pathlib import Path
 
 def main():
     image_files = Path(Path.home() / "Pictures").glob("*.png")
-    tmp_dir = Path(tempfile.gettempdir())
-    upp_sockets = tmp_dir.glob("ueberzugpp-*.socket")
+    upp_sockets = Path(tempfile.gettempdir()).glob("ueberzugpp-*.socket")
     upp_socket = next(upp_sockets)
 
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
