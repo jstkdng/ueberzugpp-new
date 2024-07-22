@@ -59,7 +59,7 @@ void Server::accept_connections(const std::stop_token &token)
                 break;
             }
             connection_queue.enqueue(filde);
-            SPDLOG_DEBUG("accepting connection with fd {}", filde);
+            SPDLOG_TRACE("accepting connection with fd {}", filde);
         }
     }
 }
@@ -71,7 +71,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
     connection_queue.wait_dequeue_bulk_timed(std::back_inserter(descriptors), max_conns,
                                              std::chrono::milliseconds(config->waitms));
     if (descriptors.empty()) {
-        return std::unexpected("no available connections to read");
+        return util::unexpected_err("no available connections to read");
     }
 
     std::vector<pollfd> pollfds;
@@ -84,7 +84,7 @@ auto Server::read_data_from_connection() -> std::expected<std::vector<std::strin
 
     const int poll_res = poll(pollfds.data(), pollfds.size(), config->waitms);
     if (poll_res == -1) {
-        return std::unexpected("could not poll connections");
+        return os::system_error("could not poll connections");
     }
 
     std::vector<std::string> result;

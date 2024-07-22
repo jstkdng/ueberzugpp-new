@@ -32,13 +32,11 @@ class Terminal
 
     auto initialize() -> std::expected<void, std::string>;
 
+    TerminalInfo info;
+
   private:
     int opened_terminal_pid = -1;
     int pty_fd = -1;
-
-    std::string term;
-    std::string term_program;
-    TerminalInfo info;
 
     void open_first_pty();
 };

@@ -27,6 +27,15 @@
 
 #include <termios.h>
 
+struct TerminalSize {
+    int fallback_xpixel = 0;
+    int fallback_ypixel = 0;
+    int xpixel = 0;
+    int ypixel = 0;
+    int rows = 0;
+    int cols = 0;
+};
+
 class TerminalInfo
 {
   public:
@@ -34,10 +43,14 @@ class TerminalInfo
 
     static auto guess_padding(int chars, int pixels) -> double;
     static auto guess_font_size(int chars, int pixels, int padding) -> double;
-    int xpixel = 0;
-    int ypixel = 0;
-    int rows = 0;
-    int cols = 0;
+
+    bool supports_sixel = false;
+    bool supports_kitty = false;
+
+    std::string term;
+    std::string term_program;
+
+    TerminalSize size;
 
     int font_width = 0;
     int font_height = 0;
@@ -49,9 +62,6 @@ class TerminalInfo
     termios old_term{};
     termios new_term{};
     std::shared_ptr<Config> config = Config::instance();
-
-    int fallback_xpixel = 0;
-    int fallback_ypixel = 0;
 
     void init_termios();
     void set_padding_values();

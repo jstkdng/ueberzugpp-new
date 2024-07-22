@@ -37,12 +37,6 @@ Terminal::~Terminal()
 
 auto Terminal::initialize() -> std::expected<void, std::string>
 {
-    term = os::getenv("TERM").value_or("xterm-256color");
-    term_program = os::getenv("TERM_PROGRAM").value_or("");
-    SPDLOG_INFO("TERM = {}", term);
-    if (!term_program.empty()) {
-        SPDLOG_INFO("TERM_PROGRAM = {}", term_program);
-    }
     open_first_pty();
     return info.initialize(pty_fd);
 }
