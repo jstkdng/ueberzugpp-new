@@ -21,6 +21,8 @@
 
 #include "command/command.hpp"
 #include "config.hpp"
+#include "terminal.hpp"
+
 #include "moodycamel/blockingconcurrentqueue.h"
 
 #include <expected>
@@ -29,10 +31,10 @@
 class Canvas
 {
   public:
-    static auto create(Config *config) -> std::expected<std::unique_ptr<Canvas>, std::string>;
-    static void check_supported_canvas(Config *config);
+    static auto create(Config *config, const Terminal *terminal) -> std::expected<std::unique_ptr<Canvas>, std::string>;
+    static void check_supported_canvas(Config *config, const Terminal *terminal);
 
-    virtual auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue)
+    virtual auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue, Terminal *terminal)
         -> std::expected<void, std::string> = 0;
     virtual ~Canvas() = default;
 };

@@ -48,6 +48,7 @@ auto wait_for_data_on_fd(int filde, int waitms) noexcept -> std::expected<bool, 
 auto wait_for_data_on_stdin(int waitms) noexcept -> std::expected<bool, std::string>;
 
 auto daemonize() -> std::expected<void, std::string>;
+auto close_stderr() -> std::expected<void, std::string>;
 
 } // namespace os
 

@@ -35,10 +35,12 @@ X11Canvas::~X11Canvas()
     xcb_disconnect(connection);
 }
 
-auto X11Canvas::initialize(moodycamel::BlockingConcurrentQueue<Command> *queue) -> std::expected<void, std::string>
+auto X11Canvas::initialize(moodycamel::BlockingConcurrentQueue<Command> *queue, Terminal *term)
+    -> std::expected<void, std::string>
 {
     SPDLOG_DEBUG("initializing canvas");
     command_queue = queue;
+    terminal = term;
     connection = xcb_connect(nullptr, nullptr);
     if (xcb_connection_has_error(connection) > 0) {
         return util::unexpected_err("can't connect to x11 server");

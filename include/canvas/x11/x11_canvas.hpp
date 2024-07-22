@@ -42,12 +42,14 @@ class X11Canvas final : public Canvas
 {
   public:
     ~X11Canvas() override;
-    auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue) -> std::expected<void, std::string> override;
+    auto initialize(moodycamel::BlockingConcurrentQueue<Command> *queue, Terminal *term)
+        -> std::expected<void, std::string> override;
     static auto supported() -> bool;
 
   private:
     std::shared_ptr<Config> config = Config::instance();
     moodycamel::BlockingConcurrentQueue<Command> *command_queue = nullptr;
+    Terminal *terminal = nullptr;
     xcb_connection_t *connection = nullptr;
     xcb_screen_t *screen = nullptr;
 

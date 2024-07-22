@@ -31,9 +31,24 @@ struct deleter_from_fn {
     }
 };
 
+template <auto &Fn>
+struct deleter_from_fn_null {
+    template <typename T>
+    constexpr void operator()(T *ptr) const
+    {
+        if (ptr != nullptr) {
+            Fn(const_cast<std::remove_const_t<T> *>(ptr));
+        }
+    }
+};
+
 // custom unique pointer
 template <typename T, auto &Fn>
 using c_unique_ptr = std::unique_ptr<T, deleter_from_fn<Fn>>;
+
+// custom unique pointer that checks if null before deleting
+template <typename T, auto &Fn>
+using cn_unique_ptr = std::unique_ptr<T, deleter_from_fn_null<Fn>>;
 
 template <typename T>
 using unique_C_ptr = c_unique_ptr<T, std::free>;

@@ -25,6 +25,7 @@
 #include <format>
 #include <vector>
 
+#include <fcntl.h>
 #include <spdlog/spdlog.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -162,6 +163,23 @@ auto os::daemonize() -> std::expected<void, std::string>
     if (pid > 0) {
         SPDLOG_DEBUG("child process {} created, terminating parent", pid);
         std::exit(EXIT_SUCCESS); // NOLINT
+    }
+    return {};
+}
+
+auto os::close_stderr() -> std::expected<void, std::string>
+{
+    const int nullfd = open("/dev/null", O_WRONLY);
+    if (nullfd == -1) {
+        return system_error("could not open /dev/null");
+    }
+    int res = dup2(nullfd, STDERR_FILENO);
+    if (res == -1) {
+        return system_error("could not reassign stderr");
+    }
+    res = close(nullfd);
+    if (res == -1) {
+        return system_error("could not close /dev/null fd");
     }
     return {};
 }

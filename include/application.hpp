@@ -33,7 +33,6 @@
 class Application
 {
   public:
-    Application();
     ~Application();
 
     auto initialize() noexcept -> std::expected<void, std::string>;
@@ -42,6 +41,7 @@ class Application
     static void terminate();
     static void print_header();
     static auto setup_loggers() -> std::expected<void, std::string>;
+    static auto start_vips() -> std::expected<void, std::string>;
 
     inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 
@@ -53,6 +53,7 @@ class Application
     std::unique_ptr<Canvas> canvas;
 
     [[nodiscard]] auto daemonize() const -> std::expected<void, std::string>;
+    [[nodiscard]] auto set_silent() const -> std::expected<void, std::string>;
 };
 
 #endif // APPLICATION_HPP

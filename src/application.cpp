@@ -31,17 +31,10 @@
 
 namespace fs = std::filesystem;
 
-Application::Application()
-{
-    if (VIPS_INIT("ueberzugpp")) {
-        vips_error_exit(nullptr);
-    }
-    vips_cache_set_max(1);
-}
-
 Application::~Application()
 {
     fs::remove(util::get_socket_path());
+    vips_shutdown();
     SPDLOG_INFO("ueberzugpp terminated");
 }
 
@@ -60,15 +53,16 @@ auto Application::initialize() noexcept -> std::expected<void, std::string>
 {
     print_header();
     SPDLOG_INFO("starting {}", version_str);
-    return terminal.initialize()
+    return set_silent()
+        .and_then([this] { return terminal.initialize(); })
         .and_then([this] { return daemonize(); })
+        .and_then(start_vips)
         .and_then([this] { return command_listener.initialize(&command_queue); })
-        .and_then([this] { return Canvas::create(config.get()); })
-        .and_then([this](auto ptr) -> std::expected<void, std::string> {
+        .and_then([this] { return Canvas::create(config.get(), &terminal); })
+        .and_then([this](auto ptr) {
             canvas = std::move(ptr);
-            return {};
-        })
-        .and_then([this] { return canvas->initialize(&command_queue); });
+            return canvas->initialize(&command_queue, &terminal);
+        });
 }
 
 auto Application::setup_loggers() -> std::expected<void, std::string>
@@ -104,6 +98,24 @@ auto Application::daemonize() const -> std::expected<void, std::string>
         ofs << os::get_pid() << std::flush;
         return {};
     });
+}
+
+auto Application::start_vips() -> std::expected<void, std::string>
+{
+    if (VIPS_INIT("ueberzugpp")) {
+        return util::unexpected_err("could not start VIPS");
+    }
+    vips_cache_set_max(1);
+    SPDLOG_DEBUG("libvips started");
+    return {};
+}
+
+auto Application::set_silent() const -> std::expected<void, std::string>
+{
+    if (!config->silent) {
+        return {};
+    }
+    return os::close_stderr();
 }
 
 void Application::print_header()
