@@ -15,3 +15,24 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
+
+#include "canvas/x11/x11_preview.hpp"
+
+X11Preview::X11Preview(xcb_connection_t *connection, xcb_screen_t *screen, Terminal *terminal) :
+    connection(connection),
+    screen(screen),
+    terminal(terminal),
+    geometry(terminal)
+{
+}
+
+auto X11Preview::initialize(Command cmd) -> std::expected<void, std::string>
+{
+    command = std::move(cmd);
+    geometry.update_command(&command);
+    return Image::create(config.get(), command.image_path)
+        .and_then([this](auto ptr) -> std::expected<void, std::string> {
+            image = std::move(ptr);
+            return {};
+        });
+}

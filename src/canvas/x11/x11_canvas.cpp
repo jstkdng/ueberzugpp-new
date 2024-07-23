@@ -78,14 +78,30 @@ void X11Canvas::read_commands(const std::stop_token &token)
         if (cmd.action == "add") {
             handle_add_command(cmd);
         } else if (cmd.action == "remove") {
-            windows.erase(cmd.preview_id);
+            SPDLOG_INFO("removing preview with id '{}'", cmd.preview_id);
+            preview_map.erase(cmd.preview_id);
         }
     }
 }
 
 void X11Canvas::handle_add_command(const Command &cmd)
 {
-    SPDLOG_INFO("need to implement preview for {}", cmd.image_path.string());
+    const auto preview = preview_map.find(cmd.preview_id);
+    if (preview != preview_map.end()) {
+        auto init_ok = preview->second->initialize(cmd);
+        if (!init_ok) {
+            SPDLOG_DEBUG("could not re-initialize existing preview with id {}: {}", cmd.preview_id, init_ok.error());
+        }
+        return;
+    }
+    auto new_preview = std::make_shared<X11Preview>(connection, screen, terminal);
+    auto init_ok = new_preview->initialize(cmd);
+    if (!init_ok) {
+        SPDLOG_ERROR("could not create preview with id {}: {}", cmd.preview_id, init_ok.error());
+        return;
+    }
+    SPDLOG_INFO("creating preview with id '{}' for image '{}'", cmd.preview_id, cmd.image_path.c_str());
+    preview_map.try_emplace(cmd.preview_id, new_preview);
 }
 
 void X11Canvas::handle_events(const std::stop_token &token) const

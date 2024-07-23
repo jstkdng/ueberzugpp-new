@@ -18,43 +18,32 @@
 
 #include "canvas/geometry.hpp"
 
-#include <spdlog/spdlog.h>
-
-#include "util/util.hpp"
-
-using njson = nlohmann::json;
-using std::string;
-using view = std::string_view;
-
-auto Geometry::initialize(const nlohmann::json &json) -> std::expected<void, std::string>
+Geometry::Geometry(Terminal *terminal) :
+    terminal(terminal)
 {
-    SPDLOG_DEBUG("parsing command {}", json.dump());
-
-    string width_key = "max_width";
-    string height_key = "max_height";
-    if (json.contains("width")) {
-        width_key = "width";
-        height_key = "height";
-    }
-
-    scaler = json.value("scaler", "contain");
-    try {
-        max_width = get_int_json(json, width_key);
-        max_height = get_int_json(json, height_key);
-        x = get_int_json(json, "x");
-        y = get_int_json(json, "y");
-    } catch (const njson::exception &) {
-        return util::unexpected_err("could not parse json command");
-    }
-
-    return {};
 }
 
-auto Geometry::get_int_json(const nlohmann::json &json, std::string_view key) -> int
+void Geometry::update_command(Command *new_command)
 {
-    const auto &value = json.at(key);
-    if (value.is_string()) {
-        return util::view_to_numeral<int>(value.get<view>()).value_or(0);
-    }
-    return value.get<int>();
+    command = new_command;
+}
+
+auto Geometry::xpixels() const -> int
+{
+    return command->x * terminal->font_width;
+}
+
+auto Geometry::ypixels() const -> int
+{
+    return command->y * terminal->font_height;
+}
+
+auto Geometry::width_pixels() const -> int
+{
+    return command->width * terminal->font_width;
+}
+
+auto Geometry::height_pixels() const -> int
+{
+    return command->height * terminal->font_height;
 }

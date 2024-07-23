@@ -30,14 +30,4 @@ X11Window::X11Window(xcb_connection_t *connection, xcb_screen_t *screen) :
 
 auto X11Window::initialize(const nlohmann::json &command) -> std::expected<void, std::string>
 {
-    const auto &path = command.value("path", "");
-    if (path.empty()) {
-        return util::unexpected_err("filename not found in command");
-    }
-    return Image::create(config.get(), path)
-        .and_then([this](auto ptr) -> std::expected<void, std::string> {
-            image = std::move(ptr);
-            return {};
-        })
-        .and_then([this, &command] { return geometry.initialize(command); });
 }

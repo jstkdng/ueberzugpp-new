@@ -19,8 +19,33 @@
 #ifndef X11_PREVIEW_HPP
 #define X11_PREVIEW_HPP
 
-class X11Preview
+#include "canvas/geometry.hpp"
+#include "command/command.hpp"
+#include "config.hpp"
+#include "image/image.hpp"
+#include "terminal.hpp"
+
+#include <expected>
+#include <memory>
+#include <string>
+
+#include <xcb/xcb.h>
+
+class X11Preview : private std::enable_shared_from_this<X11Preview>
 {
+  public:
+    X11Preview(xcb_connection_t *connection, xcb_screen_t *screen, Terminal *terminal);
+    auto initialize(Command cmd) -> std::expected<void, std::string>;
+
+  private:
+    std::shared_ptr<Config> config = Config::instance();
+    xcb_connection_t *connection;
+    xcb_screen_t *screen;
+    Terminal *terminal;
+    Geometry geometry;
+
+    Command command;
+    std::unique_ptr<Image> image;
 };
 
 #endif // X11_PREVIEW_HPP

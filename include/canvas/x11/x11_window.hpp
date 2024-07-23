@@ -28,9 +28,8 @@
 
 #include "canvas/geometry.hpp"
 #include "config.hpp"
-#include "image/image.hpp"
 
-class X11Window : private std::enable_shared_from_this<X11Window>
+class X11Window
 {
   public:
     X11Window(xcb_connection_t *connection, xcb_screen_t *screen);
@@ -43,7 +42,6 @@ class X11Window : private std::enable_shared_from_this<X11Window>
 
     std::shared_ptr<Config> config = Config::instance();
     Geometry geometry;
-    std::unique_ptr<Image> image;
 };
 
-#endif  // X11_WINDOW_HPP
+#endif // X11_WINDOW_HPP

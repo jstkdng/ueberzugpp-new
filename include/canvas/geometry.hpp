@@ -19,24 +19,23 @@
 #ifndef GEOMETRY_HPP
 #define GEOMETRY_HPP
 
-#include <expected>
-#include <nlohmann/json.hpp>
-#include <string>
-#include <string_view>
+#include "command/command.hpp"
+#include "terminal.hpp"
 
 class Geometry
 {
   public:
-    auto initialize(const nlohmann::json &json) -> std::expected<void, std::string>;
-    static auto get_int_json(const nlohmann::json &json, std::string_view key) -> int;
+    explicit Geometry(Terminal *terminal);
+    void update_command(Command *new_command);
+
+    [[nodiscard]] auto xpixels() const -> int;
+    [[nodiscard]] auto ypixels() const -> int;
+    [[nodiscard]] auto width_pixels() const -> int;
+    [[nodiscard]] auto height_pixels() const -> int;
 
   private:
-    std::string scaler;
-
-    int x = 0;
-    int y = 0;
-    int max_width = 0;
-    int max_height = 0;
+    Terminal *terminal;
+    Command *command = nullptr;
 };
 
 #endif // GEOMETRY_HPP

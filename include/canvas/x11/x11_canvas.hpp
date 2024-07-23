@@ -20,9 +20,9 @@
 #define X11_CANVAS_HPP
 
 #include "canvas/canvas.hpp"
+#include "canvas/x11/x11_preview.hpp"
 #include "config.hpp"
 #include "util/str_map.hpp"
-#include "x11_window.hpp"
 
 #include <unordered_map>
 
@@ -60,7 +60,7 @@ class X11Canvas final : public Canvas
     std::jthread event_handler;
     std::jthread command_reader;
 
-    string_map<std::shared_ptr<X11Window>> windows;
+    string_map<std::shared_ptr<X11Preview>> preview_map;
 
     void handle_events(const std::stop_token &token) const;
     void read_commands(const std::stop_token &token);
