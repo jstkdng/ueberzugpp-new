@@ -106,7 +106,7 @@ auto Application::start_vips() -> std::expected<void, std::string>
         return util::unexpected_err("could not start VIPS");
     }
     vips_cache_set_max(1);
-    SPDLOG_DEBUG("libvips started");
+    SPDLOG_DEBUG("VIPS started");
     return {};
 }
 

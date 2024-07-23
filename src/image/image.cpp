@@ -21,13 +21,13 @@
 #include "util/util.hpp"
 
 #ifdef ENABLE_OPENCV
-#  include "image/opencv_image.hpp"
-#  include <opencv2/imgcodecs.hpp>
+#include "image/opencv_image.hpp"
+#include <opencv2/imgcodecs.hpp>
 #endif
 
 #include <vips/vips.h>
 
-auto Image::create(const Config *config, const std::string &file_path)
+auto Image::create([[maybe_unused]] const Config *config, const std::string &file_path)
     -> std::expected<std::unique_ptr<Image>, std::string>
 {
 #ifdef ENABLE_OPENCV

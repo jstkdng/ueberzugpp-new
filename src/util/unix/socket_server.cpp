@@ -20,6 +20,7 @@
 #include "util/unix_socket.hpp"
 #include "util/util.hpp"
 
+#include <fcntl.h>
 #include <spdlog/spdlog.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -139,9 +140,17 @@ auto Server::bind_to_socket() const -> std::expected<void, std::string>
 
 auto Server::create_socket() -> std::expected<void, std::string>
 {
-    sockfd = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0);
+    sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sockfd == -1) {
         return os::system_error("could not create socket");
+    }
+    int flags = fcntl(sockfd, F_GETFL);
+    if (flags == -1) {
+        return os::system_error("could not get socket flags");
+    }
+    flags = fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+    if (flags == -1) {
+        return os::system_error("could not set nonblock flag on socket");
     }
     return {};
 }
