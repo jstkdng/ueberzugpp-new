@@ -19,7 +19,6 @@
 #ifndef X11_PREVIEW_HPP
 #define X11_PREVIEW_HPP
 
-#include "canvas/geometry.hpp"
 #include "command/command.hpp"
 #include "config.hpp"
 #include "image/image.hpp"
@@ -42,7 +41,6 @@ class X11Preview : private std::enable_shared_from_this<X11Preview>
     xcb_connection_t *connection;
     xcb_screen_t *screen;
     Terminal *terminal;
-    Geometry geometry;
 
     Command command;
     std::unique_ptr<Image> image;

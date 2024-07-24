@@ -22,3 +22,10 @@ auto LibvipsImage::data() -> unsigned char *
 {
     return nullptr;
 }
+
+auto LibvipsImage::initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string>
+{
+    terminal = term;
+    command = cmd;
+    return {};
+}

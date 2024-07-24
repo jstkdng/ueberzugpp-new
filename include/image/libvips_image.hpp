@@ -25,6 +25,11 @@ class LibvipsImage final : public Image
 {
   public:
     auto data() -> unsigned char * override;
+    auto initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string> override;
+
+  private:
+    Terminal *terminal = nullptr;
+    Command *command = nullptr;
 };
 
 #endif // LIBVIPS_IMAGE_HPP

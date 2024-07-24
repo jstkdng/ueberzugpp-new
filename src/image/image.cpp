@@ -18,7 +18,11 @@
 
 #include "image/image.hpp"
 #include "image/libvips_image.hpp"
+#include "os/os.hpp"
+#include "util/crypto.hpp"
 #include "util/util.hpp"
+
+#include <filesystem>
 
 #ifdef ENABLE_OPENCV
 #include "image/opencv_image.hpp"
@@ -26,6 +30,8 @@
 #endif
 
 #include <vips/vips.h>
+
+namespace fs = std::filesystem;
 
 auto Image::create([[maybe_unused]] const Config *config, const std::string &file_path)
     -> std::expected<std::unique_ptr<Image>, std::string>
@@ -41,4 +47,32 @@ auto Image::create([[maybe_unused]] const Config *config, const std::string &fil
         return std::make_unique<LibvipsImage>();
     }
     return util::unexpected_err("no suitable preview backend found");
+}
+
+auto Image::get_cache_path() -> std::filesystem::path
+{
+    fs::path rel_path = "ueberzugpp/";
+    const auto xdg_cache = os::getenv("XDG_CACHE_HOME");
+    if (xdg_cache) {
+        return *xdg_cache / rel_path;
+    }
+
+    rel_path = ".cache/ueberzugpp/";
+    const auto home = os::getenv("HOME");
+    if (home) {
+        return *home / rel_path;
+    }
+
+    return fs::temp_directory_path() / rel_path;
+}
+
+auto Image::get_cached_image_path(const std::filesystem::path &image_path) -> std::filesystem::path
+{
+    const auto hashed_path = crypto::get_b2_hash(image_path.c_str()) + image_path.extension().c_str();
+    return get_cache_path() / hashed_path;
+}
+
+auto Image::image_is_cached(const std::filesystem::path &image_path) -> bool
+{
+    return fs::exists(get_cached_image_path(image_path));
 }

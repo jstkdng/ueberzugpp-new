@@ -19,9 +19,12 @@
 #ifndef IMAGE_HPP
 #define IMAGE_HPP
 
+#include "command/command.hpp"
 #include "config.hpp"
+#include "terminal.hpp"
 
 #include <expected>
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -30,7 +33,11 @@ class Image
   public:
     static auto create(const Config *config, const std::string &file_path)
         -> std::expected<std::unique_ptr<Image>, std::string>;
+    static auto get_cache_path() -> std::filesystem::path;
+    static auto get_cached_image_path(const std::filesystem::path &image_path) -> std::filesystem::path;
+    static auto image_is_cached(const std::filesystem::path &image_path) -> bool;
 
+    virtual auto initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string> = 0;
     virtual ~Image() = default;
     virtual auto data() -> unsigned char * = 0;
 };

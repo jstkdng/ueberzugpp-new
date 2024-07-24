@@ -21,10 +21,24 @@
 
 #include "image.hpp"
 
+#include <opencv2/core.hpp>
+
 class OpencvImage final : public Image
 {
   public:
     auto data() -> unsigned char * override;
+    auto initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string> override;
+
+  private:
+    std::shared_ptr<Config> config = Config::instance();
+    Terminal *terminal = nullptr;
+    Command *command = nullptr;
+    cv::Mat image;
+
+    void check_cache();
+    auto read_image() -> std::expected<void, std::string>;
+    auto rotate_image() -> std::expected<void, std::string>;
+    auto resize_image() -> std::expected<void, std::string>;
 };
 
 #endif // OPENCV_IMAGE_HPP
