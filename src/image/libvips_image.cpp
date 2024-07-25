@@ -18,7 +18,7 @@
 
 #include "image/libvips_image.hpp"
 
-auto LibvipsImage::data() -> unsigned char *
+auto LibvipsImage::data() const -> unsigned char *
 {
     return nullptr;
 }
@@ -28,4 +28,14 @@ auto LibvipsImage::initialize(Terminal *term, Command *cmd) -> std::expected<voi
     terminal = term;
     command = cmd;
     return {};
+}
+
+auto LibvipsImage::height() const -> int
+{
+    return 0;
+}
+
+auto LibvipsImage::width() const -> int
+{
+    return 0;
 }

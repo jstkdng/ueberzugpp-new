@@ -24,8 +24,10 @@
 class LibvipsImage final : public Image
 {
   public:
-    auto data() -> unsigned char * override;
     auto initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string> override;
+    [[nodiscard]] auto data() const -> unsigned char * override;
+    [[nodiscard]] auto height() const -> int override;
+    [[nodiscard]] auto width() const -> int override;
 
   private:
     Terminal *terminal = nullptr;

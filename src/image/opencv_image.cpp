@@ -20,6 +20,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#include <spdlog/spdlog.h>
 
 #include <vips/vips8>
 
@@ -33,20 +34,33 @@ enum class exif_orientation : uint8_t {
     EXIF_ORIENTATION_8,
 };
 
-auto OpencvImage::data() -> unsigned char *
+auto OpencvImage::data() const -> unsigned char *
 {
     return image.data;
+}
+
+auto OpencvImage::height() const -> int
+{
+    return image.rows;
+}
+
+auto OpencvImage::width() const -> int
+{
+    return image.cols;
 }
 
 auto OpencvImage::initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string>
 {
     terminal = term;
     command = cmd;
-    return read_image().and_then([this] { return rotate_image(); });
-}
-
-void OpencvImage::check_cache()
-{
+    cmd_width = command->width * terminal->font_width;
+    cmd_height = command->height * terminal->font_height;
+    return read_image()
+        .and_then([this] -> std::expected<void, std::string> {
+            rotate_image();
+            return {};
+        })
+        .and_then([this] { return resize_image(); });
 }
 
 auto OpencvImage::read_image() -> std::expected<void, std::string>
@@ -60,7 +74,7 @@ auto OpencvImage::read_image() -> std::expected<void, std::string>
     return {};
 }
 
-auto OpencvImage::rotate_image() -> std::expected<void, std::string>
+void OpencvImage::rotate_image()
 {
     using cv::flip;
     using enum exif_orientation;
@@ -70,7 +84,7 @@ auto OpencvImage::rotate_image() -> std::expected<void, std::string>
     try {
         orientation = vipsimg.get_int("orientation");
     } catch (const vips::VError &) {
-        return std::unexpected("could not get image orientation");
+        return;
     }
 
     // kudos https://jdhao.github.io/2019/07/31/image_rotation_exif_info/
@@ -101,10 +115,20 @@ auto OpencvImage::rotate_image() -> std::expected<void, std::string>
         default:
             break;
     }
-    return {};
 }
 
 auto OpencvImage::resize_image() -> std::expected<void, std::string>
 {
+    target_image_sizes target;
+    const current_image_sizes cur{
+        .width = cmd_width, .height = cmd_height, .image_width = image.cols, .image_height = image.rows};
+    if (command->image_scaler == "contain") {
+        target = contain_sizes(cur);
+    } else if (command->image_scaler == "fit_contain") {
+        target = fit_contain_sizes(cur);
+    }
+
+    SPDLOG_DEBUG("width: {}, height: {}", target.width, target.height);
+    cv::resize(image, image, cv::Size(target.width, target.height), 0, 0, cv::INTER_AREA);
     return {};
 }

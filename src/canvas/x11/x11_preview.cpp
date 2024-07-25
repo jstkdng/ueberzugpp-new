@@ -28,9 +28,8 @@ X11Preview::X11Preview(xcb_connection_t *connection, xcb_screen_t *screen, Termi
 auto X11Preview::initialize(Command cmd) -> std::expected<void, std::string>
 {
     command = std::move(cmd);
-    return Image::create(config.get(), command.image_path)
-        .and_then([this](auto ptr) -> std::expected<void, std::string> {
-            image = std::move(ptr);
-            return {};
-        });
+    return Image::create(config.get(), command.image_path).and_then([this](auto ptr) {
+        image = std::move(ptr);
+        return image->initialize(terminal, &command);
+    });
 }

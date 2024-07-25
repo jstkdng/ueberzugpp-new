@@ -28,6 +28,18 @@
 #include <memory>
 #include <string>
 
+struct current_image_sizes {
+    int width;
+    int height;
+    int image_width;
+    int image_height;
+};
+
+struct target_image_sizes {
+    int width;
+    int height;
+};
+
 class Image
 {
   public:
@@ -37,9 +49,14 @@ class Image
     static auto get_cached_image_path(const std::filesystem::path &image_path) -> std::filesystem::path;
     static auto image_is_cached(const std::filesystem::path &image_path) -> bool;
 
+    static auto fit_contain_sizes(current_image_sizes sizes) -> target_image_sizes;
+    static auto contain_sizes(current_image_sizes sizes) -> target_image_sizes;
+
     virtual auto initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string> = 0;
     virtual ~Image() = default;
-    virtual auto data() -> unsigned char * = 0;
+    [[nodiscard]] virtual auto data() const -> unsigned char * = 0;
+    [[nodiscard]] virtual auto width() const -> int = 0;
+    [[nodiscard]] virtual auto height() const -> int = 0;
 };
 
 #endif // IMAGE_HPP

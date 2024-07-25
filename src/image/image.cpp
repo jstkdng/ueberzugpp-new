@@ -22,6 +22,7 @@
 #include "util/crypto.hpp"
 #include "util/util.hpp"
 
+#include <cmath>
 #include <filesystem>
 
 #ifdef ENABLE_OPENCV
@@ -75,4 +76,22 @@ auto Image::get_cached_image_path(const std::filesystem::path &image_path) -> st
 auto Image::image_is_cached(const std::filesystem::path &image_path) -> bool
 {
     return fs::exists(get_cached_image_path(image_path));
+}
+
+auto Image::fit_contain_sizes(const current_image_sizes sizes) -> target_image_sizes
+{
+    const auto factor = std::min(static_cast<float>(sizes.width) / static_cast<float>(sizes.image_width),
+                                 static_cast<float>(sizes.height) / static_cast<float>(sizes.image_height));
+    return {.width = static_cast<int>(static_cast<float>(sizes.image_width) * factor),
+            .height = static_cast<int>(static_cast<float>(sizes.image_height) * factor)};
+}
+
+auto Image::contain_sizes(const current_image_sizes sizes) -> target_image_sizes
+{
+    return fit_contain_sizes({
+        .width = std::min(sizes.image_width, sizes.width),
+        .height = std::min(sizes.image_height, sizes.height),
+        .image_width = sizes.image_width,
+        .image_height = sizes.image_height,
+    });
 }

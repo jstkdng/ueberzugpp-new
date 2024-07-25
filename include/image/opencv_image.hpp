@@ -26,18 +26,23 @@
 class OpencvImage final : public Image
 {
   public:
-    auto data() -> unsigned char * override;
     auto initialize(Terminal *term, Command *cmd) -> std::expected<void, std::string> override;
+    [[nodiscard]] auto data() const -> unsigned char * override;
+    [[nodiscard]] auto height() const -> int override;
+    [[nodiscard]] auto width() const -> int override;
 
   private:
     std::shared_ptr<Config> config = Config::instance();
     Terminal *terminal = nullptr;
     Command *command = nullptr;
+
+    int cmd_width = 0;
+    int cmd_height = 0;
+
     cv::Mat image;
 
-    void check_cache();
     auto read_image() -> std::expected<void, std::string>;
-    auto rotate_image() -> std::expected<void, std::string>;
+    void rotate_image();
     auto resize_image() -> std::expected<void, std::string>;
 };
 
