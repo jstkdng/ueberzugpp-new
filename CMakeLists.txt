@@ -73,23 +73,6 @@ if (HAVE_STD_JTHREAD)
     target_compile_definitions(ueberzugpp PRIVATE HAVE_STD_JTHREAD)
 endif ()
 
-find_package(spdlog CONFIG QUIET)
-if (NOT spdlog_FOUND)
-    set(SPDLOG_USE_STD_FORMAT ON)
-    FetchContent_Declare(
-        spdlog
-        URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.tar.gz)
-    list(APPEND FC_LIBS spdlog)
-endif ()
-
-find_package(nlohmann_json CONFIG QUIET)
-if (NOT nlohmann_json_FOUND)
-    FetchContent_Declare(
-        nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
-    list(APPEND FC_LIBS nlohmann_json)
-endif ()
-
 if (FC_LIBS)
     FetchContent_MakeAvailable(${FC_LIBS})
 endif ()
@@ -135,11 +118,13 @@ if (ENABLE_OPENCV)
     )
 endif ()
 
-target_precompile_headers(ueberzugpp PRIVATE third_party/CLI11/CLI11.hpp)
+target_precompile_headers(ueberzugpp PRIVATE third_party/CLI11.hpp)
+target_precompile_headers(ueberzugpp PRIVATE third_party/nlohmann/json.hpp)
+target_precompile_headers(ueberzugpp PRIVATE third_party/spdlog/spdlog.h)
+
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
-target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
-target_link_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
+target_compile_definitions(ueberzugpp PRIVATE SPDLOG_USE_STD_FORMAT)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
 
@@ -148,7 +133,7 @@ target_include_directories(ueberzugpp PRIVATE
     "${CMAKE_SOURCE_DIR}/include"
     "${PROJECT_BINARY_DIR}"
 )
-target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_SOURCE_DIR}/third_party")
+target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
 pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
 pkg_check_modules(SIXEL REQUIRED IMPORTED_TARGET libsixel)
@@ -217,8 +202,6 @@ target_link_libraries(ueberzugpp PRIVATE
     OpenSSL::Crypto
     TBB::tbb
     Threads::Threads
-    spdlog::spdlog
-    nlohmann_json::nlohmann_json
     PkgConfig::VIPS
     PkgConfig::SIXEL
     PkgConfig::CHAFA
