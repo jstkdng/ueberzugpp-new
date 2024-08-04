@@ -135,6 +135,7 @@ if (ENABLE_OPENCV)
     )
 endif ()
 
+target_precompile_headers(ueberzugpp PRIVATE third_party/CLI11/CLI11.hpp)
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
 target_link_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-fsanitize=address,undefined>)
@@ -193,11 +194,9 @@ target_sources(ueberzugpp PRIVATE
     src/util/unix/socket_server.cpp
     src/util/unix/socket_client.cpp
 
-    include/os/signal.hpp
     include/os/process.hpp
     include/os/os.hpp
     src/os/os.cpp
-    src/os/signal.cpp
 
     include/application.hpp
     src/application.cpp

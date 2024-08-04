@@ -40,6 +40,7 @@ class Application
     static void run();
     static void terminate();
     static void print_header();
+    static void setup_signal_handler();
     static auto setup_loggers() -> std::expected<void, std::string>;
     static auto start_vips() -> std::expected<void, std::string>;
 

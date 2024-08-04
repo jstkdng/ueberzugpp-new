@@ -19,7 +19,6 @@
 #include "application.hpp"
 #include "cli.hpp"
 #include "config.hpp"
-#include "os/signal.hpp"
 
 #include <iostream>
 #include <span>
@@ -31,7 +30,7 @@ auto main(const int argc, char *argv[]) -> int
         std::cerr << log_ok.error() << '\n';
         return 1;
     }
-    signal_manager::setup_signals();
+    Application::setup_signal_handler();
 
     const auto config = Config::instance();
     const auto config_read = config->read_config_file();

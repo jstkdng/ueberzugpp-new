@@ -31,6 +31,17 @@
 
 namespace fs = std::filesystem;
 
+namespace
+{
+
+void signal_handler([[maybe_unused]] int signal)
+{
+    SPDLOG_WARN("received signal, terminating");
+    Application::terminate();
+}
+
+} // namespace
+
 Application::~Application()
 {
     fs::remove(util::get_socket_path());
@@ -47,6 +58,19 @@ void Application::terminate()
 {
     stop_flag.test_and_set();
     stop_flag.notify_one();
+}
+
+void Application::setup_signal_handler()
+{
+    struct sigaction sga {
+    };
+    sga.sa_handler = signal_handler;
+    sigemptyset(&sga.sa_mask);
+    sga.sa_flags = 0;
+    sigaction(SIGINT, &sga, nullptr);
+    sigaction(SIGTERM, &sga, nullptr);
+    sigaction(SIGHUP, nullptr, nullptr);
+    sigaction(SIGCHLD, nullptr, nullptr);
 }
 
 auto Application::initialize() noexcept -> std::expected<void, std::string>
