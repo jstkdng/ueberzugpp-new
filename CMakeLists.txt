@@ -35,6 +35,7 @@ set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
 option(ENABLE_X11 "Enable X11 canvas." ON)
 option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
+option(ENABLE_LTO "Enable Link Time Optimization." ON)
 option(ENABLE_LIBCXX "Enable linking to libc++" OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -45,6 +46,10 @@ endif ()
 if (ENABLE_LIBCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+endif ()
+
+if (ENABLE_LTO)
+    set_target_properties(ueberzugpp PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
 endif ()
 
 include(FetchContent)
