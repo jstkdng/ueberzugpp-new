@@ -149,13 +149,9 @@ if (CMAKE_HOST_SYSTEM_VERSION MATCHES "^.*microsoft.*$")
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_sources(ueberzugpp PRIVATE
-        src/os/linux/process.cpp
-    )
+    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_LINUX)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_sources(ueberzugpp PRIVATE
-        src/os/apple/process.cpp
-    )
+    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_APPLE)
 endif ()
 
 target_sources(ueberzugpp PRIVATE
@@ -187,6 +183,7 @@ target_sources(ueberzugpp PRIVATE
     include/os/process.hpp
     include/os/os.hpp
     src/os/os.cpp
+    src/os/process.cpp
 
     include/application.hpp
     src/application.cpp

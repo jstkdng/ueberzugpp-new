@@ -91,9 +91,6 @@ auto Application::initialize() noexcept -> std::expected<void, std::string>
 
 auto Application::setup_loggers() -> std::expected<void, std::string>
 {
-    using spdlog::set_default_logger;
-    using spdlog::set_pattern;
-
 #ifdef DEBUG
     spdlog::set_level(spdlog::level::debug);
     spdlog::flush_on(spdlog::level::debug);
@@ -103,8 +100,8 @@ auto Application::setup_loggers() -> std::expected<void, std::string>
 
     try {
         const auto main_logger = spdlog::basic_logger_mt("main", util::get_log_path());
-        set_default_logger(main_logger);
-        set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%L] [%s:%#] %v");
+        spdlog::set_default_logger(main_logger);
+        spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%L] [%s:%#] %v");
     } catch (const spdlog::spdlog_ex &ex) {
         return util::unexpected_err(std::format("log init failed: {}", ex.what()));
     }
@@ -145,7 +142,7 @@ auto Application::set_silent() const -> std::expected<void, std::string>
 void Application::print_header()
 {
     const auto log_path = util::get_log_path();
-    const std::string art = R"(
+    const auto *art = R"(
  _   _      _
 | | | |    | |                                _     _
 | | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_

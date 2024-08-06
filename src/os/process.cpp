@@ -19,12 +19,41 @@
 #include "os/process.hpp"
 
 #include <format>
+#include <fstream>
+#include <limits>
+
+#ifdef UPP_OS_LINUX
+
+#include <sys/sysmacros.h>
+
+constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
+
+#endif
+
+#ifdef UPP_OS_APPLE
+
 #include <libproc.h>
 #include <sys/types.h>
 
-Process::Process(int pid)
-    : pid(pid)
+#endif
+
+Process::Process(int pid) :
+    pid(pid)
 {
+#ifdef UPP_OS_LINUX
+    int ignore{};
+    char ignorec{};
+
+    const auto stat_file = std::format("/proc/{}/stat", pid);
+    std::ifstream ifs(stat_file);
+    ifs.ignore(max_size, ')'); // skip pid and executable name
+
+    ifs >> ignorec >> ppid >> ignore >> ignore >> tty_nr;
+    minor_dev = minor(tty_nr);
+    pty_path = std::format("/dev/pts/{}", minor_dev);
+#endif
+
+#ifdef UPP_OS_APPLE
     struct proc_bsdshortinfo sproc;
     struct proc_bsdinfo proc;
 
@@ -39,4 +68,5 @@ Process::Process(int pid)
         minor_dev = minor(tty_nr);
         pty_path = std::format("/dev/ttys{:03}", minor_dev);
     }
+#endif
 }
