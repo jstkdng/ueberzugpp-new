@@ -36,7 +36,6 @@ set_target_properties(ueberzugpp PROPERTIES
 option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
 option(ENABLE_X11 "Enable X11 canvas." ON)
 option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
-option(ENABLE_LTO "Enable Link Time Optimization." ON)
 option(ENABLE_LIBCXX "Enable linking to libc++" OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -47,10 +46,6 @@ endif ()
 if (ENABLE_LIBCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-endif ()
-
-if (ENABLE_LTO)
-    set_target_properties(ueberzugpp PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
 endif ()
 
 include(FetchContent)
@@ -146,7 +141,7 @@ pkg_check_modules(SIXEL REQUIRED IMPORTED_TARGET libsixel)
 pkg_check_modules(CHAFA REQUIRED IMPORTED_TARGET chafa>=1.6)
 
 if (CMAKE_HOST_SYSTEM_VERSION MATCHES "^.*microsoft.*$")
-    target_compile_definitions(ueberzug PRIVATE WSL)
+    target_compile_definitions(ueberzugpp PRIVATE WSL)
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

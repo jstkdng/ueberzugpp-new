@@ -54,7 +54,7 @@ auto cli::tmux_subcommand::get_json() const noexcept -> std::string
 
 auto Manager::initialize(const std::span<char *> args) -> std::expected<void, int>
 {
-    program.set_version_flag("-V,--version", version_str, "Print version information");
+    program.set_version_flag("-V,--version", version_str);
     program.allow_extras(false);
     program.require_subcommand(1);
 
