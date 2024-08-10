@@ -61,9 +61,9 @@ class Manager
 
   private:
     CLI::App program{"Display images in the terminal", "ueberzugpp"};
-    CLI::App *layer_command{program.add_subcommand("layer", "Display images on the terminal.")};
-    CLI::App *cmd_command{program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance.")};
-    CLI::App *tmux_command{program.add_subcommand("tmux", "Handle tmux hooks. Used internaly.")};
+    CLI::App *layer_command{program.add_subcommand("layer", "Display images on the terminal")};
+    CLI::App *cmd_command{program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance")};
+    CLI::App *tmux_command{program.add_subcommand("tmux", "Handle tmux hooks. Used internaly")};
 
     std::shared_ptr<Config> config = Config::instance();
 

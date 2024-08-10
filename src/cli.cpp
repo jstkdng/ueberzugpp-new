@@ -63,7 +63,7 @@ auto Manager::initialize(const std::span<char *> args) -> std::expected<void, in
     setup_cmd_subcommand();
 
     auto *query_win_command =
-        program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility.");
+        program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility");
     query_win_command->allow_extras();
 
     try {
@@ -97,22 +97,22 @@ void Manager::setup_cmd_subcommand() noexcept
 
 void Manager::setup_layer_subcommand() const noexcept
 {
-    layer_command->add_flag("-s,--silent", config->silent, "Print stderr to /dev/null.");
+    layer_command->add_flag("-s,--silent", config->silent, "Print stderr to /dev/null");
     layer_command
-        ->add_flag("--use-escape-codes", config->use_escape_codes, "Use escape codes to get terminal capabilities.")
+        ->add_flag("--use-escape-codes", config->use_escape_codes, "Use escape codes to get terminal capabilities")
         ->default_val(false);
-    layer_command->add_option("--pid-file", config->pid_file, "Output file where to write the daemon PID.");
-    layer_command->add_flag("--no-stdin", config->no_stdin, "Do not listen on stdin for commands.")
+    layer_command->add_option("--pid-file", config->pid_file, "Output file where to write the daemon PID");
+    layer_command->add_flag("--no-stdin", config->no_stdin, "Do not listen on stdin for commands")
         ->needs("--pid-file");
-    layer_command->add_flag("--no-cache", config->no_cache, "Disable caching of resized images.");
-    layer_command->add_flag("--no-opencv", config->no_opencv, "Do not use OpenCV, use Libvips instead.");
+    layer_command->add_flag("--no-cache", config->no_cache, "Disable caching of resized images");
+    layer_command->add_flag("--no-opencv", config->no_opencv, "Do not use OpenCV, use Libvips instead");
     layer_command->add_option("-o,--output", config->output, "Image output method")
         ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}));
     layer_command->add_flag("--origin-center", config->origin_center, "Location of the origin wrt the image");
     layer_command->add_option("-p,--parser", config->parser, "Command parser to use.")
         ->check(CLI::IsMember({"json", "bash", "simple"}))
         ->default_val("json");
-    layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility.");
+    layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility");
 }
 
 auto Manager::handle_cmd_subcommand() const noexcept -> std::expected<void, std::string>
