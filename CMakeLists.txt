@@ -20,7 +20,9 @@
 
 cmake_minimum_required(VERSION 3.28 FATAL_ERROR)
 
-project(ueberzugpp-new LANGUAGES CXX VERSION 1.0.0)
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
+project(ueberzugpp LANGUAGES CXX VERSION 1.0.0)
+
 add_executable(ueberzugpp)
 set_target_properties(ueberzugpp PROPERTIES
     CXX_STANDARD 23
@@ -31,7 +33,6 @@ set_target_properties(ueberzugpp PROPERTIES
     COMPILE_WARNING_AS_ERROR ON
 )
 
-set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
 option(ENABLE_X11 "Enable X11 canvas." ON)
 option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
@@ -140,7 +141,7 @@ target_include_directories(ueberzugpp PRIVATE
 )
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
-pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
+pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
 pkg_check_modules(SIXEL REQUIRED IMPORTED_TARGET libsixel)
 pkg_check_modules(CHAFA REQUIRED IMPORTED_TARGET chafa>=1.6)
 

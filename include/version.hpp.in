@@ -20,9 +20,9 @@
 #define VERSION_HPP
 
 #ifdef DEBUG
-constexpr auto version_str = "ueberzugpp @ueberzugpp-new_VERSION_MAJOR@.@ueberzugpp-new_VERSION_MINOR@.@ueberzugpp-new_VERSION_PATCH@ (debug build)";
+constexpr auto version_str = "ueberzugpp @ueberzugpp_VERSION_MAJOR@.@ueberzugpp_VERSION_MINOR@.@ueberzugpp_VERSION_PATCH@ (debug build)";
 #else
-constexpr auto version_str = "ueberzugpp @ueberzugpp-new_VERSION_MAJOR@.@ueberzugpp-new_VERSION_MINOR@.@ueberzugpp-new_VERSION_PATCH@";
+constexpr auto version_str = "ueberzugpp @ueberzugpp_VERSION_MAJOR@.@ueberzugpp_VERSION_MINOR@.@ueberzugpp_VERSION_PATCH@";
 #endif
 
 #endif
