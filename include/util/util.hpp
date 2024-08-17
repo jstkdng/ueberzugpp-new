@@ -39,7 +39,9 @@ auto get_socket_path(int pid = os::get_pid()) -> std::string;
 auto get_log_path() -> std::string;
 auto get_process_tree(int pid) -> std::vector<Process>;
 auto get_process_pid_tree(int pid) -> std::vector<int>;
-auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string>;
+auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string_view>;
+void str_split_cb(std::string_view str, const std::function<void(std::string_view)> &callback,
+                  std::string_view delim = " ");
 auto bytes_to_hexstring(std::span<const std::byte> bytes) noexcept -> std::string;
 auto unexpected_err(std::string_view message, std::source_location location = std::source_location::current())
     -> std::unexpected<std::string>;

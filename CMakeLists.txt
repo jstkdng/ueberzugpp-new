@@ -30,7 +30,6 @@ set_target_properties(ueberzugpp PROPERTIES
     CXX_EXTENSIONS OFF
     CXX_SCAN_FOR_MODULES OFF
     EXPORT_COMPILE_COMMANDS ON
-    COMPILE_WARNING_AS_ERROR ON
 )
 
 option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
@@ -123,7 +122,7 @@ target_precompile_headers(ueberzugpp PRIVATE third_party/CLI11.hpp)
 target_precompile_headers(ueberzugpp PRIVATE third_party/nlohmann/json.hpp)
 target_precompile_headers(ueberzugpp PRIVATE third_party/spdlog/spdlog.h)
 
-target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_USE_STD_FORMAT)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)

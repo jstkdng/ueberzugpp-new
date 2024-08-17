@@ -83,11 +83,15 @@ auto util::get_process_pid_tree(const int pid) -> std::vector<int>
     return result;
 }
 
-auto util::str_split(std::string_view str, std::string_view delim) -> std::vector<std::string>
+auto util::str_split(std::string_view str, std::string_view delim) -> std::vector<std::string_view>
 {
-    std::vector<std::string> result;
-    for (auto word : std::ranges::views::split(str, delim)) {
-        result.emplace_back(std::string_view(word));
-    }
-    return result;
+    return std::views::split(str, delim) | std::views::transform([](auto rng) { return std::string_view(rng); }) |
+           std::ranges::to<std::vector>();
+}
+
+void util::str_split_cb(std::string_view str, const std::function<void(std::string_view)> &callback,
+                        std::string_view delim)
+{
+    auto range = std::views::split(str, delim) | std::views::transform([](auto rng) { return std::string_view(rng); });
+    std::ranges::for_each(range, callback);
 }
