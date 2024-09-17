@@ -35,7 +35,7 @@ set_target_properties(ueberzugpp PROPERTIES
 option(ENABLE_OPENCV "Enable OpenCV image processing." ON)
 option(ENABLE_X11 "Enable X11 canvas." ON)
 option(ENABLE_XCB_ERRORS "Enable useful logging of XCB errors." OFF)
-option(ENABLE_LIBCXX "Enable linking to libc++" OFF)
+option(ENABLE_LIBCXX "Enable linking against libc++" OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
@@ -123,9 +123,8 @@ target_precompile_headers(ueberzugpp PRIVATE third_party/nlohmann/json.hpp)
 target_precompile_headers(ueberzugpp PRIVATE third_party/spdlog/spdlog.h)
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
-target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
-target_compile_definitions(ueberzugpp PRIVATE SPDLOG_USE_STD_FORMAT)
-target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
+target_compile_definitions(ueberzugpp PRIVATE SPDLOG_USE_STD_FORMAT JSON_DIAGNOSTICS=1)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
 
 configure_file("include/version.hpp.in" version.hpp)
@@ -149,13 +148,23 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_compile_definitions(ueberzugpp PRIVATE UPP_OS_APPLE)
 endif ()
 
+target_sources(ueberzugpp
+    PRIVATE
+    FILE_SET HEADERS
+    BASE_DIRS include/
+    FILES
+        include/image/image.hpp
+        include/canvas/canvas.hpp
+)
+
+
 target_sources(ueberzugpp PRIVATE
     src/main.cpp
 
-    include/canvas/canvas.hpp
+    #include/canvas/canvas.hpp
     src/canvas/canvas.cpp
 
-    include/image/image.hpp
+    #include/image/image.hpp
     src/image/image.cpp
     include/image/libvips_image.hpp
     src/image/libvips_image.cpp
