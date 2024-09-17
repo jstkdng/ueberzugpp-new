@@ -1,1 +1,0 @@
-ueberzugpp but without the technical debt and with improved performance
