@@ -16,7 +16,26 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-auto main() -> int
+#pragma once
+
+namespace os
 {
-    return 0;
-}
+
+class fd
+{
+  public:
+    explicit fd(int descriptor);
+    fd(const fd &other);
+    fd(fd &&other) noexcept;
+    auto operator=(const fd &other) -> fd &;
+    auto operator=(fd &&other) noexcept -> fd &;
+
+    auto operator*() const -> int;
+
+    ~fd();
+
+  private:
+    int descriptor = -1;
+};
+
+} // namespace os

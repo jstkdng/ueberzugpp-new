@@ -38,12 +38,14 @@ target_sources(ueberzugpp
     PRIVATE
         src/main.cpp
         src/os/process.cpp
+        src/os/fd.cpp
 
     PRIVATE
     FILE_SET HEADERS
     BASE_DIRS include/
     FILES
         include/os/process.hpp
+        include/os/fd.hpp
 )
 
 # cmake-format: on
