@@ -25,12 +25,12 @@
 
 #include "os/process.hpp"
 
-constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
-
 Process::Process(int pid) :
     pid(pid)
 {
+    constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
     const auto stat_file = std::format("/proc/{}/stat", pid);
+
     std::ifstream ifs(stat_file);
     ifs.ignore(max_size, ')'); // skip pid and executable name
 
