@@ -16,20 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace base
-{
+#pragma once
 
-template <class T>
-class PassKey
-{
-  public:
-    PassKey(const PassKey &) = delete;
-    auto operator=(const PassKey &) -> PassKey & = delete;
+#include <string>
+#include <vector>
 
-  private:
-    friend T;
-    PassKey() = default;
+struct Process {
+    explicit Process(int pid);
+    static auto get_tree(int pid) -> std::vector<Process>;
+    static auto get_pid_tree(int pid) -> std::vector<int>;
+
+    int pid;
+    int ppid;
+    int tty_nr;
+    int minor_dev;
+    std::string pty_path;
+
+    char state;
+    int pgrp;
+    int session;
 };
-
-}; // namespace base
-
