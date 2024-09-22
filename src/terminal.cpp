@@ -24,6 +24,5 @@
 
 auto Terminal::init() -> Result<void>
 {
-    [[maybe_unused]] auto fd = open("/kjsdflksdlkjfslkdflksdf", O_RDWR | O_NOCTTY);
-    return std::unexpected(Error{"bruh"});
+    return std::unexpected(Error{});
 }

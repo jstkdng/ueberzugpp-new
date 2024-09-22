@@ -26,33 +26,38 @@
 #include <string>
 #include <system_error>
 
-struct Error {
+class Error
+{
+  public:
     explicit Error(std::string message = "", std::source_location location = std::source_location::current()) :
-        message(std::move(message)),
-        location(location)
+        message_(std::move(message)),
+        location_(location)
     {
     }
 
-    std::string message;
-    std::source_location location;
-    std::error_code error_code{errno, std::generic_category()};
+    [[nodiscard]] auto location() const -> std::string
+    {
+        const std::filesystem::path path(location_.file_name());
+        return std::format("{}:{}", path.filename().string(), location_.line());
+    }
+
+    [[nodiscard]] auto message() const -> std::string
+    {
+        if (message_.empty()) {
+            return error_code_.message();
+        }
+        return std::format("{}: {}", message_, error_code_.message());
+    }
+
+    [[nodiscard]] auto error_message() const -> std::string { return error_code_.message(); }
+
+    [[nodiscard]] auto combined() const -> std::string { return std::format("[{}]: {}", location(), message()); }
+
+  private:
+    std::string message_;
+    std::source_location location_;
+    std::error_code error_code_{errno, std::generic_category()};
 };
 
 template <class T>
 using Result = std::expected<T, Error>;
-
-template <>
-struct std::formatter<Error> : std::formatter<std::string> {
-    auto format(Error err, format_context &ctx) const
-    {
-        const std::filesystem::path path = err.location.file_name();
-        if (err.message.empty()) {
-            return formatter<std::string>::format(
-                std::format("[{}:{}] {}", path.filename().string(), err.location.line(), err.error_code.message()),
-                ctx);
-        }
-        return formatter<std::string>::format(std::format("[{}:{}] {}: {}", path.filename().string(),
-                                                          err.location.line(), err.message, err.error_code.message()),
-                                              ctx);
-    }
-};

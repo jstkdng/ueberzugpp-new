@@ -25,7 +25,7 @@ auto main() -> int
     Terminal terminal;
     auto result = terminal.init();
     if (!result) {
-        std::cout << std::format("{}", result.error());
+        std::cout << result.error().combined();
     }
     return 0;
 }
