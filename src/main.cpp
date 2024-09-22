@@ -16,7 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "terminal.hpp"
+
+#include <iostream>
+
 auto main() -> int
 {
+    Terminal terminal;
+    auto result = terminal.init();
+    if (!result) {
+        std::cout << std::format("{}", result.error());
+    }
     return 0;
 }

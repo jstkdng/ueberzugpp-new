@@ -36,16 +36,19 @@ target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 target_sources(ueberzugpp
     PRIVATE
-        src/main.cpp
-        src/os/process.cpp
-        src/os/fd.cpp
+    src/main.cpp
+    src/os/process.cpp
+    src/os/fd.cpp
+    src/terminal.cpp
 
     PRIVATE
     FILE_SET HEADERS
     BASE_DIRS include/
     FILES
-        include/os/process.hpp
-        include/os/fd.hpp
+    include/os/process.hpp
+    include/os/fd.hpp
+    include/errors.hpp
+    include/terminal.hpp
 )
 
 # cmake-format: on

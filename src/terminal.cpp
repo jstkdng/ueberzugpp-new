@@ -16,12 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "terminal.hpp"
 
-#include "errors.hpp"
+#include <fcntl.h>
+#include <format>
+#include <iostream>
 
-class Terminal
+auto Terminal::init() -> Result<void>
 {
-  public:
-    auto init() -> Result<void>;
-};
+    [[maybe_unused]] auto fd = open("/kjsdflksdlkjfslkdflksdf", O_RDWR | O_NOCTTY);
+    return std::unexpected(Error{"bruh"});
+}
