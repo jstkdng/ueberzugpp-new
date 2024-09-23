@@ -18,10 +18,18 @@
 
 #pragma once
 
-#include "errors.hpp"
+#include "error.hpp"
+#include "os/fd.hpp"
 
 class Terminal
 {
   public:
     auto init() -> Result<void>;
+
+  private:
+    auto open_first_terminal() -> Result<void>;
+
+    std::string pty_path_;
+    int pty_pid_;
+    os::fd pty_fd_;
 };

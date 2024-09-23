@@ -16,10 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "os/fd.hpp"
+#include <utility>
 
-#include <list>
 #include <unistd.h>
+
+#include "os/fd.hpp"
 
 namespace os
 {
@@ -60,6 +61,13 @@ auto fd::operator=(const fd &other) -> fd &
 auto fd::operator=(fd &&other) noexcept -> fd &
 {
     fd temp(std::move(other));
+    std::swap(descriptor, temp.descriptor);
+    return *this;
+}
+
+auto fd::operator=(int new_fd) -> fd&
+{
+    fd temp(new_fd);
     std::swap(descriptor, temp.descriptor);
     return *this;
 }

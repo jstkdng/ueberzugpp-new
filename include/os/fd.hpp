@@ -24,9 +24,11 @@ namespace os
 class fd
 {
   public:
+    fd() = default;
     explicit fd(int descriptor);
     fd(const fd &other);
     fd(fd &&other) noexcept;
+    auto operator=(int new_fd) -> fd&;
     auto operator=(const fd &other) -> fd &;
     auto operator=(fd &&other) noexcept -> fd &;
 
