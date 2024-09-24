@@ -35,8 +35,9 @@ set_target_properties(ueberzugpp PROPERTIES
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
+# spdlog
 file(GLOB SPDLOG_SRC src/spdlog/*.cpp)
-target_sources(ueberzugpp PRIVATE "${SPDLOG_SRC}")
+target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
 
 target_sources(ueberzugpp
