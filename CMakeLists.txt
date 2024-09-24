@@ -32,6 +32,9 @@ set_target_properties(ueberzugpp PROPERTIES
     EXPORT_COMPILE_COMMANDS ON
 )
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
@@ -39,6 +42,20 @@ target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 file(GLOB SPDLOG_SRC src/spdlog/*.cpp)
 target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
+
+target_precompile_headers(ueberzugpp
+    PRIVATE
+        third_party/nlohmann/json.hpp
+        third_party/spdlog/spdlog.h
+)
+
+# definitions
+target_compile_definitions(ueberzugpp
+    PRIVATE
+        JSON_DIAGNOSTICS=1
+        $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
+        $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
+)
 
 target_sources(ueberzugpp
     PRIVATE
@@ -55,6 +72,11 @@ target_sources(ueberzugpp
         include/os/fd.hpp
         include/error.hpp
         include/terminal.hpp
+)
+
+target_link_libraries(ueberzugpp
+    PRIVATE
+        Threads::Threads
 )
 
 # cmake-format: on

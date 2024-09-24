@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include <thread>
+#include <nlohmann/json.hpp>
 
 auto main() -> int
 {
@@ -29,5 +31,11 @@ auto main() -> int
         std::cout << result.error().cond.message();
     }
     SPDLOG_INFO("bruh");
+    std::thread thr([] {});
+    if (thr.joinable()) {
+        thr.join();
+    }
+
+    nlohmann::json json;
     return 0;
 }
