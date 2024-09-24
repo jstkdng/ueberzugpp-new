@@ -19,6 +19,7 @@
 #include "terminal.hpp"
 
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 auto main() -> int
 {
@@ -27,5 +28,6 @@ auto main() -> int
     if (!result) {
         std::cout << result.error().cond.message();
     }
+    SPDLOG_INFO("bruh");
     return 0;
 }
