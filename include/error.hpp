@@ -27,9 +27,8 @@
 class Error
 {
   public:
-    Error(std::string prefix, std::errc errc, std::source_location location = std::source_location::current());
-    explicit Error(std::string prefix, int code = errno,
-                   std::source_location location = std::source_location::current());
+    Error(std::source_location location, std::string prefix, std::errc errc);
+    Error(std::source_location location, std::string prefix, int code = errno);
 
     [[nodiscard]] auto message() const -> std::string;
     [[nodiscard]] auto lmessage() const -> std::string;
@@ -43,4 +42,5 @@ class Error
 template <class T>
 using Result = std::expected<T, Error>;
 
-#define Err(...) std::unexpected(Error(__VA_ARGS__)) // NOLINT
+// NOLINTNEXTLINE
+#define Err(...) std::unexpected<Error>(std::in_place, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)

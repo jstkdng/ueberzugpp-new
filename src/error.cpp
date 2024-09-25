@@ -21,14 +21,14 @@
 #include <filesystem>
 #include <format>
 
-Error::Error(std::string prefix, std::errc errc, std::source_location location) :
+Error::Error(std::source_location location, std::string prefix, std::errc errc) :
     prefix_(std::move(prefix)),
     condition_(errc),
     location_(location)
 {
 }
 
-Error::Error(std::string prefix, int code, std::source_location location) :
+Error::Error(std::source_location location, std::string prefix, int code) :
     prefix_(std::move(prefix)),
     condition_(code, std::generic_category()),
     location_(location)
