@@ -16,28 +16,35 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <xcb/xcb.h>
+#include "error.hpp"
 
-#include "xcb.hpp"
+#include <filesystem>
+#include <format>
 
-namespace xcb
+Error::Error(std::string prefix, std::errc errc, std::source_location location) :
+    prefix_(std::move(prefix)),
+    condition_(errc),
+    location_(location)
 {
-
-auto connection::connect() -> Result<void>
-{
-    connection_ = xcb_connect(nullptr, nullptr);
-    if (xcb_connection_has_error(connection_) > 0) {
-        return Err("could not connect to server");
-    }
-    screen_ = xcb_setup_roots_iterator(xcb_get_setup(connection_)).data;
-    return {};
 }
 
-connection::~connection()
+Error::Error(std::string prefix, int code, std::source_location location) :
+    prefix_(std::move(prefix)),
+    condition_(code, std::generic_category()),
+    location_(location)
 {
-    if (connection_ != nullptr) {
-        xcb_disconnect(connection_);
-    }
 }
 
-} // namespace xcb
+auto Error::message() const -> std::string
+{
+    if (condition_.value() == 0) {
+        return prefix_;
+    }
+    return std::format("{}: {}", prefix_, condition_.message());
+}
+
+auto Error::lmessage() const -> std::string
+{
+    std::filesystem::path path(location_.file_name());
+    return std::format("[{}:{}] {}", path.filename().string(), location_.line(), message());
+}

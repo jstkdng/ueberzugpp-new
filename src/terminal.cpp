@@ -18,14 +18,14 @@
 
 #include <algorithm>
 
-#include <unistd.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <spdlog/spdlog.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-#include "terminal.hpp"
-#include "os/process.hpp"
 #include "os/os.hpp"
+#include "os/process.hpp"
+#include "terminal.hpp"
 
 auto Terminal::init() -> Result<void>
 {
@@ -38,7 +38,7 @@ auto Terminal::open_first_terminal() -> Result<void>
     };
     auto tree = Process::get_tree(getpid());
     std::ranges::reverse(tree);
-    for (const auto& proc: tree) {
+    for (const auto &proc : tree) {
         const auto &path = proc.pty_path;
         if (stat(path.c_str(), &stat_info) == -1) {
             SPDLOG_DEBUG("stat: {}", os::last_err());
@@ -57,5 +57,5 @@ auto Terminal::open_first_terminal() -> Result<void>
         SPDLOG_INFO("using {} with descriptor {}", path, *pty_fd_);
         return {};
     }
-    return uerror("could not open terminal");
+    return Err("could not open terminal");
 }

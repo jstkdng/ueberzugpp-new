@@ -24,48 +24,23 @@
 #include <string>
 #include <system_error>
 
-// logged with spdlog, program should continue
-struct Error {
-    explicit Error(std::string title, std::errc errc = std::errc::state_not_recoverable) :
-        title(std::move(title)),
-        cond(errc)
-    {
-    }
-
-    [[nodiscard]] auto message() const -> std::string
-    {
-        if (title.empty()) {
-            return cond.message();
-        }
-        return title + ": " + cond.message();
-    }
-
-    std::string title;
-    std::error_condition cond;
-};
-
-// logged to stdout, program should terminate afterwards
-struct UnrecoverableError {
-    explicit UnrecoverableError(std::string message, std::source_location location = std::source_location::current()) :
-        message(std::move(message)),
-        location(location)
-    {
-    }
-
-    std::string message;
-    std::source_location location;
-};
-
-inline auto uerror(auto... args) -> std::unexpected<Error>
+class Error
 {
-    return std::unexpected(Error(args...));
-}
+  public:
+    Error(std::string prefix, std::errc errc, std::source_location location = std::source_location::current());
+    explicit Error(std::string prefix, int code = errno,
+                   std::source_location location = std::source_location::current());
+
+    [[nodiscard]] auto message() const -> std::string;
+    [[nodiscard]] auto lmessage() const -> std::string;
+
+  private:
+    std::string prefix_;
+    std::error_condition condition_;
+    std::source_location location_;
+};
 
 template <class T>
 using Result = std::expected<T, Error>;
 
-template <class T>
-using BadResult = std::expected<T, UnrecoverableError>;
-
-template <class T>
-using Err = std::unexpected<T>;
+#define Err(...) std::unexpected(Error(__VA_ARGS__)) // NOLINT

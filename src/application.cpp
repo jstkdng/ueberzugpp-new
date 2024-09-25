@@ -41,7 +41,7 @@ auto Application::setup_logger() -> Result<void>
         logger_ = spdlog::stdout_color_mt("main");
         spdlog::set_default_logger(logger_);
     } catch (const spdlog::spdlog_ex &ex) {
-        return uerror(ex.what());
+        return Err(ex.what());
     }
 
     return {};

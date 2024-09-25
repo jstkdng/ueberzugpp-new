@@ -84,6 +84,7 @@ target_sources(ueberzugpp
         src/os/process.cpp
         src/os/fd.cpp
         src/os/os.cpp
+        src/error.cpp
         src/terminal.cpp
         src/application.cpp
 

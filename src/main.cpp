@@ -18,12 +18,15 @@
 
 #include "application.hpp"
 
+#include <iostream>
+
 auto main() -> int
 {
     Application app;
 
     auto res = app.init();
     if (!res) {
+        std::cerr << res.error().lmessage() << '\n';
         return 1;
     }
     return 0;
