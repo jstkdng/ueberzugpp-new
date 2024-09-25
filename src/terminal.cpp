@@ -21,9 +21,11 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <spdlog/spdlog.h>
 
 #include "terminal.hpp"
 #include "os/process.hpp"
+#include "os/os.hpp"
 
 auto Terminal::init() -> Result<void>
 {
@@ -39,20 +41,21 @@ auto Terminal::open_first_terminal() -> Result<void>
     for (const auto& proc: tree) {
         const auto &path = proc.pty_path;
         if (stat(path.c_str(), &stat_info) == -1) {
-            Error::log();
+            SPDLOG_DEBUG("stat: {}", os::last_err());
             continue;
         }
         if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
+            SPDLOG_DEBUG("device {} != {}", proc.tty_nr, stat_info.st_rdev);
             continue;
         }
         pty_fd_ = open(path.c_str(), O_RDONLY | O_NOCTTY);
         if (*pty_fd_ == -1) {
-            Error::log();
+            SPDLOG_DEBUG("open: {}", os::last_err());
             continue;
         }
         pty_pid_ = proc.pid;
-        std::cout << "using " << path << " with descriptor " << *pty_fd_ << '\n';
+        SPDLOG_INFO("using {} with descriptor {}", path, *pty_fd_);
         return {};
     }
-    return UError(errc::state_not_recoverable);
+    return uerror("could not open terminal");
 }

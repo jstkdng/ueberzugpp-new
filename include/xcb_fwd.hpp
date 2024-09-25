@@ -18,21 +18,10 @@
 
 #pragma once
 
-#include <memory>
-
-#include <spdlog/fwd.h>
-
-#include "error.hpp"
-#include "terminal.hpp"
-
-class Application
+namespace xcb
 {
-  public:
-    auto init() -> Result<void>;
 
-  private:
-    auto setup_logger() -> Result<void>;
+class connection;
+class window;
 
-    Terminal terminal_;
-    std::shared_ptr<spdlog::logger> logger_;
-};
+} // namespace xcb

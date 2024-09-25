@@ -32,8 +32,35 @@ set_target_properties(ueberzugpp PROPERTIES
     EXPORT_COMPILE_COMMANDS ON
 )
 
+option(ENABLE_X11 "Enable X11 support" ON)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+find_package(PkgConfig REQUIRED)
+
+if (ENABLE_X11)
+    target_compile_definitions(ueberzugpp PRIVATE ENABLE_X11)
+    pkg_check_modules(XCB REQUIRED IMPORTED_TARGET xcb)
+    #pkg_check_modules(XCBIMAGE REQUIRED IMPORTED_TARGET xcb-image)
+    #pkg_check_modules(XCBRES REQUIRED IMPORTED_TARGET xcb-res)
+
+    target_link_libraries(ueberzugpp
+        PRIVATE
+            PkgConfig::XCB
+    )
+
+    target_sources(ueberzugpp
+        PRIVATE
+            src/xcb/xcb_connection.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            include/xcb.hpp
+            include/xcb_fwd.hpp
+    )
+endif()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
@@ -42,12 +69,6 @@ target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 file(GLOB SPDLOG_SRC src/spdlog/*.cpp)
 target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
-
-target_precompile_headers(ueberzugpp
-    PRIVATE
-        third_party/nlohmann/json.hpp
-        third_party/spdlog/spdlog.h
-)
 
 # definitions
 target_compile_definitions(ueberzugpp
@@ -62,7 +83,9 @@ target_sources(ueberzugpp
         src/main.cpp
         src/os/process.cpp
         src/os/fd.cpp
+        src/os/os.cpp
         src/terminal.cpp
+        src/application.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -70,8 +93,10 @@ target_sources(ueberzugpp
     FILES
         include/os/process.hpp
         include/os/fd.hpp
+        include/os/os.hpp
         include/error.hpp
         include/terminal.hpp
+        include/application.hpp
 )
 
 target_link_libraries(ueberzugpp

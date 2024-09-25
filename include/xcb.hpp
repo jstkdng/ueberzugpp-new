@@ -18,21 +18,32 @@
 
 #pragma once
 
-#include <memory>
-
-#include <spdlog/fwd.h>
+#include <xcb/xproto.h>
 
 #include "error.hpp"
-#include "terminal.hpp"
+#include "xcb_fwd.hpp"
 
-class Application
+namespace xcb
+{
+
+class connection
 {
   public:
-    auto init() -> Result<void>;
+    ~connection();
+    auto connect() -> Result<void>;
+    auto create_window() -> window;
 
   private:
-    auto setup_logger() -> Result<void>;
-
-    Terminal terminal_;
-    std::shared_ptr<spdlog::logger> logger_;
+    xcb_connection_t *connection_ = nullptr;
+    xcb_screen_t *screen_ = nullptr;
 };
+
+class window
+{
+    friend connection;
+
+  private:
+    xcb_window_t id_;
+};
+
+} // namespace xcb

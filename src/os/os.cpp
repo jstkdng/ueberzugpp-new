@@ -16,23 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <system_error>
+#include <cerrno>
 
-#include <memory>
+#include <unistd.h>
 
-#include <spdlog/fwd.h>
+#include "os/os.hpp"
 
-#include "error.hpp"
-#include "terminal.hpp"
-
-class Application
+namespace os
 {
-  public:
-    auto init() -> Result<void>;
 
-  private:
-    auto setup_logger() -> Result<void>;
+auto last_err() -> std::string
+{
+    std::error_code code(errno, std::generic_category());
+    return code.message();
+}
 
-    Terminal terminal_;
-    std::shared_ptr<spdlog::logger> logger_;
-};
+auto getpid() -> int
+{
+    return ::getpid();
+}
+
+} // namespace os

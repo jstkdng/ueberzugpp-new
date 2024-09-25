@@ -20,43 +20,52 @@
 
 #include <cerrno>
 #include <expected>
-#include <iostream>
 #include <source_location>
 #include <string>
 #include <system_error>
 
+// logged with spdlog, program should continue
 struct Error {
-    explicit Error(int code = errno, std::source_location location = std::source_location::current()) :
-        cond(code, std::generic_category()),
-        loc(location)
+    explicit Error(std::string title, std::errc errc = std::errc::state_not_recoverable) :
+        title(std::move(title)),
+        cond(errc)
     {
     }
 
-    explicit Error(std::errc errc, std::source_location location = std::source_location::current()) :
-        cond(errc),
-        loc(location)
+    [[nodiscard]] auto message() const -> std::string
     {
-    }
-
-    [[nodiscard]] auto message() const -> std::string { return cond.message(); }
-
-    static inline void log(const std::string &message = "")
-    {
-        Error err;
-        if (message.empty()) {
-            std::cout << err.message() << std::endl;
-        } else {
-            std::cout << message << ": " << err.message() << std::endl;
+        if (title.empty()) {
+            return cond.message();
         }
+        return title + ": " + cond.message();
     }
 
+    std::string title;
     std::error_condition cond;
-    std::source_location loc;
 };
+
+// logged to stdout, program should terminate afterwards
+struct UnrecoverableError {
+    explicit UnrecoverableError(std::string message, std::source_location location = std::source_location::current()) :
+        message(std::move(message)),
+        location(location)
+    {
+    }
+
+    std::string message;
+    std::source_location location;
+};
+
+inline auto uerror(auto... args) -> std::unexpected<Error>
+{
+    return std::unexpected(Error(args...));
+}
 
 template <class T>
 using Result = std::expected<T, Error>;
 
-using UError = std::unexpected<Error>;
+template <class T>
+using BadResult = std::expected<T, UnrecoverableError>;
 
-using errc = std::errc;
+template <class T>
+using Err = std::unexpected<T>;

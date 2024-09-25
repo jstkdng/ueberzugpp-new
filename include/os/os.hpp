@@ -18,21 +18,10 @@
 
 #pragma once
 
-#include <memory>
+#include <string>
 
-#include <spdlog/fwd.h>
-
-#include "error.hpp"
-#include "terminal.hpp"
-
-class Application
+namespace os
 {
-  public:
-    auto init() -> Result<void>;
-
-  private:
-    auto setup_logger() -> Result<void>;
-
-    Terminal terminal_;
-    std::shared_ptr<spdlog::logger> logger_;
-};
+auto last_err() -> std::string;
+auto getpid() -> int;
+}

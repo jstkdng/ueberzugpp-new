@@ -16,23 +16,27 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <xcb/xcb.h>
 
-#include <memory>
+#include "xcb.hpp"
 
-#include <spdlog/fwd.h>
-
-#include "error.hpp"
-#include "terminal.hpp"
-
-class Application
+namespace xcb
 {
-  public:
-    auto init() -> Result<void>;
 
-  private:
-    auto setup_logger() -> Result<void>;
+auto connection::connect() -> Result<void>
+{
+    connection_ = xcb_connect(nullptr, nullptr);
+    if (xcb_connection_has_error(connection_) > 0) {
+    }
+    screen_ = xcb_setup_roots_iterator(xcb_get_setup(connection_)).data;
+    return {};
+}
 
-    Terminal terminal_;
-    std::shared_ptr<spdlog::logger> logger_;
-};
+connection::~connection()
+{
+    if (connection_ != nullptr) {
+        xcb_disconnect(connection_);
+    }
+}
+
+} // namespace xcb

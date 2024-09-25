@@ -16,26 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "terminal.hpp"
-
-#include <iostream>
-#include <spdlog/spdlog.h>
-#include <thread>
-#include <nlohmann/json.hpp>
+#include "application.hpp"
 
 auto main() -> int
 {
-    Terminal terminal;
-    auto result = terminal.init();
-    if (!result) {
-        std::cout << result.error().cond.message();
-    }
-    SPDLOG_INFO("bruh");
-    std::thread thr([] {});
-    if (thr.joinable()) {
-        thr.join();
-    }
+    Application app;
 
-    nlohmann::json json;
+    auto res = app.init();
+    if (!res) {
+        return 1;
+    }
     return 0;
 }
