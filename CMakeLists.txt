@@ -52,6 +52,7 @@ if (ENABLE_X11)
     target_sources(ueberzugpp
         PRIVATE
             src/xcb/xcb_connection.cpp
+            src/xcb/xcb_window.cpp
 
         PRIVATE
         FILE_SET HEADERS
@@ -92,6 +93,7 @@ target_sources(ueberzugpp
     FILE_SET HEADERS
     BASE_DIRS include/
     FILES
+        include/util/passkey.hpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp

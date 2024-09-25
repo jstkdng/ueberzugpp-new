@@ -16,31 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <iostream>
+#pragma once
 
-#include "application.hpp"
-#include "xcb.hpp"
-
-auto main() -> int
+namespace util
 {
-    Application app;
 
-    auto res = app.init();
-    if (!res) {
-        std::cerr << res.error().lmessage() << '\n';
-        return 1;
-    }
+template <typename T>
+class PassKey
+{
+  public:
+    friend T;
+    PassKey(const PassKey &) = delete;
+    auto operator=(const PassKey &) -> PassKey & = delete;
 
-    xcb::connection conn;
-    if (auto res = conn.connect(); !res) {
-        std::cerr << res.error().lmessage() << '\n';
-        return 1;
-    }
+  private:
+    PassKey() = default;
+};
 
-    auto windows = conn.get_server_window_ids();
-    std::cout << "size: " << windows.size() << "\n\n";
-    for (const auto wid: windows) {
-        std::cout << wid << '\n';
-    }
-    return 0;
-}
+} // namespace util

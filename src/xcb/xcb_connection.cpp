@@ -16,12 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <stack>
+
 #include <xcb/xcb.h>
 
+#include "util/ptr.hpp"
 #include "xcb.hpp"
 
 namespace xcb
 {
+
+using PassKey = util::PassKey<connection>;
 
 auto connection::connect() -> Result<void>
 {
@@ -38,6 +43,52 @@ connection::~connection()
     if (connection_ != nullptr) {
         xcb_disconnect(connection_);
     }
+}
+
+auto connection::create_window() -> window
+{
+    auto wid = xcb_generate_id(connection_);
+    return {PassKey{}, connection_, screen_, wid, screen_->root};
+}
+
+auto connection::get_server_window_ids() const -> std::vector<xcb_window_t>
+{
+    constexpr int default_max_clients = 256;
+    std::vector<xcb_window_t> windows;
+    std::stack<xcb_query_tree_cookie_t> cookies_st;
+    windows.reserve(default_max_clients);
+
+    cookies_st.push(xcb_query_tree_unchecked(connection_, screen_->root));
+    windows.push_back(screen_->root);
+
+    while (!cookies_st.empty()) {
+        const auto cookie = cookies_st.top();
+        cookies_st.pop();
+
+        const auto reply = unique_C_ptr<xcb_query_tree_reply_t>{xcb_query_tree_reply(connection_, cookie, nullptr)};
+        if (!reply) {
+            continue;
+        }
+
+        const auto num_children = xcb_query_tree_children_length(reply.get());
+        if (num_children == 0) {
+            continue;
+        }
+        const auto *children = xcb_query_tree_children(reply.get());
+        for (int i = 0; i < num_children; ++i) {
+            const auto child = children[i];
+            windows.push_back(child);
+            cookies_st.push(xcb_query_tree_unchecked(connection_, child));
+        }
+    }
+
+    return windows;
+}
+
+auto connection::get_complete_window_ids() const -> std::vector<xcb_window_t>
+{
+    auto windows = get_server_window_ids();
+    return windows;
 }
 
 } // namespace xcb

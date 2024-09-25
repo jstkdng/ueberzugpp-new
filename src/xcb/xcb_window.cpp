@@ -16,31 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <iostream>
+#include <xcb/xcb.h>
 
-#include "application.hpp"
 #include "xcb.hpp"
 
-auto main() -> int
+namespace xcb
 {
-    Application app;
 
-    auto res = app.init();
-    if (!res) {
-        std::cerr << res.error().lmessage() << '\n';
-        return 1;
-    }
-
-    xcb::connection conn;
-    if (auto res = conn.connect(); !res) {
-        std::cerr << res.error().lmessage() << '\n';
-        return 1;
-    }
-
-    auto windows = conn.get_server_window_ids();
-    std::cout << "size: " << windows.size() << "\n\n";
-    for (const auto wid: windows) {
-        std::cout << wid << '\n';
-    }
-    return 0;
+window::window([[maybe_unused]] util::PassKey<connection> key, xcb_connection_t *connection, xcb_screen_t *screen,
+               xcb_window_t wid, xcb_window_t parent) :
+    connection_(connection),
+    screen_(screen),
+    id_(wid),
+    parent_(parent)
+{
 }
+
+window::~window()
+{
+    xcb_destroy_window(connection_, id_);
+}
+
+} // namespace xcb

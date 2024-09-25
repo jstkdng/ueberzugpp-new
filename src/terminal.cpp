@@ -41,7 +41,7 @@ auto Terminal::open_first_terminal() -> Result<void>
     for (const auto &proc : tree) {
         const auto &path = proc.pty_path;
         if (stat(path.c_str(), &stat_info) == -1) {
-            SPDLOG_DEBUG("stat: {}", os::strerror());
+            SPDLOG_DEBUG("stat {}: {}", path, os::strerror());
             continue;
         }
         if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
