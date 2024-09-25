@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <system_error>
 #include <cerrno>
+#include <system_error>
 
 #include <unistd.h>
 
@@ -26,9 +26,9 @@
 namespace os
 {
 
-auto last_err() -> std::string
+auto strerror() -> std::string
 {
-    std::error_code code(errno, std::generic_category());
+    const std::error_code code(errno, std::generic_category());
     return code.message();
 }
 

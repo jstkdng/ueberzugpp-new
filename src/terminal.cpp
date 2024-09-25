@@ -41,7 +41,7 @@ auto Terminal::open_first_terminal() -> Result<void>
     for (const auto &proc : tree) {
         const auto &path = proc.pty_path;
         if (stat(path.c_str(), &stat_info) == -1) {
-            SPDLOG_DEBUG("stat: {}", os::last_err());
+            SPDLOG_DEBUG("stat: {}", os::strerror());
             continue;
         }
         if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
@@ -50,7 +50,7 @@ auto Terminal::open_first_terminal() -> Result<void>
         }
         pty_fd_ = open(path.c_str(), O_RDONLY | O_NOCTTY);
         if (*pty_fd_ == -1) {
-            SPDLOG_DEBUG("open: {}", os::last_err());
+            SPDLOG_DEBUG("open: {}", os::strerror());
             continue;
         }
         pty_pid_ = proc.pid;

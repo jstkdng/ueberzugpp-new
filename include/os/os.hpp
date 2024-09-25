@@ -22,6 +22,6 @@
 
 namespace os
 {
-auto last_err() -> std::string;
+auto strerror() -> std::string;
 auto getpid() -> int;
-}
+} // namespace os
