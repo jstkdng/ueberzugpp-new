@@ -19,6 +19,7 @@
 #pragma once
 
 #include <memory>
+#include <atomic>
 
 #include <spdlog/fwd.h>
 
@@ -29,6 +30,13 @@ class Application
 {
   public:
     auto init() -> Result<void>;
+
+    static void signal_handler(int signal);
+    static void terminate();
+    static auto setup_signal_handler() -> Result<void>;
+    static auto run() -> Result<void>;
+
+    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
 
   private:
     auto setup_logger() -> Result<void>;

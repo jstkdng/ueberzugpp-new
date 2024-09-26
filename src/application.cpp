@@ -16,14 +16,22 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <csignal>
+
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include "application.hpp"
 
+void Application::signal_handler([[maybe_unused]] int signal)
+{
+    SPDLOG_WARN("signal received, terminating");
+    terminate();
+}
+
 auto Application::init() -> Result<void>
 {
-    return setup_logger().and_then([this] { return terminal_.init(); });
+    return setup_logger().and_then(setup_signal_handler).and_then([this] { return terminal_.init(); }).and_then(run);
 }
 
 auto Application::setup_logger() -> Result<void>
@@ -44,5 +52,31 @@ auto Application::setup_logger() -> Result<void>
         return Err(ex.what());
     }
 
+    return {};
+}
+
+auto Application::setup_signal_handler() -> Result<void>
+{
+    struct sigaction sga {
+    };
+    sga.sa_handler = signal_handler;
+    sigemptyset(&sga.sa_mask);
+    sga.sa_flags = 0;
+    sigaction(SIGINT, &sga, nullptr);
+    sigaction(SIGTERM, &sga, nullptr);
+    sigaction(SIGHUP, nullptr, nullptr);
+    sigaction(SIGCHLD, nullptr, nullptr);
+    return {};
+}
+
+void Application::terminate()
+{
+    stop_flag_.test_and_set();
+    stop_flag_.notify_one();
+}
+
+auto Application::run() -> Result<void>
+{
+    stop_flag_.wait(false);
     return {};
 }
