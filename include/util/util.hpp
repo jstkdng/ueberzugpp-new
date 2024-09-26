@@ -18,7 +18,29 @@
 
 #pragma once
 
-#include <moodycamel/blockingconcurrentqueue.h>
+#include <charconv>
+#include <functional>
+#include <string_view>
+#include <vector>
 
-template <class T>
-using bcq = moodycamel::BlockingConcurrentQueue<T>;
+#include "error.hpp"
+
+namespace util
+{
+
+auto str_split(std::string_view str, std::string_view delim = " ") -> std::vector<std::string_view>;
+void str_split_cb(std::string_view str, const std::function<void(std::string_view)> &callback,
+                  std::string_view delim = " ");
+
+template <typename T>
+constexpr auto view_to_numeral(const std::string_view view) noexcept -> Result<T>
+{
+    T result{};
+    auto [ptr, err] = std::from_chars(view.data(), view.data() + view.size(), result);
+    if (err == std::errc()) {
+        return result;
+    }
+    return Err("view_to_numeral", err);
+}
+
+} // namespace util

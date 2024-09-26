@@ -18,27 +18,24 @@
 
 #pragma once
 
-#include <atomic>
-#include <memory>
+#include <string_view>
 
-#include "command/command.hpp"
+#include <moodycamel/blockingconcurrentqueue.h>
+
 #include "error.hpp"
-#include "terminal.hpp"
 
-class Application
-{
-  public:
-    auto init() -> Result<void>;
+struct Command {
+    static auto create(std::string_view parser, std::string_view line) -> Result<Command>;
+    static auto from_json(std::string_view line) -> Result<Command>;
 
-    static void signal_handler(int signal);
-    static void terminate();
-    static auto setup_signal_handler() -> Result<void>;
-    static auto setup_logger() -> Result<void>;
-    static auto run() -> Result<void>;
-
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
-
-  private:
-    Terminal terminal_;
-    CommandQueue queue_;
+    std::string action;
+    std::string preview_id;
+    std::string image_path;
+    std::string image_scaler;
+    int x = -1;
+    int y = -1;
+    int width = -1;
+    int height = -1;
 };
+
+using CommandQueue = moodycamel::BlockingConcurrentQueue<Command>;

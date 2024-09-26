@@ -45,6 +45,6 @@ auto Error::message() const -> std::string
 
 auto Error::lmessage() const -> std::string
 {
-    std::filesystem::path path(location_.file_name());
+    const std::filesystem::path path(location_.file_name());
     return std::format("[{}:{}] {}", path.filename().string(), location_.line(), message());
 }

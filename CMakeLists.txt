@@ -88,6 +88,7 @@ target_sources(ueberzugpp
         src/os/process.cpp
         src/os/fd.cpp
         src/os/os.cpp
+        src/command/command.cpp
         src/error.cpp
         src/terminal.cpp
         src/application.cpp
@@ -98,7 +99,8 @@ target_sources(ueberzugpp
     FILES
         include/util/passkey.hpp
         include/util/ptr.hpp
-        include/util/queues.hpp
+        include/util/util.hpp
+        include/command/command.hpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp
