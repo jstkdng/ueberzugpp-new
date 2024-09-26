@@ -46,8 +46,8 @@ auto Application::setup_logger() -> Result<void>
     spdlog::flush_on(level);
 
     try {
-        logger_ = spdlog::stdout_color_mt("main");
-        spdlog::set_default_logger(logger_);
+        const auto logger = spdlog::stdout_color_mt("main");
+        spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return Err(ex.what());
     }

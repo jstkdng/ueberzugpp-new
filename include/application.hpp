@@ -21,8 +21,6 @@
 #include <atomic>
 #include <memory>
 
-#include <spdlog/fwd.h>
-
 #include "error.hpp"
 #include "terminal.hpp"
 #include "util/queues.hpp"
@@ -35,14 +33,12 @@ class Application
     static void signal_handler(int signal);
     static void terminate();
     static auto setup_signal_handler() -> Result<void>;
+    static auto setup_logger() -> Result<void>;
     static auto run() -> Result<void>;
 
     inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
 
   private:
-    auto setup_logger() -> Result<void>;
-
     Terminal terminal_;
-    std::shared_ptr<spdlog::logger> logger_;
     bcq<std::string> command_queue_;
 };

@@ -20,4 +20,5 @@
 
 #include <moodycamel/blockingconcurrentqueue.h>
 
-using bcq = moodycamel::BlockingConcurrentQueue;
+template <class T>
+using bcq = moodycamel::BlockingConcurrentQueue<T>;
