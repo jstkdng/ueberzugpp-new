@@ -47,7 +47,7 @@ class Terminal
 
   private:
     std::string pty_path_;
-    int pty_pid_;
+    int pty_pid_ = -1;
     os::fd pty_fd_;
 
     auto set_font_sizes() -> Result<void>;
