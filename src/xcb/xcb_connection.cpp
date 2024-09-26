@@ -95,7 +95,7 @@ auto connection::window_has_properties(xcb_window_t window, std::initializer_lis
     for (const auto prop : properties) {
         cookies.push_back(xcb_get_property_unchecked(connection_, 0, window, prop, XCB_ATOM_ANY, 0, 4));
     }
-    return std::ranges::any_of(cookies, [this](xcb_get_property_cookie_t cookie) -> bool {
+    return std::ranges::any_of(cookies, [this](xcb_get_property_cookie_t cookie) {
         const auto reply = unique_C_ptr<xcb_get_property_reply_t>{xcb_get_property_reply(connection_, cookie, nullptr)};
         return reply && xcb_get_property_value_length(reply.get()) != 0;
     });

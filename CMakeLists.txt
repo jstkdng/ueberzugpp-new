@@ -46,6 +46,8 @@ if (ENABLE_X11)
     target_link_libraries(ueberzugpp
         PRIVATE
             PkgConfig::XCB
+            PkgConfig::XCBIMAGE
+            PkgConfig::XCBRES
     )
 
     target_sources(ueberzugpp
@@ -58,7 +60,6 @@ if (ENABLE_X11)
         BASE_DIRS include/
         FILES
             include/xcb.hpp
-            include/xcb_fwd.hpp
     )
 endif ()
 
@@ -97,6 +98,7 @@ target_sources(ueberzugpp
     FILES
         include/util/passkey.hpp
         include/util/ptr.hpp
+        include/util/queues.hpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp

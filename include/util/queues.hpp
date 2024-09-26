@@ -18,10 +18,6 @@
 
 #pragma once
 
-namespace xcb
-{
+#include <moodycamel/blockingconcurrentqueue.h>
 
-class connection;
-class window;
-
-} // namespace xcb
+using bcq = moodycamel::BlockingConcurrentQueue;

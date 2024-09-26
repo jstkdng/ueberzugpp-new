@@ -18,13 +18,14 @@
 
 #pragma once
 
-#include <memory>
 #include <atomic>
+#include <memory>
 
 #include <spdlog/fwd.h>
 
 #include "error.hpp"
 #include "terminal.hpp"
+#include "util/queues.hpp"
 
 class Application
 {
@@ -43,4 +44,5 @@ class Application
 
     Terminal terminal_;
     std::shared_ptr<spdlog::logger> logger_;
+    bcq<std::string> command_queue_;
 };
