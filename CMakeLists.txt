@@ -39,10 +39,9 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 
 if (ENABLE_X11)
-    target_compile_definitions(ueberzugpp PRIVATE ENABLE_X11)
     pkg_check_modules(XCB REQUIRED IMPORTED_TARGET xcb)
-    #pkg_check_modules(XCBIMAGE REQUIRED IMPORTED_TARGET xcb-image)
-    #pkg_check_modules(XCBRES REQUIRED IMPORTED_TARGET xcb-res)
+    pkg_check_modules(XCBIMAGE REQUIRED IMPORTED_TARGET xcb-image)
+    pkg_check_modules(XCBRES REQUIRED IMPORTED_TARGET xcb-res)
 
     target_link_libraries(ueberzugpp
         PRIVATE
