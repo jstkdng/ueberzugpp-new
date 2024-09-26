@@ -61,7 +61,7 @@ if (ENABLE_X11)
             include/xcb.hpp
             include/xcb_fwd.hpp
     )
-endif()
+endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
@@ -97,6 +97,7 @@ target_sources(ueberzugpp
     BASE_DIRS include/
     FILES
         include/util/passkey.hpp
+        include/util/ptr.hpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp
