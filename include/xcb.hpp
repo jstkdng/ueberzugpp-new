@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <initializer_list>
 #include <vector>
 
 #include <xcb/xproto.h>
@@ -36,7 +37,8 @@ class connection
     auto connect() -> Result<void>;
     auto create_window() -> window;
     [[nodiscard]] auto get_server_window_ids() const -> std::vector<xcb_window_t>;
-    [[nodiscard]] auto get_complete_window_ids() const -> std::vector<xcb_window_t>;
+    [[nodiscard]] auto window_has_properties(xcb_window_t window,
+                                             std::initializer_list<xcb_atom_t> properties) const -> bool;
 
   private:
     xcb_connection_t *connection_ = nullptr;

@@ -21,15 +21,36 @@
 #include "error.hpp"
 #include "os/fd.hpp"
 
+struct TerminalSize {
+    int fallback_xpixel = 0;
+    int fallback_ypixel = 0;
+    int xpixel = 0;
+    int ypixel = 0;
+    int rows = 0;
+    int cols = 0;
+};
+
+struct TerminalFontSize {
+    int width = 0;
+    int height = 0;
+    int horizontal_padding = 0;
+    int vertical_padding = 0;
+};
+
 class Terminal
 {
   public:
     auto init() -> Result<void>;
 
-  private:
-    auto open_first_terminal() -> Result<void>;
+    TerminalSize size;
+    TerminalFontSize font;
 
+  private:
     std::string pty_path_;
     int pty_pid_;
     os::fd pty_fd_;
+
+    auto set_font_sizes() -> Result<void>;
+    auto open_first_pty() -> Result<void>;
+    auto get_ioctl_sizes() -> Result<void>;
 };

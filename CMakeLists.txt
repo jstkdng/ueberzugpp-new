@@ -66,6 +66,9 @@ endif()
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
+configure_file(include/config.hpp.in config.hpp @ONLY)
+target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
 # spdlog
 file(GLOB SPDLOG_SRC src/spdlog/*.cpp)
 target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})

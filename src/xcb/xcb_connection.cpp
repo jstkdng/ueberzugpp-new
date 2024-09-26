@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <algorithm>
 #include <stack>
 
 #include <xcb/xcb.h>
@@ -77,7 +78,9 @@ auto connection::get_server_window_ids() const -> std::vector<xcb_window_t>
         const auto *children = xcb_query_tree_children(reply.get());
         for (int i = 0; i < num_children; ++i) {
             const auto child = children[i];
-            windows.push_back(child);
+            if (window_has_properties(child, {XCB_ATOM_WM_CLASS, XCB_ATOM_WM_NAME})) {
+                windows.push_back(child);
+            }
             cookies_st.push(xcb_query_tree_unchecked(connection_, child));
         }
     }
@@ -85,10 +88,17 @@ auto connection::get_server_window_ids() const -> std::vector<xcb_window_t>
     return windows;
 }
 
-auto connection::get_complete_window_ids() const -> std::vector<xcb_window_t>
+auto connection::window_has_properties(xcb_window_t window, std::initializer_list<xcb_atom_t> properties) const -> bool
 {
-    auto windows = get_server_window_ids();
-    return windows;
+    std::vector<xcb_get_property_cookie_t> cookies;
+    cookies.reserve(properties.size());
+    for (const auto prop : properties) {
+        cookies.push_back(xcb_get_property_unchecked(connection_, 0, window, prop, XCB_ATOM_ANY, 0, 4));
+    }
+    return std::ranges::any_of(cookies, [this](xcb_get_property_cookie_t cookie) -> bool {
+        const auto reply = unique_C_ptr<xcb_get_property_reply_t>{xcb_get_property_reply(connection_, cookie, nullptr)};
+        return reply && xcb_get_property_value_length(reply.get()) != 0;
+    });
 }
 
 } // namespace xcb
