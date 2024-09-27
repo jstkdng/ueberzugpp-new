@@ -18,10 +18,14 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace os
 {
+
 auto strerror() -> std::string;
 auto getpid() -> int;
+auto getenv(const std::string &var) -> std::optional<std::string>;
+
 } // namespace os

@@ -92,6 +92,7 @@ target_sources(ueberzugpp
         src/error.cpp
         src/terminal.cpp
         src/application.cpp
+        src/config.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -104,6 +105,7 @@ target_sources(ueberzugpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp
+        include/config/config.hpp
         include/error.hpp
         include/terminal.hpp
         include/application.hpp

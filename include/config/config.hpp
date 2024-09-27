@@ -22,13 +22,34 @@
 
 #include "error.hpp"
 
+struct tmux_subcommand {
+    std::string hook;
+    int pid = -1;
+};
+
+struct cmd_subcommand {
+    std::string id;
+    std::string action;
+    std::string socket;
+    std::string file_path;
+    int x = -1;
+    int y = -1;
+    int max_width = -1;
+    int max_height = -1;
+};
+
 class Config
 {
   public:
+    Config();
     auto read_config_file() -> Result<void>;
 
     // some globals
     static const int waitms_ = 20;
+
+    // subcommands
+    tmux_subcommand tmux;
+    cmd_subcommand cmd;
 
     // configurable with config file
     bool silent = false;
@@ -47,4 +68,3 @@ class Config
   private:
     std::string config_file;
 };
-
