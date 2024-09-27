@@ -18,4 +18,20 @@
 
 #pragma once
 
-#cmakedefine ENABLE_X11
+#include <span>
+
+#include <CLI11.hpp>
+
+#include "error.hpp"
+
+class CliManager
+{
+  public:
+    auto init(std::span<char *> args) -> Result<void>;
+
+  private:
+    void setup_layer_command();
+
+    CLI::App program{"Display images in the terminal", "ueberzugpp"};
+    CLI::App *layer_command{program.add_subcommand("layer", "Display images on the terminal")};
+};

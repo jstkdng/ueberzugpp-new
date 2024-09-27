@@ -20,11 +20,11 @@
 
 #include "application.hpp"
 
-auto main() -> int
+auto main(int argc, char *argv[]) -> int
 {
     Application app;
 
-    auto res = app.init();
+    auto res = app.init(std::span(argv, argc));
     if (!res) {
         std::cerr << res.error().lmessage() << '\n';
         return 1;

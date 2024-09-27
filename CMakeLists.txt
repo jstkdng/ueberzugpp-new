@@ -66,7 +66,7 @@ endif ()
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
-configure_file(include/config.hpp.in config.hpp @ONLY)
+configure_file(include/config/build.hpp.in config/build.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 # spdlog
@@ -92,6 +92,7 @@ target_sources(ueberzugpp
         src/error.cpp
         src/terminal.cpp
         src/application.cpp
+        src/cli_manager.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -107,6 +108,7 @@ target_sources(ueberzugpp
         include/error.hpp
         include/terminal.hpp
         include/application.hpp
+        include/cli_manager.hpp
 )
 
 target_link_libraries(ueberzugpp

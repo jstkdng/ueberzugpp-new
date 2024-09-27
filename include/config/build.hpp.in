@@ -18,29 +18,11 @@
 
 #pragma once
 
-#include <atomic>
-#include <span>
+#cmakedefine ENABLE_X11
 
-#include "command/command.hpp"
-#include "error.hpp"
-#include "terminal.hpp"
-#include "cli_manager.hpp"
+#ifdef DEBUG
+constexpr auto version_str = "ueberzugpp @ueberzugpp_VERSION_MAJOR@.@ueberzugpp_VERSION_MINOR@.@ueberzugpp_VERSION_PATCH@ (debug build)";
+#else
+constexpr auto version_str = "ueberzugpp @ueberzugpp_VERSION_MAJOR@.@ueberzugpp_VERSION_MINOR@.@ueberzugpp_VERSION_PATCH@";
+#endif
 
-class Application
-{
-  public:
-    auto init(std::span<char *> args) -> Result<void>;
-
-    static void signal_handler(int signal);
-    static void terminate();
-    static auto setup_signal_handler() -> Result<void>;
-    static auto setup_logger() -> Result<void>;
-    static auto run() -> Result<void>;
-
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
-
-  private:
-    CliManager cli_;
-    Terminal terminal_;
-    CommandQueue queue_;
-};

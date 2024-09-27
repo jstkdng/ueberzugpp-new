@@ -16,31 +16,29 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include <atomic>
-#include <span>
-
-#include "command/command.hpp"
-#include "error.hpp"
-#include "terminal.hpp"
 #include "cli_manager.hpp"
+#include "config/build.hpp"
 
-class Application
+auto CliManager::init(const std::span<char *> args) -> Result<void>
 {
-  public:
-    auto init(std::span<char *> args) -> Result<void>;
+    program.set_version_flag("-V,--version", version_str);
+    program.allow_extras(false);
+    program.require_subcommand(1);
 
-    static void signal_handler(int signal);
-    static void terminate();
-    static auto setup_signal_handler() -> Result<void>;
-    static auto setup_logger() -> Result<void>;
-    static auto run() -> Result<void>;
+    setup_layer_command();
 
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
+    auto *query_win_command =
+        program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility");
+    query_win_command->allow_extras();
 
-  private:
-    CliManager cli_;
-    Terminal terminal_;
-    CommandQueue queue_;
-};
+    try {
+        program.parse(static_cast<int>(args.size()), args.data());
+    } catch (const CLI::ParseError &e) {
+        return Err(e.what());
+    }
+    return {};
+}
+
+void CliManager::setup_layer_command()
+{
+}

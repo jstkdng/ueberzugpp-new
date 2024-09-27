@@ -18,29 +18,33 @@
 
 #pragma once
 
-#include <atomic>
-#include <span>
+#include <string>
 
-#include "command/command.hpp"
 #include "error.hpp"
-#include "terminal.hpp"
-#include "cli_manager.hpp"
 
-class Application
+class Config
 {
   public:
-    auto init(std::span<char *> args) -> Result<void>;
+    auto read_config_file() -> Result<void>;
 
-    static void signal_handler(int signal);
-    static void terminate();
-    static auto setup_signal_handler() -> Result<void>;
-    static auto setup_logger() -> Result<void>;
-    static auto run() -> Result<void>;
+    // some globals
+    static const int waitms_ = 20;
 
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
+    // configurable with config file
+    bool silent = false;
+    bool no_cache = false;
+    bool no_opencv = false;
+    bool use_opengl = false;
+    std::string output;
+
+    // configurable with cmd line switches
+    bool use_escape_codes = false;
+    bool no_stdin = false;
+    bool origin_center = false;
+    std::string pid_file;
+    std::string parser;
 
   private:
-    CliManager cli_;
-    Terminal terminal_;
-    CommandQueue queue_;
+    std::string config_file;
 };
+
