@@ -70,12 +70,12 @@ configure_file(include/config/build.hpp.in config/build.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 # spdlog
-file(GLOB SPDLOG_SRC src/spdlog/*.cpp)
+file(GLOB SPDLOG_SRC libraries/spdlog/*.cpp)
 target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
 
 # CLI11
-target_sources(ueberzugpp PRIVATE src/CLI11/Precompile.cpp)
+target_sources(ueberzugpp PRIVATE libraries/CLI11/Precompile.cpp)
 target_compile_definitions(ueberzugpp PRIVATE CLI11_COMPILE)
 
 # definitions
