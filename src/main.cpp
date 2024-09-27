@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#include <CLI11.hpp>
+#include <CLI/App.hpp>
 
 #include "application.hpp"
 #include "config/build.hpp"
@@ -60,6 +60,7 @@ auto main(int argc, char *argv[]) -> int
         ->default_val("json");
     layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility");
 
+    /*
     auto *cmd_command = program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance");
     cmd_command->add_option("-s,--socket", config.cmd.socket, "UNIX socket of running instance")->required();
     cmd_command->add_option("-a,--action", config.cmd.action, "Action to send")
@@ -70,7 +71,7 @@ auto main(int argc, char *argv[]) -> int
     cmd_command->add_option("-y,--ypos", cmd.y, "Y position of preview");
     cmd_command->add_option("--max-width", cmd.max_width, "Max width of preview");
     cmd_command->add_option("--max-height", cmd.max_height, "Max height of preview");
-    cmd_command->allow_extras(false);
+    cmd_command->allow_extras(false);*/
 
     try {
         program.parse(argc, argv);

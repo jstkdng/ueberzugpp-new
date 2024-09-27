@@ -74,6 +74,10 @@ file(GLOB SPDLOG_SRC src/spdlog/*.cpp)
 target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
 
+# CLI11
+target_sources(ueberzugpp PRIVATE src/CLI11/Precompile.cpp)
+target_compile_definitions(ueberzugpp PRIVATE CLI11_COMPILE)
+
 # definitions
 target_compile_definitions(ueberzugpp
     PRIVATE
