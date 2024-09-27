@@ -92,7 +92,6 @@ target_sources(ueberzugpp
         src/error.cpp
         src/terminal.cpp
         src/application.cpp
-        src/cli_manager.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -108,7 +107,6 @@ target_sources(ueberzugpp
         include/error.hpp
         include/terminal.hpp
         include/application.hpp
-        include/cli_manager.hpp
 )
 
 target_link_libraries(ueberzugpp

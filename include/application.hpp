@@ -19,17 +19,15 @@
 #pragma once
 
 #include <atomic>
-#include <span>
 
 #include "command/command.hpp"
 #include "error.hpp"
 #include "terminal.hpp"
-#include "cli_manager.hpp"
 
 class Application
 {
   public:
-    auto init(std::span<char *> args) -> Result<void>;
+    auto init() -> Result<void>;
 
     static void signal_handler(int signal);
     static void terminate();
@@ -40,7 +38,6 @@ class Application
     inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
 
   private:
-    CliManager cli_;
     Terminal terminal_;
     CommandQueue queue_;
 };

@@ -29,9 +29,9 @@ void Application::signal_handler([[maybe_unused]] int signal)
     terminate();
 }
 
-auto Application::init(std::span<char *> args) -> Result<void>
+auto Application::init() -> Result<void>
 {
-    return cli_.init(args).and_then(setup_logger).and_then(setup_signal_handler).and_then([this] {
+    return setup_logger().and_then(setup_signal_handler).and_then([this] {
         return terminal_.init();
     });
 }

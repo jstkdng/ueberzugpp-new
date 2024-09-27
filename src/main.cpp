@@ -18,13 +18,33 @@
 
 #include <iostream>
 
+#include <CLI11.hpp>
+
 #include "application.hpp"
+#include "config/build.hpp"
 
 auto main(int argc, char *argv[]) -> int
 {
+    CLI::App program("Display images in the terminal", "ueberzugpp");
+    //auto *layer_command = program.add_subcommand("layer", "Display images on the terminal");
+
+    program.set_version_flag("-V,--version", version_str);
+    program.allow_extras(false);
+    program.require_subcommand(1);
+
+    auto *query_win_command =
+        program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility");
+    query_win_command->allow_extras();
+
+    try {
+        program.parse(argc, argv);
+    } catch (const CLI::ParseError &e) {
+        return program.exit(e);
+    }
+
     Application app;
 
-    auto res = app.init(std::span(argv, argc));
+    auto res = app.init();
     if (!res) {
         std::cerr << res.error().lmessage() << '\n';
         return 1;
