@@ -18,11 +18,9 @@
 
 #include <iostream>
 
-#include <CLI/App.hpp>
-
 #include "application.hpp"
-#include "config/build.hpp"
 #include "config/config.hpp"
+#include "cli/cli.hpp"
 
 auto main(int argc, char *argv[]) -> int
 {
@@ -33,32 +31,13 @@ auto main(int argc, char *argv[]) -> int
         return 1;
     }
 
-    CLI::App program("Display images in the terminal", "ueberzugpp");
+    CliManager cli;
+    try {
+        cli.app.parse(argc, argv);
+    } catch (const CLI::ParseError &e) {
+        return cli.app.exit(e);
+    }
 
-    program.set_version_flag("-V,--version", version_str);
-    program.allow_extras(false);
-    program.require_subcommand(1);
-
-    auto *query_win_command =
-        program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility");
-    query_win_command->allow_extras();
-
-    auto *layer_command = program.add_subcommand("layer", "Display images on the terminal");
-    layer_command->add_flag("-s,--silent", config.silent, "Print stderr to /dev/null");
-    layer_command
-        ->add_flag("--use-escape-codes", config.use_escape_codes, "Use escape codes to get terminal capabilities")
-        ->default_val(false);
-    layer_command->add_option("--pid-file", config.pid_file, "Output file where to write the daemon PID");
-    layer_command->add_flag("--no-stdin", config.no_stdin, "Do not listen on stdin for commands")->needs("--pid-file");
-    layer_command->add_flag("--no-cache", config.no_cache, "Disable caching of resized images");
-    layer_command->add_flag("--no-opencv", config.no_opencv, "Do not use OpenCV, use Libvips instead");
-    layer_command->add_option("-o,--output", config.output, "Image output method")
-        ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}));
-    layer_command->add_flag("--origin-center", config.origin_center, "Location of the origin wrt the image");
-    layer_command->add_option("-p,--parser", config.parser, "Command parser to use")
-        ->check(CLI::IsMember({"json", "bash", "simple"}))
-        ->default_val("json");
-    layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility");
 
     /*
     auto *cmd_command = program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance");
@@ -73,11 +52,6 @@ auto main(int argc, char *argv[]) -> int
     cmd_command->add_option("--max-height", cmd.max_height, "Max height of preview");
     cmd_command->allow_extras(false);*/
 
-    try {
-        program.parse(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        return program.exit(e);
-    }
 
     Application app;
 

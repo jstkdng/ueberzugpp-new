@@ -18,33 +18,21 @@
 
 #pragma once
 
-#include <string>
+#include <CLI/App.hpp>
 
-#include "error.hpp"
+#include "cli/subcommands.hpp"
 
-class Config
+class CliManager
 {
   public:
-    Config();
-    auto read_config_file() -> Result<void>;
+    CliManager();
+    CLI::App app{"Display images in the terminal", "ueberzugpp"};
 
-    // some globals
-    static const int waitms_ = 20;
+    layer_subcommand layer;
 
-    // configurable with config file
-    bool silent = false;
-    bool no_cache = false;
-    bool no_opencv = false;
-    bool use_opengl = false;
-    std::string output;
-
-    // configurable with cmd line switches
-    bool use_escape_codes = false;
-    bool no_stdin = false;
-    bool origin_center = false;
-    std::string pid_file;
-    std::string parser;
 
   private:
-    std::string config_file;
+    CLI::App* layer_command{app.add_subcommand("layer", "Display images on the terminal")};
+
+    void setup_layer_subcommand();
 };

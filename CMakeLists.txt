@@ -97,6 +97,7 @@ target_sources(ueberzugpp
         src/terminal.cpp
         src/application.cpp
         src/config.cpp
+        src/cli/cli.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -113,6 +114,8 @@ target_sources(ueberzugpp
         include/error.hpp
         include/terminal.hpp
         include/application.hpp
+        include/cli/cli.hpp
+        include/cli/subcommands.hpp
 )
 
 target_link_libraries(ueberzugpp
