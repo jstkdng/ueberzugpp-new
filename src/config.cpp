@@ -16,17 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "config/config.hpp"
-#include "os/os.hpp"
-
 #include <filesystem>
 #include <format>
 #include <fstream>
 
-#include <nlohmann/json.hpp>
+#include <json/json.h>
+
+#include "config/config.hpp"
+#include "os/os.hpp"
 
 namespace fs = std::filesystem;
-using njson = nlohmann::json;
 
 Config::Config()
 {
@@ -42,21 +41,26 @@ auto Config::read_config_file() -> Result<void>
     }
 
     std::ifstream ifs(config_file);
-    njson json;
-    try {
-        json = njson::parse(ifs);
-    } catch (const njson::parse_error &err) {
-        return Err(std::format("could not read config file: {}", err.what()));
+    Json::Value json;
+    Json::Reader reader;
+    if (!reader.parse(ifs, json)) {
+        return Err(reader.getFormattedErrorMessages());
     }
 
-    if (!json.contains("layer")) {
+    const auto *layer = json.find("layer");
+    if (layer == nullptr) {
         return {};
     }
-    const auto &layer = json.at("layer");
-    silent = layer.value("silent", false);
-    output = layer.value("output", "");
-    no_cache = layer.value("no-cache", false);
-    no_opencv = layer.value("no-opencv", false);
-    use_opengl = layer.value("opengl", false);
+
+    try {
+        silent = layer->get("silent", false).asBool();
+        output = layer->get("output", "").asCString();
+        no_cache = layer->get("no-cache", false).asBool();
+        no_opencv = layer->get("no-opencv", false).asBool();
+        use_opengl = layer->get("opengl", false).asBool();
+    } catch (const Json::LogicError& ex) {
+        return Err(ex.what());
+    }
+
     return {};
 }

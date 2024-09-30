@@ -21,6 +21,8 @@
 cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+
 project(ueberzugpp LANGUAGES CXX VERSION 0.0.1)
 
 add_executable(ueberzugpp)
@@ -74,6 +76,11 @@ file(GLOB SPDLOG_SRC libraries/spdlog/*.cpp)
 target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
 target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
 
+# jsoncpp
+set(JSONCPP_SRC libraries/jsoncpp.cpp)
+target_sources(ueberzugpp PRIVATE ${JSONCPP_SRC})
+set_source_files_properties(${JSONCPP_SRC} PROPERTY COMPILE_FLAGS -Wno-maybe-uninitialized)
+
 # CLI11
 target_sources(ueberzugpp PRIVATE libraries/CLI11/Precompile.cpp)
 target_compile_definitions(ueberzugpp PRIVATE CLI11_COMPILE)
@@ -81,7 +88,6 @@ target_compile_definitions(ueberzugpp PRIVATE CLI11_COMPILE)
 # definitions
 target_compile_definitions(ueberzugpp
     PRIVATE
-        JSON_DIAGNOSTICS=1
         $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
         $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
 )

@@ -19,15 +19,12 @@
 #include <format>
 #include <string>
 
-#include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 #include "command/command.hpp"
 #include "util/util.hpp"
 
-#include <spdlog/spdlog.h>
-
-using njson = nlohmann::json;
-
+/*
 namespace
 {
 auto get_int_json(const nlohmann::json &json, std::string_view key) -> int
@@ -53,6 +50,7 @@ auto get_either_key_value(const nlohmann::json &json, const std::initializer_lis
     return 0;
 }
 } // namespace
+*/
 
 auto Command::create(std::string_view parser, std::string_view line) -> Result<Command>
 {
@@ -68,9 +66,10 @@ auto Command::create(std::string_view parser, std::string_view line) -> Result<C
     [[unlikely]] return Err("unknown parser received");
 }
 
-auto Command::from_json(std::string_view line) -> Result<Command>
+auto Command::from_json([[maybe_unused]] std::string_view line) -> Result<Command>
 {
     Command cmd;
+    /*
     try {
         auto json = njson::parse(line);
 
@@ -96,6 +95,6 @@ auto Command::from_json(std::string_view line) -> Result<Command>
 
     } catch (const njson::exception &ex) {
         return Err(std::format("could not parse json command: {}", ex.what()));
-    }
+    }*/
     return cmd;
 }
