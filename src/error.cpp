@@ -35,6 +35,11 @@ Error::Error(std::source_location location, std::string prefix, int code) :
 {
 }
 
+Error::Error(std::source_location location, std::string_view prefix, const std::exception& exc):
+    prefix_(std::format("{}: {}", prefix, exc.what())),
+    location_(location)
+{}
+
 auto Error::message() const -> std::string
 {
     if (condition_.value() == 0) {

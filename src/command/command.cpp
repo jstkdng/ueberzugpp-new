@@ -16,41 +16,39 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <format>
 #include <string>
 
+#include <json/json.h>
 #include <spdlog/spdlog.h>
 
 #include "command/command.hpp"
 #include "util/util.hpp"
 
-/*
 namespace
 {
-auto get_int_json(const nlohmann::json &json, std::string_view key) -> int
+auto get_int_json(const Json::Value &json, std::string_view key) -> int
 {
-    const auto &value = json.at(key);
-    if (value.is_string()) {
-        auto result = util::view_to_numeral<int>(value.get<std::string_view>());
-        if (!result) {
-            SPDLOG_DEBUG(result.error().message());
-        }
-        return result.value_or(0);
+    const auto value = json.get(key.begin(), key.end());
+    if (value.isInt()) {
+        return value.asInt();
     }
-    return value.get<int>();
+    auto result = util::view_to_numeral<int>(value.asCString());
+    if (!result) {
+        SPDLOG_DEBUG(result.error().message());
+    }
+    return result.value_or(0);
 }
 
-auto get_either_key_value(const nlohmann::json &json, const std::initializer_list<std::string_view> key_list) -> int
+auto get_either_key_value(const Json::Value &json, const std::initializer_list<std::string_view> key_list) -> int
 {
     for (auto key : key_list) {
-        if (json.contains(key)) {
+        if (json.isMember(key.begin(), key.end())) {
             return get_int_json(json, key);
         }
     }
     return 0;
 }
 } // namespace
-*/
 
 auto Command::create(std::string_view parser, std::string_view line) -> Result<Command>
 {
@@ -69,32 +67,35 @@ auto Command::create(std::string_view parser, std::string_view line) -> Result<C
 auto Command::from_json([[maybe_unused]] std::string_view line) -> Result<Command>
 {
     Command cmd;
-    /*
-    try {
-        auto json = njson::parse(line);
+    Json::Value json;
+    Json::Reader reader;
 
-        cmd.action = json.at("action");
+    if (!reader.parse(line.begin(), line.end(), json)) {
+        return Err(reader.getFormattedErrorMessages());
+    }
+
+    try {
+        cmd.action = json.get("action", "").asCString();
+
         if (cmd.action == "exit" || cmd.action == "flush") {
             return cmd;
         }
 
-        cmd.preview_id = json.at("identifier");
+        cmd.preview_id = json.get("identifier", "").asCString();
         if (cmd.action == "remove") {
             return cmd;
         }
 
-        cmd.image_scaler = json.value("scaler", "contain");
-        const std::string path = json.at("path");
-        cmd.image_path = path;
+        cmd.image_scaler = json.get("scaler", "contain").asCString();
+        cmd.image_path = json.get("path", "").asCString();
 
         cmd.x = get_int_json(json, "x");
         cmd.y = get_int_json(json, "y");
 
         cmd.width = get_either_key_value(json, {"width", "max_width"});
         cmd.height = get_either_key_value(json, {"height", "max_height"});
-
-    } catch (const njson::exception &ex) {
-        return Err(std::format("could not parse json command: {}", ex.what()));
-    }*/
+    } catch (const Json::LogicError &ex) {
+        return Err("could not parse json command", ex);
+    }
     return cmd;
 }

@@ -59,7 +59,7 @@ auto Config::read_config_file() -> Result<void>
         no_opencv = layer->get("no-opencv", false).asBool();
         use_opengl = layer->get("opengl", false).asBool();
     } catch (const Json::LogicError& ex) {
-        return Err(ex.what());
+        return Err("could not parse config file", ex);
     }
 
     return {};
