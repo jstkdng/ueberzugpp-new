@@ -20,9 +20,10 @@
 
 #cmakedefine ENABLE_X11
 
-#ifdef DEBUG
-constexpr auto version_str = "ueberzugpp @ueberzugpp_VERSION_MAJOR@.@ueberzugpp_VERSION_MINOR@.@ueberzugpp_VERSION_PATCH@ (debug build)";
-#else
-constexpr auto version_str = "ueberzugpp @ueberzugpp_VERSION_MAJOR@.@ueberzugpp_VERSION_MINOR@.@ueberzugpp_VERSION_PATCH@";
-#endif
+constexpr auto build_base_dir = "@CMAKE_CURRENT_SOURCE_DIR@/";
 
+#ifdef DEBUG
+constexpr auto version_str = "ueberzugpp @CMAKE_PROJECT_VERSION@ (debug build)";
+#else
+constexpr auto version_str = "ueberzugpp @CMAKE_PROJECT_VERSION@";
+#endif

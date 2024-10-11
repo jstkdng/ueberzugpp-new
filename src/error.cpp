@@ -16,10 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "error.hpp"
-
 #include <filesystem>
 #include <format>
+#include <string_view>
+
+#include "buildconfig.hpp"
+#include "error.hpp"
 
 Error::Error(std::source_location location, std::string prefix, std::errc errc) :
     prefix_(std::move(prefix)),
@@ -35,10 +37,11 @@ Error::Error(std::source_location location, std::string prefix, int code) :
 {
 }
 
-Error::Error(std::source_location location, std::string_view prefix, const std::exception& exc):
+Error::Error(std::source_location location, std::string_view prefix, const std::exception &exc) :
     prefix_(std::format("{}: {}", prefix, exc.what())),
     location_(location)
-{}
+{
+}
 
 auto Error::message() const -> std::string
 {
@@ -50,6 +53,10 @@ auto Error::message() const -> std::string
 
 auto Error::lmessage() const -> std::string
 {
-    const std::filesystem::path path(location_.file_name());
-    return std::format("[{}:{}] {}", path.filename().string(), location_.line(), message());
+    constexpr std::string_view build_dir = build_base_dir;
+    std::string_view filename = location_.file_name();
+    if (filename.find(build_dir) != std::string_view::npos) {
+        filename.remove_prefix(build_dir.size());
+    }
+    return std::format("[{}:{}] {}", filename, location_.line(), message());
 }

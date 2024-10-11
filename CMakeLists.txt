@@ -54,8 +54,8 @@ if (ENABLE_X11)
 
     target_sources(ueberzugpp
         PRIVATE
-            src/xcb/xcb_connection.cpp
-            src/xcb/xcb_window.cpp
+        src/xcb/connection.cpp
+        src/xcb/window.cpp
 
         PRIVATE
         FILE_SET HEADERS

@@ -17,7 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "cli/cli.hpp"
-#include "config/build.hpp"
+#include "buildconfig.hpp"
 
 CliManager::CliManager()
 {
