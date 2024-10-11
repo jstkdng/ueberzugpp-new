@@ -20,7 +20,7 @@
 
 #include <atomic>
 
-#include "command/command.hpp"
+#include "cli/command.hpp"
 #include "error.hpp"
 #include "terminal.hpp"
 

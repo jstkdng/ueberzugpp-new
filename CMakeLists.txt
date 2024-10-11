@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.23...3.29 FATAL_ERROR)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -68,7 +68,7 @@ endif ()
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
-configure_file(include/config/build.hpp.in config/build.hpp @ONLY)
+configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 # spdlog
@@ -98,7 +98,7 @@ target_sources(ueberzugpp
         src/os/process.cpp
         src/os/fd.cpp
         src/os/os.cpp
-        src/command/command.cpp
+        src/cli/command.cpp
         src/error.cpp
         src/terminal.cpp
         src/application.cpp
@@ -112,7 +112,7 @@ target_sources(ueberzugpp
         include/util/passkey.hpp
         include/util/ptr.hpp
         include/util/util.hpp
-        include/command/command.hpp
+        include/cli/command.hpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp

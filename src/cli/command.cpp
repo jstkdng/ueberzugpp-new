@@ -21,7 +21,7 @@
 #include <json/json.h>
 #include <spdlog/spdlog.h>
 
-#include "command/command.hpp"
+#include "cli/command.hpp"
 #include "util/util.hpp"
 
 namespace

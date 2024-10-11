@@ -30,9 +30,8 @@ class CliManager
 
     layer_subcommand layer;
 
-
   private:
-    CLI::App* layer_command{app.add_subcommand("layer", "Display images on the terminal")};
+    CLI::App *layer_command{app.add_subcommand("layer", "Display images on the terminal")};
 
     void setup_layer_subcommand();
 };
