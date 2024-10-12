@@ -19,8 +19,8 @@
 #pragma once
 
 #cmakedefine ENABLE_X11
+#cmakedefine BUILD_DIR_SIZE @BUILD_DIR_SIZE@
 
-constexpr auto build_base_dir = "@CMAKE_CURRENT_SOURCE_DIR@/";
 
 #ifdef DEBUG
 constexpr auto version_str = "ueberzugpp @CMAKE_PROJECT_VERSION@ (debug build)";

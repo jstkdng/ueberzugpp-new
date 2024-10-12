@@ -52,10 +52,7 @@ auto Error::message() const -> std::string
 
 auto Error::lmessage() const -> std::string
 {
-    constexpr std::string_view build_dir = build_base_dir;
     std::string_view filename = location_.file_name();
-    if (filename.find(build_dir) != std::string_view::npos) {
-        filename.remove_prefix(build_dir.size());
-    }
+    filename.remove_prefix(BUILD_DIR_SIZE);
     return std::format("[{}:{}] {}", filename, location_.line(), message());
 }
