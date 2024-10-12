@@ -35,7 +35,6 @@ set_target_properties(ueberzugpp PROPERTIES
 )
 
 option(ENABLE_X11 "Enable X11 support" ON)
-string(LENGTH "${CMAKE_CURRENT_SOURCE_DIR}/" BUILD_DIR_LEN)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -92,6 +91,10 @@ target_compile_definitions(ueberzugpp
         $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
         $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
 )
+
+# reproducible builds
+string(TIMESTAMP BUILD_DATE UTC)
+target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
 
 target_sources(ueberzugpp
     PRIVATE

@@ -19,8 +19,7 @@
 #pragma once
 
 #cmakedefine ENABLE_X11
-#cmakedefine BUILD_DIR_LEN @BUILD_DIR_LEN@
-
+#cmakedefine BUILD_DATE "@BUILD_DATE@"
 
 #ifdef DEBUG
 constexpr auto version_str = "ueberzugpp @CMAKE_PROJECT_VERSION@ (debug build)";

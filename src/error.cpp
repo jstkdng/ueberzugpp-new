@@ -19,7 +19,6 @@
 #include <format>
 #include <string_view>
 
-#include "buildconfig.hpp"
 #include "error.hpp"
 
 Error::Error(std::source_location location, std::string prefix, std::errc errc) :
@@ -52,7 +51,5 @@ auto Error::message() const -> std::string
 
 auto Error::lmessage() const -> std::string
 {
-    std::string_view filename = location_.file_name();
-    filename.remove_prefix(BUILD_DIR_LEN);
-    return std::format("[{}:{}] {}", filename, location_.line(), message());
+    return std::format("[{}:{}] {}", location_.file_name(), location_.line(), message());
 }
