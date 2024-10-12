@@ -29,11 +29,21 @@ void Application::signal_handler([[maybe_unused]] int signal)
     terminate();
 }
 
+Application::Application(CliManager *cli) :
+    cli_(cli)
+{
+}
+
 auto Application::init() -> Result<void>
 {
-    return setup_logger().and_then(setup_signal_handler).and_then([this] {
-        return terminal_.init();
-    });
+    return config.read_config_file()
+        .and_then(setup_logger)
+        .and_then(setup_signal_handler)
+        .and_then([this] { return terminal_.init(); })
+        .and_then([] -> Result<void> {
+            stop_flag_.wait(false);
+            return {};
+        });
 }
 
 auto Application::setup_logger() -> Result<void>
@@ -79,6 +89,8 @@ void Application::terminate()
 
 auto Application::run() -> Result<void>
 {
-    stop_flag_.wait(false);
-    return {};
+    if (cli_->layer_command->parsed()) {
+        return init();
+    }
+    [[unlikely]] return {};
 }

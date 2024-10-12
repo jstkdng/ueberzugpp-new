@@ -27,11 +27,10 @@ class CliManager
   public:
     CliManager();
     CLI::App app{"Display images in the terminal", "ueberzugpp"};
+    CLI::App *layer_command{app.add_subcommand("layer", "Display images on the terminal")};
 
     layer_subcommand layer;
 
   private:
-    CLI::App *layer_command{app.add_subcommand("layer", "Display images on the terminal")};
-
     void setup_layer_subcommand();
 };

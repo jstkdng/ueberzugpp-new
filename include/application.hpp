@@ -20,24 +20,29 @@
 
 #include <atomic>
 
+#include "cli/cli.hpp"
 #include "cli/command.hpp"
 #include "error.hpp"
 #include "terminal.hpp"
+#include "config/config.hpp"
 
 class Application
 {
   public:
+    explicit Application(CliManager *cli);
+    auto run() -> Result<void>;
     auto init() -> Result<void>;
 
     static void signal_handler(int signal);
     static void terminate();
     static auto setup_signal_handler() -> Result<void>;
     static auto setup_logger() -> Result<void>;
-    static auto run() -> Result<void>;
 
     inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
 
   private:
+    CliManager *cli_;
     Terminal terminal_;
     CommandQueue queue_;
+    Config config;
 };
