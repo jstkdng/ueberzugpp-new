@@ -53,6 +53,6 @@ auto Error::message() const -> std::string
 auto Error::lmessage() const -> std::string
 {
     std::string_view filename = location_.file_name();
-    filename.remove_prefix(BUILD_DIR_SIZE);
+    filename.remove_prefix(BUILD_DIR_LEN);
     return std::format("[{}:{}] {}", filename, location_.line(), message());
 }

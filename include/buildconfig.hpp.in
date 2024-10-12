@@ -19,7 +19,7 @@
 #pragma once
 
 #cmakedefine ENABLE_X11
-#cmakedefine BUILD_DIR_SIZE @BUILD_DIR_SIZE@
+#cmakedefine BUILD_DIR_LEN @BUILD_DIR_LEN@
 
 
 #ifdef DEBUG
