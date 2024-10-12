@@ -64,9 +64,9 @@ auto Command::create(std::string_view parser, std::string_view line) -> Result<C
     [[unlikely]] return Err("unknown parser received");
 }
 
-auto Command::from_json([[maybe_unused]] std::string_view line) -> Result<Command>
+auto Command::from_json(std::string_view line) -> Result<Command>
 {
-    Command cmd;
+    Result<Command> cmd;
     Json::Value json;
     Json::Reader reader;
 
@@ -75,25 +75,25 @@ auto Command::from_json([[maybe_unused]] std::string_view line) -> Result<Comman
     }
 
     try {
-        cmd.action = json.get("action", "").asCString();
+        cmd->action = json.get("action", "").asCString();
 
-        if (cmd.action == "exit" || cmd.action == "flush") {
+        if (cmd->action == "exit" || cmd->action == "flush") {
             return cmd;
         }
 
-        cmd.preview_id = json.get("identifier", "").asCString();
-        if (cmd.action == "remove") {
+        cmd->preview_id = json.get("identifier", "").asCString();
+        if (cmd->action == "remove") {
             return cmd;
         }
 
-        cmd.image_scaler = json.get("scaler", "contain").asCString();
-        cmd.image_path = json.get("path", "").asCString();
+        cmd->image_scaler = json.get("scaler", "contain").asCString();
+        cmd->image_path = json.get("path", "").asCString();
 
-        cmd.x = get_int_json(json, "x");
-        cmd.y = get_int_json(json, "y");
+        cmd->x = get_int_json(json, "x");
+        cmd->y = get_int_json(json, "y");
 
-        cmd.width = get_either_key_value(json, {"width", "max_width"});
-        cmd.height = get_either_key_value(json, {"height", "max_height"});
+        cmd->width = get_either_key_value(json, {"width", "max_width"});
+        cmd->height = get_either_key_value(json, {"height", "max_height"});
     } catch (const Json::LogicError &ex) {
         return Err("could not parse json command", ex);
     }
