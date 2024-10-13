@@ -71,7 +71,6 @@ if (ENABLE_X11)
 endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
-target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
@@ -79,7 +78,6 @@ target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR
 # definitions
 target_compile_definitions(ueberzugpp
     PRIVATE
-        SPDLOG_USE_STD_FORMAT
         $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
         $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
 )

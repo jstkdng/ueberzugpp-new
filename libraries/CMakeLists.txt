@@ -24,14 +24,15 @@ set_target_properties(ueberzugpp-libs PROPERTIES
     CXX_STANDARD 23
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
+    CXX_SCAN_FOR_MODULES OFF
 )
 
-target_include_directories(ueberzugpp-libs SYSTEM PRIVATE "${CMAKE_SOURCE_DIR}/third_party/")
+target_include_directories(ueberzugpp-libs SYSTEM PUBLIC "${CMAKE_SOURCE_DIR}/third_party/")
 
 # spdlog
 file(GLOB SPDLOG_SRC spdlog/*.cpp)
 target_sources(ueberzugpp-libs PRIVATE ${SPDLOG_SRC})
-target_compile_definitions(ueberzugpp-libs PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
+target_compile_definitions(ueberzugpp-libs PUBLIC SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
 
 # jsoncpp
 set(JSONCPP_SRC jsoncpp.cpp)
@@ -39,7 +40,6 @@ target_sources(ueberzugpp-libs PRIVATE ${JSONCPP_SRC})
 
 # CLI11
 target_sources(ueberzugpp-libs PRIVATE CLI11/Precompile.cpp)
-target_compile_definitions(ueberzugpp-libs PRIVATE CLI11_COMPILE)
-
+target_compile_definitions(ueberzugpp-libs PUBLIC CLI11_COMPILE)
 
 # cmake-format: on
