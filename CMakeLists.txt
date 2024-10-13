@@ -36,6 +36,11 @@ set_target_properties(ueberzugpp PROPERTIES
 
 option(ENABLE_X11 "Enable X11 support" ON)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
+    target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
+endif ()
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -71,23 +76,10 @@ target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-# spdlog
-file(GLOB SPDLOG_SRC libraries/spdlog/*.cpp)
-target_sources(ueberzugpp PRIVATE ${SPDLOG_SRC})
-target_compile_definitions(ueberzugpp PRIVATE SPDLOG_COMPILED_LIB SPDLOG_USE_STD_FORMAT)
-
-# jsoncpp
-set(JSONCPP_SRC libraries/jsoncpp.cpp)
-target_sources(ueberzugpp PRIVATE ${JSONCPP_SRC})
-set_source_files_properties(${JSONCPP_SRC} PROPERTY COMPILE_FLAGS -Wno-maybe-uninitialized)
-
-# CLI11
-target_sources(ueberzugpp PRIVATE libraries/CLI11/Precompile.cpp)
-target_compile_definitions(ueberzugpp PRIVATE CLI11_COMPILE)
-
 # definitions
 target_compile_definitions(ueberzugpp
     PRIVATE
+        SPDLOG_USE_STD_FORMAT
         $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
         $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
 )
@@ -95,6 +87,8 @@ target_compile_definitions(ueberzugpp
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)
 target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
+
+add_subdirectory(libraries)
 
 target_sources(ueberzugpp
     PRIVATE
@@ -131,6 +125,7 @@ target_sources(ueberzugpp
 target_link_libraries(ueberzugpp
     PRIVATE
         Threads::Threads
+        ueberzugpp-libs
 )
 
 # cmake-format: on
