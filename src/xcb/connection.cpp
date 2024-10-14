@@ -35,7 +35,8 @@ auto connection::connect() -> Result<void>
     if (xcb_connection_has_error(connection_) > 0) {
         return Err("could not connect to server");
     }
-    screen_ = xcb_setup_roots_iterator(xcb_get_setup(connection_)).data;
+    setup_ = xcb_get_setup(connection_);
+    screen_ = xcb_setup_roots_iterator(setup_).data;
     return {};
 }
 

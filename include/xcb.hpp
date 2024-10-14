@@ -31,6 +31,7 @@ namespace xcb
 
 class connection;
 class window;
+class gc;
 
 class connection
 {
@@ -38,12 +39,14 @@ class connection
     ~connection();
     auto connect() -> Result<void>;
     auto create_window() -> window;
+    auto create_gc() -> gc;
     [[nodiscard]] auto get_server_window_ids() const -> std::vector<xcb_window_t>;
-    [[nodiscard]] auto window_has_properties(xcb_window_t window, std::initializer_list<xcb_atom_t> properties) const
-        -> bool;
+    [[nodiscard]] auto window_has_properties(xcb_window_t window,
+                                             std::initializer_list<xcb_atom_t> properties) const -> bool;
 
   private:
     xcb_connection_t *connection_ = nullptr;
+    const xcb_setup_t *setup_ = nullptr;
     xcb_screen_t *screen_ = nullptr;
 };
 
@@ -59,6 +62,16 @@ class window
     xcb_screen_t *screen_;
     xcb_window_t id_;
     xcb_window_t parent_;
+};
+
+class gc
+{
+  public:
+    gc();
+    ~gc();
+
+  private:
+    xcb_gc_t id_;
 };
 
 } // namespace xcb
