@@ -24,6 +24,7 @@
 
 #include "config/config.hpp"
 #include "os/os.hpp"
+#include "error.hpp"
 
 namespace fs = std::filesystem;
 
