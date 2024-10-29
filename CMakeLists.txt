@@ -72,6 +72,10 @@ endif ()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
+# reproducible builds
+string(TIMESTAMP BUILD_DATE UTC)
+target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
+
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -81,10 +85,6 @@ target_compile_definitions(ueberzugpp
         $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
         $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
 )
-
-# reproducible builds
-string(TIMESTAMP BUILD_DATE UTC)
-target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
 
 add_subdirectory(libraries)
 

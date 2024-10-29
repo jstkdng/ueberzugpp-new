@@ -21,6 +21,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include "error.hpp"
 #include "application.hpp"
 
 void Application::signal_handler([[maybe_unused]] int signal)
