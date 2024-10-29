@@ -18,6 +18,10 @@
 
 #include <format>
 #include <string_view>
+#include <source_location>
+#include <system_error>
+#include <string>
+#include <utility>
 
 #include "error.hpp"
 
