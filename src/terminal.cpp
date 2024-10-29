@@ -28,6 +28,7 @@
 #include "os/os.hpp"
 #include "os/process.hpp"
 #include "terminal.hpp"
+#include "error.hpp"
 
 namespace
 {
@@ -69,7 +70,7 @@ auto Terminal::open_first_pty() -> Result<void>
 {
     struct stat stat_info {
     };
-    auto tree = Process::get_tree(getpid());
+    auto tree = Process::get_tree(os::getpid());
     std::ranges::reverse(tree);
     for (const auto &proc : tree) {
         const auto &path = proc.pty_path;
