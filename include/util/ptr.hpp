@@ -20,6 +20,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <type_traits>
 
 template <auto &Fn>
 struct deleter_from_fn {

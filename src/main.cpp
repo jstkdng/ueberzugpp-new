@@ -18,6 +18,8 @@
 
 #include <iostream>
 
+#include <CLI/Error.hpp>
+
 #include "application.hpp"
 #include "cli/cli.hpp"
 

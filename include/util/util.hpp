@@ -21,6 +21,7 @@
 #include <charconv>
 #include <functional>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 #include "error.hpp"

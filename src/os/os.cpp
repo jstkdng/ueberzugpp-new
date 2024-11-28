@@ -17,6 +17,9 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cerrno>
+#include <cstdlib>
+#include <optional>
+#include <string>
 #include <system_error>
 
 #include <unistd.h>

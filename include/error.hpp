@@ -19,6 +19,7 @@
 #pragma once
 
 #include <cerrno>
+#include <exception>
 #include <expected>
 #include <source_location>
 #include <string>
@@ -29,7 +30,7 @@ class Error
 {
   public:
     Error(std::source_location location, std::string prefix, std::errc errc);
-    Error(std::source_location location, std::string_view prefix, const std::exception& exc);
+    Error(std::source_location location, std::string_view prefix, const std::exception &exc);
     Error(std::source_location location, std::string prefix, int code = errno);
 
     [[nodiscard]] auto message() const -> std::string;

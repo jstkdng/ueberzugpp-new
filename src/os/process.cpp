@@ -18,8 +18,10 @@
 
 #include <format>
 #include <fstream>
+#include <ios>
 #include <limits>
 #include <ranges>
+#include <vector>
 
 #include <sys/sysmacros.h>
 
