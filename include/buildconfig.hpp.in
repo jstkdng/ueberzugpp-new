@@ -19,6 +19,7 @@
 #pragma once
 
 #cmakedefine ENABLE_X11
+#cmakedefine ENABLE_OPENCV
 #cmakedefine BUILD_DATE "@BUILD_DATE@"
 
 #ifdef DEBUG

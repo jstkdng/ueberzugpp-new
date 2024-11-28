@@ -19,6 +19,7 @@
 # along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.23...3.29 FATAL_ERROR)
+cmake_policy(SET CMP0146 OLD)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -35,6 +36,7 @@ set_target_properties(ueberzugpp PROPERTIES
 )
 
 option(ENABLE_X11 "Enable X11 support" ON)
+option(ENABLE_OPENCV "Enable OpenCV image processing" ON)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
@@ -69,6 +71,11 @@ if (ENABLE_X11)
             include/xcb.hpp
     )
 endif ()
+
+if(ENABLE_OPENCV)
+    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+    target_link_libraries(ueberzugpp PRIVATE ${OpenCV_LIBS})
+endif()
 
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
