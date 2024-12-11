@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <CLI/Validators.hpp>
+
 #include "cli/cli.hpp"
 #include "buildconfig.hpp"
 

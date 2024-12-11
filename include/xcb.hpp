@@ -59,9 +59,9 @@ class window
 
   private:
     xcb_connection_t *connection_;
-    xcb_screen_t *screen_;
+    [[maybe_unused]] xcb_screen_t *screen_;
     xcb_window_t id_;
-    xcb_window_t parent_;
+    [[maybe_unused]] xcb_window_t parent_;
 };
 
 class gc

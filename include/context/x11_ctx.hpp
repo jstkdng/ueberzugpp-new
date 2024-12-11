@@ -16,35 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <print>
+#pragma once
 
-#include <CLI/Error.hpp>
+#include <xcb/xproto.h>
+#include <xcb/xcb.h>
 
-#include "application.hpp"
-#include "cli/cli.hpp"
+struct X11Context {
+    X11Context();
+    ~X11Context();
 
-#include "context/wayland_ctx.hpp"
+    bool is_valid = false;
+    bool is_xwayland = false;
 
-auto main(int argc, char *argv[]) -> int
-{
-    CliManager cli;
-    try {
-        cli.app.parse(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        return cli.app.exit(e);
-    }
-
-    WlContext ctx;
-
-    Application app(&cli);
-    auto run_ok = app.run();
-    if (!run_ok) {
-        auto msg = run_ok.error().lmessage();
-        if (msg.back() != '\n') {
-            msg.push_back('\n');
-        }
-        std::print(stderr, "{}", msg);
-        return 1;
-    }
-    return 0;
-}
+    xcb_connection_t *connection = nullptr;
+    xcb_screen_t *screen = nullptr;
+    const xcb_setup_t *setup = nullptr;
+};

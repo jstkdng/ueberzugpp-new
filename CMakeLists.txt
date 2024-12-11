@@ -24,7 +24,7 @@ cmake_policy(SET CMP0146 OLD)
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-project(ueberzugpp LANGUAGES CXX VERSION 0.0.1)
+project(ueberzugpp LANGUAGES CXX C VERSION 0.0.1)
 
 add_executable(ueberzugpp)
 set_target_properties(ueberzugpp PROPERTIES
@@ -36,7 +36,9 @@ set_target_properties(ueberzugpp PROPERTIES
 )
 
 option(ENABLE_X11 "Enable X11 support" ON)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
 option(ENABLE_OPENCV "Enable OpenCV image processing" ON)
+option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
@@ -46,6 +48,11 @@ endif ()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
+
+if (ENABLE_OPENGL)
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(ueberzugpp PRIVATE OpenGL::OpenGL OpenGL::EGL)
+endif ()
 
 if (ENABLE_X11)
     pkg_check_modules(XCB REQUIRED IMPORTED_TARGET xcb)
@@ -61,14 +68,44 @@ if (ENABLE_X11)
 
     target_sources(ueberzugpp
         PRIVATE
-        src/xcb/connection.cpp
-        src/xcb/window.cpp
+            src/xcb/connection.cpp
+            src/xcb/window.cpp
+            src/context/x11_ctx.cpp
 
         PRIVATE
         FILE_SET HEADERS
         BASE_DIRS include/
         FILES
             include/xcb.hpp
+            include/context/x11_ctx.hpp
+    )
+endif ()
+
+if (ENABLE_WAYLAND)
+    find_package(ECM REQUIRED NO_MODULE)
+    list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+    find_package(Wayland REQUIRED COMPONENTS Client)
+    find_package(WaylandProtocols REQUIRED)
+    find_package(WaylandScanner REQUIRED)
+
+    ecm_add_wayland_client_protocol(ueberzugpp
+        PROTOCOL "${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml"
+        BASENAME "xdg-shell")
+
+    target_link_libraries(ueberzugpp
+        PRIVATE
+            Wayland::Client
+    )
+    target_sources(ueberzugpp
+        PRIVATE
+            src/context/wayland_ctx.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            include/context/wayland_ctx.hpp
     )
 endif ()
 

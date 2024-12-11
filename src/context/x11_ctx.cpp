@@ -16,35 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <print>
+#include <spdlog/spdlog.h>
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
 
-#include <CLI/Error.hpp>
+#include "context/x11_ctx.hpp"
+#include "os/os.hpp"
 
-#include "application.hpp"
-#include "cli/cli.hpp"
-
-#include "context/wayland_ctx.hpp"
-
-auto main(int argc, char *argv[]) -> int
+X11Context::X11Context()
 {
-    CliManager cli;
-    try {
-        cli.app.parse(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        return cli.app.exit(e);
-    }
+    connection = xcb_connect(nullptr, nullptr);
+    if (xcb_connection_has_error(connection) == 0) {
+        is_valid = true;
+        setup = xcb_get_setup(connection);
+        screen = xcb_setup_roots_iterator(setup).data;
 
-    WlContext ctx;
-
-    Application app(&cli);
-    auto run_ok = app.run();
-    if (!run_ok) {
-        auto msg = run_ok.error().lmessage();
-        if (msg.back() != '\n') {
-            msg.push_back('\n');
+        auto session_type = os::getenv("XDG_SESSION_TYPE").value_or("");
+        if (session_type == "wayland") {
+            SPDLOG_INFO("running xwayland");
+            is_xwayland = true;
         }
-        std::print(stderr, "{}", msg);
-        return 1;
     }
-    return 0;
+}
+
+X11Context::~X11Context()
+{
+    xcb_disconnect(connection);
 }

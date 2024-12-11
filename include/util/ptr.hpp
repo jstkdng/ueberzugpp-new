@@ -22,6 +22,7 @@
 #include <memory>
 #include <type_traits>
 
+/*
 template <auto &Fn>
 struct deleter_from_fn {
     template <typename T>
@@ -40,15 +41,18 @@ struct deleter_from_fn_null {
             Fn(const_cast<std::remove_const_t<T> *>(ptr));
         }
     }
-};
+};*/
+
+template <auto t>
+using deleter_fn = std::integral_constant<std::decay_t<decltype(t)>, t>;
 
 // custom unique pointer
-template <typename T, auto &Fn>
-using c_unique_ptr = std::unique_ptr<T, deleter_from_fn<Fn>>;
+template <typename T, auto fn>
+using c_unique_ptr = std::unique_ptr<T, deleter_fn<fn>>;
 
 // custom unique pointer that checks if null before deleting
-template <typename T, auto &Fn>
-using cn_unique_ptr = std::unique_ptr<T, deleter_from_fn_null<Fn>>;
+//template <typename T, auto &Fn>
+//using cn_unique_ptr = std::unique_ptr<T, deleter_from_fn_null<Fn>>;
 
 template <typename T>
 using unique_C_ptr = c_unique_ptr<T, std::free>;
