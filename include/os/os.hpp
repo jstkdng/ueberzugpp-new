@@ -21,11 +21,15 @@
 #include <optional>
 #include <string>
 
+#include "error.hpp"
+
 namespace os
 {
 
 auto strerror() -> std::string;
 auto getpid() -> int;
 auto getenv(const std::string &var) -> std::optional<std::string>;
+auto get_pid_process_name(int pid) -> std::string;
+auto get_pid_from_socket(int sockfd) -> Result<int>;
 
 } // namespace os

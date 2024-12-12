@@ -32,7 +32,8 @@ struct WlContext {
     WlContext();
 
     std::string compositor_name;
-    bool is_valid;
+    bool is_valid = false;
+    int display_fd = -1;
 
     c_unique_ptr<wl_display, wl_display_disconnect> w_display;
     c_unique_ptr<wl_registry, wl_registry_destroy> w_registry;

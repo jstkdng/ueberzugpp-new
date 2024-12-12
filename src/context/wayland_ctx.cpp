@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "context/wayland_ctx.hpp"
+#include "os/os.hpp"
 
 #include <spdlog/spdlog.h>
 #include <wayland-client-core.h>
@@ -27,7 +28,7 @@
 #include <string_view>
 
 constexpr wl_registry_listener registry_listener = {.global = WlContext::wl_registry_global,
-                                                    .global_remove = [](auto...) {}};
+                                                    .global_remove = [](auto...) { /*unused*/ }};
 
 constexpr xdg_wm_base_listener xdg_wm_base_listener = {.ping = WlContext::xdg_wm_base_ping};
 
@@ -38,6 +39,13 @@ WlContext::WlContext()
         w_registry.reset(wl_display_get_registry(w_display.get()));
         wl_registry_add_listener(w_registry.get(), &registry_listener, this);
         wl_display_roundtrip(w_display.get());
+
+        display_fd = wl_display_get_fd(w_display.get());
+        auto fd_pid = os::get_pid_from_socket(display_fd);
+        if (fd_pid) {
+            compositor_name = os::get_pid_process_name(*fd_pid);
+            is_valid = true;
+        }
     }
 }
 
