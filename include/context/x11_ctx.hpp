@@ -27,6 +27,7 @@ struct X11Context {
 
     bool is_valid = false;
     bool is_xwayland = false;
+    int connection_fd = -1;
 
     xcb_connection_t *connection = nullptr;
     xcb_screen_t *screen = nullptr;

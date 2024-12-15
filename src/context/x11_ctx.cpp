@@ -30,6 +30,12 @@ X11Context::X11Context()
         is_valid = true;
         setup = xcb_get_setup(connection);
         screen = xcb_setup_roots_iterator(setup).data;
+        connection_fd = xcb_get_file_descriptor(connection);
+
+        auto fd_pid = os::get_pid_from_socket(connection_fd);
+        if (fd_pid) {
+            SPDLOG_INFO("name: {}", os::get_pid_process_name(*fd_pid));
+        }
 
         auto session_type = os::getenv("XDG_SESSION_TYPE").value_or("");
         if (session_type == "wayland") {

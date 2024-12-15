@@ -24,6 +24,7 @@
 #include "cli/cli.hpp"
 
 #include "context/wayland_ctx.hpp"
+#include "context/x11_ctx.hpp"
 
 auto main(int argc, char *argv[]) -> int
 {
@@ -35,6 +36,7 @@ auto main(int argc, char *argv[]) -> int
     }
 
     WlContext ctx;
+    X11Context ctx2;
 
     Application app(&cli);
     auto run_ok = app.run();

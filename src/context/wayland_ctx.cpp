@@ -27,8 +27,11 @@
 #include <cstdint>
 #include <string_view>
 
+template <typename... Args>
+void wl_ignore([[maybe_unused]] Args... args) {};
+
 constexpr wl_registry_listener registry_listener = {.global = WlContext::wl_registry_global,
-                                                    .global_remove = [](auto...) { /*unused*/ }};
+                                                    .global_remove = wl_ignore};
 
 constexpr xdg_wm_base_listener xdg_wm_base_listener = {.ping = WlContext::xdg_wm_base_ping};
 
