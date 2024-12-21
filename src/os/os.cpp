@@ -16,6 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "os/os.hpp"
+#include "error.hpp"
+
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <cerrno>
 #include <cstdlib>
 #include <format>
@@ -23,12 +30,6 @@
 #include <optional>
 #include <string>
 #include <system_error>
-
-#include <sys/socket.h>
-#include <unistd.h>
-
-#include "error.hpp"
-#include "os/os.hpp"
 
 namespace os
 {
@@ -71,6 +72,23 @@ auto get_pid_from_socket(int sockfd) -> Result<int>
         return Err("getsockopt");
     }
     return ucred.pid;
+}
+
+auto close_stderr() -> Result<void>
+{
+    const int nullfd = open("/dev/null", O_WRONLY);
+    if (nullfd == -1) {
+        return Err("could not open /dev/null");
+    }
+    int res = dup2(nullfd, STDERR_FILENO);
+    if (res == -1) {
+        return Err("could not reassign stderr");
+    }
+    res = close(nullfd);
+    if (res == -1) {
+        return Err("could not close /dev/null fd");
+    }
+    return {};
 }
 
 } // namespace os

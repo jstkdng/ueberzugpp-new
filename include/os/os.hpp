@@ -31,5 +31,6 @@ auto getpid() -> int;
 auto getenv(const std::string &var) -> std::optional<std::string>;
 auto get_pid_process_name(int pid) -> std::string;
 auto get_pid_from_socket(int sockfd) -> Result<int>;
+auto close_stderr() -> Result<void>;
 
 } // namespace os

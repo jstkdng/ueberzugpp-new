@@ -19,6 +19,7 @@
 #include "logging.hpp"
 #include "config.hpp"
 #include "error.hpp"
+#include "os/os.hpp"
 
 #include <spdlog/common.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -26,10 +27,6 @@
 
 auto LoggingManager::init(const ProgramConfig &config) -> Result<void>
 {
-    if (config.logging.silent) {
-        spdlog::set_level(spdlog::level::off);
-        return {};
-    }
 
 #ifdef DEBUG
     auto level = spdlog::level::trace;
@@ -47,5 +44,8 @@ auto LoggingManager::init(const ProgramConfig &config) -> Result<void>
         return Err("LoggingManager", ex);
     }
 
+    if (config.logging.silent) {
+        return os::close_stderr();
+    }
     return {};
 }
