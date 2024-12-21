@@ -16,14 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <format>
-#include <string_view>
-#include <source_location>
-#include <system_error>
-#include <string>
-#include <utility>
-
 #include "error.hpp"
+
+#include <exception>
+#include <format>
+#include <source_location>
+#include <string>
+#include <string_view>
+#include <system_error>
+#include <utility>
 
 Error::Error(std::source_location location, std::string prefix, std::errc errc) :
     prefix_(std::move(prefix)),

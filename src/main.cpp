@@ -16,18 +16,35 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <print>
+#include "cli/cli.hpp"
+#include "config.hpp"
+#include "logging.hpp"
 
 #include <CLI/Error.hpp>
 
+#include <print>
+
+/*
 #include "application.hpp"
-#include "cli/cli.hpp"
 
 #include "context/wayland_ctx.hpp"
-#include "context/x11_ctx.hpp"
+#include "context/x11_ctx.hpp"*/
 
 auto main(int argc, char *argv[]) -> int
 {
+    ProgramConfig config;
+    auto read_config = config.read_config_file();
+    if (!read_config) {
+        std::print(stderr, "{}\n", read_config.error().lmessage());
+        return 1;
+    }
+
+    auto log_init = LoggingManager::init(config);
+    if (!log_init) {
+        std::print(stderr, "{}\n", log_init.error().lmessage());
+        return 1;
+    }
+
     CliManager cli;
     try {
         cli.app.parse(argc, argv);
@@ -35,6 +52,7 @@ auto main(int argc, char *argv[]) -> int
         return cli.app.exit(e);
     }
 
+    /*
     WlContext ctx;
     X11Context ctx2;
 
@@ -47,6 +65,6 @@ auto main(int argc, char *argv[]) -> int
         }
         std::print(stderr, "{}", msg);
         return 1;
-    }
+    }*/
     return 0;
 }

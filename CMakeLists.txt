@@ -143,6 +143,7 @@ target_sources(ueberzugpp
         src/terminal.cpp
         src/application.cpp
         src/config.cpp
+        src/logging.cpp
         src/cli/cli.cpp
 
     PRIVATE
@@ -156,8 +157,9 @@ target_sources(ueberzugpp
         include/os/process.hpp
         include/os/fd.hpp
         include/os/os.hpp
-        include/config/config.hpp
+        include/config.hpp
         include/error.hpp
+        include/logging.hpp
         include/terminal.hpp
         include/application.hpp
         include/cli/cli.hpp

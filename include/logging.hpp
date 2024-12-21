@@ -18,33 +18,11 @@
 
 #pragma once
 
-#include <string>
-
+#include "config.hpp"
 #include "error.hpp"
 
-class Config
+class LoggingManager
 {
   public:
-    Config();
-    auto read_config_file() -> Result<void>;
-
-    // some globals
-    static const int waitms_ = 20;
-
-    // configurable with config file
-    bool silent = false;
-    bool no_cache = false;
-    bool no_opencv = false;
-    bool use_opengl = false;
-    std::string output;
-
-    // configurable with cmd line switches
-    bool use_escape_codes = false;
-    bool no_stdin = false;
-    bool origin_center = false;
-    std::string pid_file;
-    std::string parser;
-
-  private:
-    std::string config_file;
+    static auto init(const ProgramConfig &config) -> Result<void>;
 };

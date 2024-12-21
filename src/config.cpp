@@ -16,26 +16,27 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "config.hpp"
+
 #include <filesystem>
 #include <format>
 #include <fstream>
 
 #include <json/json.h>
 
-#include "config/config.hpp"
-#include "os/os.hpp"
 #include "error.hpp"
+#include "os/os.hpp"
 
 namespace fs = std::filesystem;
 
-Config::Config()
+ProgramConfig::ProgramConfig()
 {
     const auto home = os::getenv("HOME").value_or(fs::temp_directory_path());
     const auto config_home = os::getenv("XDG_CONFIG_HOME").value_or(std::format("{}/.config", home));
     config_file = std::format("{}/ueberzugpp/config.json", config_home);
 }
 
-auto Config::read_config_file() -> Result<void>
+auto ProgramConfig::read_config_file() -> Result<void>
 {
     if (!fs::exists(config_file)) {
         return {};
@@ -48,18 +49,20 @@ auto Config::read_config_file() -> Result<void>
         return Err(reader.getFormattedErrorMessages());
     }
 
-    const auto *layer = json.find("layer");
-    if (layer == nullptr) {
-        return {};
-    }
-
     try {
-        silent = layer->get("silent", false).asBool();
-        output = layer->get("output", "").asCString();
-        no_cache = layer->get("no-cache", false).asBool();
-        no_opencv = layer->get("no-opencv", false).asBool();
-        use_opengl = layer->get("opengl", false).asBool();
-    } catch (const Json::LogicError& ex) {
+        const auto *logging_obj = json.find("logging");
+        if (logging_obj != nullptr) {
+            logging.silent = logging_obj->get("silent", false).asBool();
+        }
+
+        const auto *layer_obj = json.find("layer");
+        if (layer_obj != nullptr) {
+            layer.output = layer_obj->get("output", "").asCString();
+            layer.no_cache = layer_obj->get("no-cache", false).asBool();
+            layer.no_opencv = layer_obj->get("no-opencv", false).asBool();
+            layer.use_opengl = layer_obj->get("opengl", false).asBool();
+        }
+    } catch (const Json::LogicError &ex) {
         return Err("could not parse config file", ex);
     }
 

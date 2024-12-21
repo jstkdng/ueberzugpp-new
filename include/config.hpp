@@ -18,29 +18,41 @@
 
 #pragma once
 
-#include <atomic>
-
-#include "cli/cli.hpp"
-#include "cli/command.hpp"
 #include "error.hpp"
-#include "terminal.hpp"
 
-class Application
+#include <string>
+
+struct LayerConfig {
+    bool no_cache = false;
+    bool no_opencv = false;
+    bool use_opengl = false;
+    std::string output;
+
+    bool use_escape_codes = false;
+    bool no_stdin = false;
+    bool origin_center = false;
+    std::string pid_file;
+    std::string parser;
+};
+
+struct LoggingConfig {
+    bool silent = false;
+    std::string base_path;
+};
+
+class ProgramConfig
 {
   public:
-    explicit Application(CliManager *cli);
-    auto run() -> Result<void>;
-    auto init() -> Result<void>;
+    ProgramConfig();
+    auto read_config_file() -> Result<void>;
 
-    static void signal_handler(int signal);
-    static void terminate();
-    static auto setup_signal_handler() -> Result<void>;
-    static auto setup_logger() -> Result<void>;
+    // some globals
+    static const int waitms_ = 20;
 
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
+    // configurable with config file
+    LayerConfig layer;
+    LoggingConfig logging;
 
   private:
-    CliManager *cli_;
-    Terminal terminal_;
-    CommandQueue queue_;
+    std::string config_file;
 };

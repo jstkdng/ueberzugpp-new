@@ -21,8 +21,8 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include "error.hpp"
 #include "application.hpp"
+#include "error.hpp"
 
 void Application::signal_handler([[maybe_unused]] int signal)
 {
@@ -37,8 +37,7 @@ Application::Application(CliManager *cli) :
 
 auto Application::init() -> Result<void>
 {
-    return config.read_config_file()
-        .and_then(setup_logger)
+    return setup_logger()
         .and_then(setup_signal_handler)
         .and_then([this] { return terminal_.init(); })
         .and_then([] -> Result<void> {
@@ -49,22 +48,6 @@ auto Application::init() -> Result<void>
 
 auto Application::setup_logger() -> Result<void>
 {
-#ifdef DEBUG
-    auto level = spdlog::level::trace;
-#else
-    auto level = spdlog::level::info;
-#endif
-
-    spdlog::set_level(level);
-    spdlog::flush_on(level);
-
-    try {
-        const auto logger = spdlog::stdout_color_mt("main");
-        spdlog::set_default_logger(logger);
-    } catch (const spdlog::spdlog_ex &ex) {
-        return Err(ex.what());
-    }
-
     return {};
 }
 
