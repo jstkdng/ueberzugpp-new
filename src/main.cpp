@@ -1,4 +1,4 @@
-// Display images inside a terminal
+// Display images in the terminal
 // Copyright (C) 2024  JustKidding
 //
 // This file is part of ueberzugpp.

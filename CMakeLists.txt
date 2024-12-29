@@ -1,6 +1,6 @@
 # cmake-format: off
 
-# Display images inside a terminal
+# Display images in the terminal
 # Copyright (C) 2024  JustKidding
 #
 # This file is part of ueberzugpp.
@@ -27,18 +27,31 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 project(ueberzugpp LANGUAGES CXX C VERSION 0.0.1)
 
 add_executable(ueberzugpp)
-set_target_properties(ueberzugpp PROPERTIES
-    CXX_STANDARD 23
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-    CXX_SCAN_FOR_MODULES OFF
-    EXPORT_COMPILE_COMMANDS ON
+set_target_properties(
+    ueberzugpp
+    PROPERTIES
+        CXX_STANDARD 23
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+        CXX_SCAN_FOR_MODULES OFF
+        EXPORT_COMPILE_COMMANDS ON
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
     target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
 endif ()
+
+target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
+
+# reproducible builds
+string(TIMESTAMP BUILD_DATE UTC)
+target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
+
+option(ENABLE_X11 "Enable X11 support" ON)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
+option(ENABLE_OPENCV "Enable OpenCV image processing" ON)
+option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
 set(CLI11_PRECOMPILED ON)
 add_subdirectory(third_party/CLI11-2.4.2)
@@ -47,7 +60,39 @@ set(SPDLOG_USE_STD_FORMAT ON)
 set(SPDLOG_SYSTEM_INCLUDES ON)
 add_subdirectory(third_party/spdlog-1.15.0)
 
-target_sources(ueberzugpp PRIVATE src/main.cpp)
+find_package(ECM REQUIRED NO_MODULE)
+list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+if (ENABLE_X11)
+    find_package(XCB REQUIRED COMPONENTS XCB SHM IMAGE RES)
+    target_link_libraries(ueberzugpp PRIVATE XCB::XCB XCB::SHM XCB::IMAGE XCB::RES)
+endif ()
+
+if (ENABLE_WAYLAND)
+    add_library(wayland-protocols STATIC)
+
+    find_package(Wayland REQUIRED COMPONENTS Client)
+    find_package(WaylandProtocols REQUIRED)
+    find_package(WaylandScanner REQUIRED)
+
+    ecm_add_wayland_client_protocol(wayland-protocols
+        PROTOCOL "${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml"
+        BASENAME "xdg-shell")
+
+    target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
+endif ()
+
+target_sources(
+    ueberzugpp
+    PRIVATE
+        src/main.cpp
+
+    PRIVATE
+    FILE_SET HEADERS
+    BASE_DIRS include/
+    FILES
+        include/result.hpp
+)
 target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog)
 
 # cmake-format: on
