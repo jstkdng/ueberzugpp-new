@@ -40,6 +40,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
 endif ()
 
+set(CLI11_PRECOMPILED ON)
+add_subdirectory(lib/CLI11-2.4.2)
+
 target_sources(ueberzugpp PRIVATE src/main.cpp)
+target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11)
 
 # cmake-format: on

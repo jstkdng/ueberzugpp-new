@@ -16,6 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-int main() {
+#include <CLI/CLI.hpp>
+
+auto main(int argc, char *argv[]) -> int
+{
+    CLI::App app{"Display images in the terminal", "ueberzugpp"};
+    CLI11_PARSE(app, argc, argv);
     return 0;
 }
