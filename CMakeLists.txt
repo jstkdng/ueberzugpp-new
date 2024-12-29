@@ -42,11 +42,14 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
 endif ()
 
-target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
-
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)
 target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
+
+configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
+target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
 option(ENABLE_X11 "Enable X11 support" ON)
 option(ENABLE_WAYLAND "Enable wayland support" ON)
@@ -59,6 +62,10 @@ add_subdirectory(third_party/CLI11-2.4.2)
 set(SPDLOG_USE_STD_FORMAT ON)
 set(SPDLOG_SYSTEM_INCLUDES ON)
 add_subdirectory(third_party/spdlog-1.15.0)
+target_compile_definitions(ueberzugpp PRIVATE
+    $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
+    $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
+)
 
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})

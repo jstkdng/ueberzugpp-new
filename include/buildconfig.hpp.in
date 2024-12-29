@@ -16,20 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "buildconfig.hpp"
+#pragma once
 
-#include <CLI/CLI.hpp>
+#cmakedefine ENABLE_X11
+#cmakedefine ENABLE_OPENCV
+#cmakedefine ENABLE_WAYLAND
+#cmakedefine ENABLE_OPENGL
 
-auto main(int argc, char *argv[]) -> int
-{
-    CLI::App app{"Display images in the terminal", "ueberzugpp"};
-    app.set_version_flag("-V,--version", version_str);
-
-    try {
-        app.parse(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        return app.exit(e);
-    }
-
-    return 0;
-}
+constexpr auto build_date = "@BUILD_DATE@";
+constexpr auto version_str = "ueberzugpp @CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
