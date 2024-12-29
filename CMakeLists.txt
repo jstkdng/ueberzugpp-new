@@ -41,9 +41,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 
 set(CLI11_PRECOMPILED ON)
-add_subdirectory(lib/CLI11-2.4.2)
+add_subdirectory(third_party/CLI11-2.4.2)
+
+set(SPDLOG_USE_STD_FORMAT ON)
+set(SPDLOG_SYSTEM_INCLUDES ON)
+add_subdirectory(third_party/spdlog-1.15.0)
 
 target_sources(ueberzugpp PRIVATE src/main.cpp)
-target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11)
+target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog)
 
 # cmake-format: on
