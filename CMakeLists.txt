@@ -56,12 +56,7 @@ option(ENABLE_WAYLAND "Enable wayland support" ON)
 option(ENABLE_OPENCV "Enable OpenCV image processing" ON)
 option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
-set(CLI11_PRECOMPILED ON)
-add_subdirectory(third_party/CLI11-2.4.2)
-
-set(SPDLOG_USE_STD_FORMAT ON)
-set(SPDLOG_SYSTEM_INCLUDES ON)
-add_subdirectory(third_party/spdlog-1.15.0)
+add_subdirectory(third_party/)
 target_compile_definitions(ueberzugpp PRIVATE
     $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
     $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
@@ -100,6 +95,6 @@ target_sources(
     FILES
         include/result.hpp
 )
-target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog)
+target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog nlohmann_json::nlohmann_json)
 
 # cmake-format: on
