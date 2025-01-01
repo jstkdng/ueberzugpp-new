@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "buildconfig.hpp"
+#include "terminal/context.hpp"
 
 #include <CLI/CLI.hpp>
 
@@ -30,6 +31,9 @@ auto main(int argc, char *argv[]) -> int
     } catch (const CLI::ParseError &e) {
         return app.exit(e);
     }
+
+    upp::terminal::Context terminal;
+    terminal.open_first_pty();
 
     return 0;
 }

@@ -89,6 +89,8 @@ target_sources(
     PRIVATE
         src/main.cpp
         src/unix/fd.cpp
+        src/os/os.cpp
+        src/os/process.cpp
         src/terminal/context.cpp
 
     PRIVATE
@@ -98,6 +100,7 @@ target_sources(
         include/result.hpp
         include/unix.hpp
         include/terminal/context.hpp
+        include/os/os.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog nlohmann_json::nlohmann_json)
 

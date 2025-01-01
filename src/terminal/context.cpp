@@ -17,8 +17,14 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "terminal/context.hpp"
+#include "os/os.hpp"
 
+#include <fcntl.h>
 #include <sys/stat.h>
+
+#include <spdlog/spdlog.h>
+
+#include <algorithm>
 
 namespace upp::terminal
 {
@@ -27,6 +33,26 @@ void Context::open_first_pty()
 {
     struct stat stat_info {
     };
+    auto tree = os::Process::get_tree(os::getpid());
+    std::ranges::reverse(tree);
+
+    for (const auto &proc : tree) {
+        const auto &path = proc.pty_path;
+        if (stat(path.c_str(), &stat_info) == -1) {
+            SPDLOG_DEBUG("stat {}: {}", path, os::strerror());
+            continue;
+        }
+        if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
+            SPDLOG_DEBUG("device {} != {}", proc.tty_nr, stat_info.st_rdev);
+            continue;
+        }
+        pty_fd = open(path.c_str(), O_RDONLY | O_NOCTTY);
+        if (!pty_fd) {
+            SPDLOG_DEBUG("open: {}", os::strerror());
+            continue;
+        }
+        pid = proc.pid;
+    }
 };
 
 }; // namespace upp::terminal

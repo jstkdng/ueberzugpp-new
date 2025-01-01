@@ -18,35 +18,30 @@
 
 #pragma once
 
-namespace upp::unix
+#include <string>
+#include <vector>
+
+namespace upp::os
 {
 
-class fd
-{
-  public:
-    ~fd();
+struct Process {
+    explicit Process(int pid);
 
-    // rule of 5
-    fd() = default;
-    fd(const fd &other) = delete;
-    auto operator=(const fd &other) -> fd & = delete;
-    fd(fd &&other) noexcept;
-    auto operator=(fd &&other) noexcept -> fd &;
+    static auto get_tree(int pid) -> std::vector<Process>;
+    static auto get_pid_tree(int pid) -> std::vector<int>;
 
-    explicit fd(int descriptor);
+    int pid;
+    int ppid;
+    int tty_nr;
+    int minor_dev;
+    std::string pty_path;
 
-    auto operator=(int new_fd) -> fd &;
-    explicit operator bool() const;
-
-    [[nodiscard]] auto dup() const -> fd;
-    [[nodiscard]] auto get() const -> int;
-
-  private:
-    int descriptor = -1;
+    char state;
+    int pgrp;
+    int session;
 };
 
-namespace socket
-{
-};
+auto getpid() -> int;
+auto strerror() -> std::string;
 
-}; // namespace upp::unix
+}; // namespace upp::os

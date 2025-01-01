@@ -16,61 +16,26 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "unix.hpp"
+#include "os/os.hpp"
 
 #include <unistd.h>
 
-#include <utility>
+#include <cerrno>
+#include <string>
+#include <system_error>
 
-namespace upp::unix
+namespace upp::os
 {
 
-fd::fd(int descriptor) :
-    descriptor(descriptor)
+auto getpid() -> int
 {
+    return ::getpid();
 }
 
-auto fd::operator=(int new_fd) -> fd &
+auto strerror() -> std::string
 {
-    fd temp(new_fd);
-    std::swap(descriptor, temp.descriptor);
-    return *this;
+    const std::error_code code(errno, std::generic_category());
+    return code.message();
 }
 
-fd::fd(fd &&other) noexcept
-{
-    descriptor = other.descriptor;
-    other.descriptor = -1;
-}
-
-auto fd::operator=(fd &&other) noexcept -> fd &
-{
-    fd temp(std::move(other));
-    std::swap(descriptor, temp.descriptor);
-    return *this;
-}
-
-fd::operator bool() const
-{
-    return descriptor != -1;
-}
-
-fd::~fd()
-{
-    if (descriptor > 0) {
-        close(descriptor);
-    }
-}
-
-auto fd::get() const -> int
-{
-    return descriptor;
-};
-
-auto fd::dup() const -> fd
-{
-    int new_fd = ::dup(descriptor);
-    return fd{new_fd};
-};
-
-}; // namespace upp::unix
+}; // namespace upp::os
