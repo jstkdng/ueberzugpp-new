@@ -65,12 +65,11 @@ fd::~fd()
 auto fd::get() const -> int
 {
     return descriptor;
-};
+}
 
 auto fd::dup() const -> fd
 {
-    int new_fd = ::dup(descriptor);
-    return fd{new_fd};
-};
+    return fd{::dup(descriptor)};
+}
 
-}; // namespace upp::unix
+} // namespace upp::unix

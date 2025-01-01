@@ -39,4 +39,4 @@ class Application
     terminal::Context terminal;
 };
 
-}; // namespace upp
+} // namespace upp

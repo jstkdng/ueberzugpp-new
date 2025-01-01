@@ -31,8 +31,7 @@ namespace upp::terminal
 
 void Context::open_first_pty()
 {
-    struct stat stat_info {
-    };
+    struct stat stat_info{};
     auto tree = os::Process::get_tree(os::getpid());
     std::ranges::reverse(tree);
 
@@ -53,6 +52,6 @@ void Context::open_first_pty()
         }
         pid = proc.pid;
     }
-};
+}
 
-}; // namespace upp::terminal
+} // namespace upp::terminal

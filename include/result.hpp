@@ -76,7 +76,7 @@ class Error
 template <class T>
 using Result = std::expected<T, Error>;
 
-}; // namespace upp
+} // namespace upp
 
 // NOLINTNEXTLINE
 #define Err(...) std::unexpected<upp::Error>(std::in_place, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)

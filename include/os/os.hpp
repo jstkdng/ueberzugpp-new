@@ -44,4 +44,4 @@ struct Process {
 auto getpid() -> int;
 auto strerror() -> std::string;
 
-}; // namespace upp::os
+} // namespace upp::os

@@ -48,7 +48,7 @@ struct iotctl {
     int ypixel;
 };
 
-}; // namespace geometry
+} // namespace geometry
 
 class Geometry
 {
@@ -67,4 +67,4 @@ class Context
     int pid;
 };
 
-}; // namespace upp::terminal
+} // namespace upp::terminal

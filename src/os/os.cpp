@@ -38,4 +38,4 @@ auto strerror() -> std::string
     return code.message();
 }
 
-}; // namespace upp::os
+} // namespace upp::os

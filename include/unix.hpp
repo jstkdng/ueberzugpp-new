@@ -47,6 +47,6 @@ class fd
 
 namespace socket
 {
-};
+}
 
-}; // namespace upp::unix
+} // namespace upp::unix
