@@ -16,30 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "buildconfig.hpp"
 #include "application.hpp"
+#include "result.hpp"
 
 #include <CLI/CLI.hpp>
 
-#include <print>
-
-auto main(int argc, char *argv[]) -> int
+namespace upp
 {
-    CLI::App app{"Display images in the terminal", "ueberzugpp"};
-    app.set_version_flag("-V,--version", version_str);
 
-    try {
-        app.parse(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        return app.exit(e);
-    }
-
-    upp::Application application(&app);
-    auto result = application.run();
-    if (!result) {
-        std::println(stderr, "{}", result.error().lmessage());
-        return 1;
-    }
-
-    return 0;
+Application::Application(CLI::App *app) :
+    app(app)
+{
 }
+
+auto Application::run() -> Result<void>
+{
+    terminal.open_first_pty();
+    return {};
+}
+
+} // namespace upp

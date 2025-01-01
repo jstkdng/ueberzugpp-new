@@ -88,6 +88,7 @@ target_sources(
     ueberzugpp
     PRIVATE
         src/main.cpp
+        src/application.cpp
         src/unix/fd.cpp
         src/os/os.cpp
         src/os/process.cpp
@@ -97,6 +98,7 @@ target_sources(
     FILE_SET HEADERS
     BASE_DIRS include/
     FILES
+        include/application.hpp
         include/result.hpp
         include/unix.hpp
         include/terminal/context.hpp
