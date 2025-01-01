@@ -18,7 +18,7 @@
 
 #pragma once
 
-namespace upp::os::unix
+namespace upp::unix
 {
 
 class fd
@@ -48,4 +48,4 @@ namespace socket
 {
 };
 
-}; // namespace upp::os::unix
+}; // namespace upp::unix

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "os/unix.hpp"
+#include "unix.hpp"
 
 #include <string>
 #include <utility>
@@ -63,7 +63,7 @@ class Context
 
   private:
     std::string pty_path;
-    os::unix::fd pty_fd;
+    unix::fd pty_fd;
     int pid;
 };
 

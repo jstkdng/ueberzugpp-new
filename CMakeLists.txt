@@ -88,7 +88,7 @@ target_sources(
     ueberzugpp
     PRIVATE
         src/main.cpp
-        src/os/unix/fd.cpp
+        src/unix/fd.cpp
         src/terminal/context.cpp
 
     PRIVATE
@@ -96,7 +96,7 @@ target_sources(
     BASE_DIRS include/
     FILES
         include/result.hpp
-        include/os/unix.hpp
+        include/unix.hpp
         include/terminal/context.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog nlohmann_json::nlohmann_json)
