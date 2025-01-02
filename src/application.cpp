@@ -20,6 +20,9 @@
 #include "result.hpp"
 
 #include <CLI/CLI.hpp>
+#include <spdlog/common.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 namespace upp
 {
@@ -31,7 +34,27 @@ Application::Application(CLI::App *app) :
 
 auto Application::run() -> Result<void>
 {
-    terminal.open_first_pty();
+    return setup_logging().and_then([this] -> Result<void> { return terminal.open_first_pty(); });
+}
+
+auto Application::setup_logging() -> Result<void>
+{
+#ifdef DEBUG
+    auto level = spdlog::level::trace;
+#else
+    auto level = spdlog::level::info;
+#endif
+
+    spdlog::set_level(level);
+    spdlog::flush_on(level);
+
+    try {
+        logger = spdlog::stdout_color_mt("main");
+        logger->set_pattern("[%Y-%m-%d %T.%F] [%^%L%$] [%@] %v");
+        spdlog::set_default_logger(logger);
+    } catch (const spdlog::spdlog_ex &ex) {
+        return Err("spdlog", ex);
+    }
     return {};
 }
 

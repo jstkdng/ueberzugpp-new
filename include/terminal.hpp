@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "result.hpp"
 #include "unix.hpp"
 
 #include <string>
@@ -59,12 +60,12 @@ class Geometry
 class Context
 {
   public:
-    void open_first_pty();
+    auto open_first_pty() -> Result<void>;
 
   private:
     std::string pty_path;
     unix::fd pty_fd;
-    int pid;
+    int pid = -1;
 };
 
 } // namespace upp::terminal

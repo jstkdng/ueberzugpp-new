@@ -19,9 +19,12 @@
 #pragma once
 
 #include "result.hpp"
-#include "terminal/context.hpp"
+#include "terminal.hpp"
 
 #include <CLI/CLI.hpp>
+#include <spdlog/logger.h>
+
+#include <memory>
 
 namespace upp
 {
@@ -31,12 +34,14 @@ class Application
   public:
     explicit Application(CLI::App *app);
 
+    auto setup_logging() -> Result<void>;
     auto run() -> Result<void>;
 
   private:
     CLI::App *app = nullptr;
-
     terminal::Context terminal;
+
+    std::shared_ptr<spdlog::logger> logger;
 };
 
 } // namespace upp

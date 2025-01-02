@@ -16,8 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "terminal/context.hpp"
+#include "terminal.hpp"
 #include "os/os.hpp"
+#include "result.hpp"
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -29,9 +30,10 @@
 namespace upp::terminal
 {
 
-void Context::open_first_pty()
+auto Context::open_first_pty() -> Result<void>
 {
-    struct stat stat_info{};
+    struct stat stat_info {
+    };
     auto tree = os::Process::get_tree(os::getpid());
     std::ranges::reverse(tree);
 
@@ -51,7 +53,10 @@ void Context::open_first_pty()
             continue;
         }
         pid = proc.pid;
+        SPDLOG_INFO("PTY={}", path);
+        return {};
     }
+    return Err("could not open terminal");
 }
 
 } // namespace upp::terminal

@@ -44,7 +44,7 @@ endif ()
 
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)
-target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
+target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/src/=")
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
@@ -101,7 +101,7 @@ target_sources(
         include/application.hpp
         include/result.hpp
         include/unix.hpp
-        include/terminal/context.hpp
+        include/terminal.hpp
         include/os/os.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog nlohmann_json::nlohmann_json)
