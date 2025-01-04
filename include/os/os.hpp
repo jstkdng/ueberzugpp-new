@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -43,5 +44,6 @@ struct Process {
 
 auto getpid() -> int;
 auto strerror() -> std::string;
+auto getenv(const std::string &var) -> std::optional<std::string>;
 
 } // namespace upp::os

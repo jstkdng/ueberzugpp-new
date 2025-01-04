@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "buildconfig.hpp"
 #include "application.hpp"
+#include "buildconfig.hpp"
 
 #include <CLI/CLI.hpp>
 

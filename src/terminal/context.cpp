@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "terminal.hpp"
 #include "os/os.hpp"
 #include "result.hpp"
+#include "terminal.hpp"
 
 #include <fcntl.h>
 #include <sys/stat.h>

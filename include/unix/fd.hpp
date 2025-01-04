@@ -18,54 +18,31 @@
 
 #pragma once
 
-#include "result.hpp"
-#include "unix/fd.hpp"
-
-#include <string>
-#include <utility>
-
-namespace upp::terminal
+namespace upp::unix
 {
 
-namespace geometry
-{
-
-struct x11 {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct wayland {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct iotctl {
-    int cols;
-    int rows;
-    int xpixel;
-    int ypixel;
-};
-
-} // namespace geometry
-
-class Geometry
+class fd
 {
   public:
-    Geometry(int pty_fd, int pid);
-};
+    ~fd();
 
-class Context
-{
-  public:
-    auto open_first_pty() -> Result<void>;
+    // rule of 5
+    fd() = default;
+    fd(const fd &other) = delete;
+    auto operator=(const fd &other) -> fd & = delete;
+    fd(fd &&other) noexcept;
+    auto operator=(fd &&other) noexcept -> fd &;
+
+    explicit fd(int descriptor);
+
+    auto operator=(int new_fd) -> fd &;
+    explicit operator bool() const;
+
+    [[nodiscard]] auto dup() const -> fd;
+    [[nodiscard]] auto get() const -> int;
 
   private:
-    std::string pty_path;
-    unix::fd pty_fd;
-    int pid = -1;
+    int descriptor = -1;
 };
 
-} // namespace upp::terminal
+} // namespace upp::unix

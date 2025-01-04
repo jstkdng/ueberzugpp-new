@@ -21,6 +21,8 @@
 #include <unistd.h>
 
 #include <cerrno>
+#include <cstdlib>
+#include <optional>
 #include <string>
 #include <system_error>
 
@@ -36,6 +38,15 @@ auto strerror() -> std::string
 {
     const std::error_code code(errno, std::generic_category());
     return code.message();
+}
+
+auto getenv(const std::string &var) -> std::optional<std::string>
+{
+    const char *env_p = std::getenv(var.c_str()); // NOLINT
+    if (env_p == nullptr) {
+        return {};
+    }
+    return env_p;
 }
 
 } // namespace upp::os

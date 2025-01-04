@@ -18,35 +18,28 @@
 
 #pragma once
 
-namespace upp::unix
+#include "result.hpp"
+#include "unix/fd.hpp"
+
+#include <cstddef>
+#include <span>
+#include <string>
+#include <string_view>
+
+namespace upp::unix::socket
 {
 
-class fd
+class Client
 {
   public:
-    ~fd();
-
-    // rule of 5
-    fd() = default;
-    fd(const fd &other) = delete;
-    auto operator=(const fd &other) -> fd & = delete;
-    fd(fd &&other) noexcept;
-    auto operator=(fd &&other) noexcept -> fd &;
-
-    explicit fd(int descriptor);
-
-    auto operator=(int new_fd) -> fd &;
-    explicit operator bool() const;
-
-    [[nodiscard]] auto dup() const -> fd;
-    [[nodiscard]] auto get() const -> int;
+    auto connect(std::string_view endpoint) -> Result<void>;
+    [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> Result<void>;
+    [[nodiscard]] auto read(std::span<std::byte> buffer) const -> Result<void>;
+    [[nodiscard]] auto read_until_empty() const -> std::string;
 
   private:
-    int descriptor = -1;
+    fd sockfd;
+    std::string endpoint;
 };
 
-namespace socket
-{
-}
-
-} // namespace upp::unix
+} // namespace upp::unix::socket

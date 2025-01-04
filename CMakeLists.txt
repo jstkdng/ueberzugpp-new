@@ -90,6 +90,7 @@ target_sources(
         src/main.cpp
         src/application.cpp
         src/unix/fd.cpp
+        src/unix/socket/client.cpp
         src/os/os.cpp
         src/os/process.cpp
         src/terminal/context.cpp
@@ -100,7 +101,8 @@ target_sources(
     FILES
         include/application.hpp
         include/result.hpp
-        include/unix.hpp
+        include/unix/fd.hpp
+        include/unix/socket.hpp
         include/terminal.hpp
         include/os/os.hpp
 )
