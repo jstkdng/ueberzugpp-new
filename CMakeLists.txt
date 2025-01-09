@@ -106,6 +106,6 @@ target_sources(
         include/terminal.hpp
         include/os/os.hpp
 )
-target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog nlohmann_json::nlohmann_json)
+target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog glaze::glaze)
 
 # cmake-format: on
