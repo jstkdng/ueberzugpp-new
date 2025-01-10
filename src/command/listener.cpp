@@ -16,56 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "command.hpp"
+#include "util/thread.hpp"
 
-#include "unix/fd.hpp"
-#include "util/result.hpp"
-
-#include <string>
-#include <utility>
-
-namespace upp::terminal
+namespace upp::command
 {
 
-namespace geometry
+void Listener::wait_for_input_on_stdin(const std::stop_token &token)
 {
+    while (!token.stop_requested()) {
+    }
+}
 
-struct x11 {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct wayland {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct iotctl {
-    int cols;
-    int rows;
-    int xpixel;
-    int ypixel;
-};
-
-} // namespace geometry
-
-class Geometry
-{
-  public:
-    Geometry(int pty_fd, int pid);
-};
-
-class Context
-{
-  public:
-    auto open_first_pty() -> Result<void>;
-
-  private:
-    std::string pty_path;
-    unix::fd pty_fd;
-    int pid = -1;
-};
-
-} // namespace upp::terminal
+} // namespace upp::command

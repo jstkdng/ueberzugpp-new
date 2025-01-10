@@ -17,8 +17,8 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "os/os.hpp"
-#include "result.hpp"
 #include "terminal.hpp"
+#include "util/result.hpp"
 
 #include <fcntl.h>
 #include <sys/stat.h>

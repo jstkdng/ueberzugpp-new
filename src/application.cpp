@@ -18,8 +18,8 @@
 
 #include "application.hpp"
 #include "os/os.hpp"
-#include "result.hpp"
 #include "unix/socket.hpp"
+#include "util/result.hpp"
 
 #include <CLI/CLI.hpp>
 #include <span>

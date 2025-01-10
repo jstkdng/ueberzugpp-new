@@ -18,54 +18,40 @@
 
 #pragma once
 
-#include "unix/fd.hpp"
 #include "util/result.hpp"
+#include "util/thread.hpp"
 
+#include <filesystem>
 #include <string>
-#include <utility>
+#include <string_view>
 
-namespace upp::terminal
+namespace upp::command
 {
 
-namespace geometry
-{
-
-struct x11 {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct wayland {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct iotctl {
-    int cols;
-    int rows;
-    int xpixel;
-    int ypixel;
-};
-
-} // namespace geometry
-
-class Geometry
+class Command
 {
   public:
-    Geometry(int pty_fd, int pid);
-};
+    auto init(std::string_view parser, std::string line) -> Result<void>;
 
-class Context
-{
-  public:
-    auto open_first_pty() -> Result<void>;
+    std::string action;
+    std::string preview_id;
+    std::filesystem::path image_path;
+    std::string image_scaler;
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
 
   private:
-    std::string pty_path;
-    unix::fd pty_fd;
-    int pid = -1;
+    auto parse_json(std::string line) -> Result<void>;
 };
 
-} // namespace upp::terminal
+class Listener
+{
+  private:
+    void wait_for_input_on_stdin(const std::stop_token &token);
+
+    std::jthread stdin_thread;
+};
+
+} // namespace upp::command

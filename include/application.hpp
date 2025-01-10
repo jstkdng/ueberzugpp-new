@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "result.hpp"
 #include "terminal.hpp"
+#include "util/result.hpp"
 
 #include <CLI/CLI.hpp>
 #include <spdlog/logger.h>

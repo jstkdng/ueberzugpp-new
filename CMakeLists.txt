@@ -46,7 +46,6 @@ endif ()
 string(TIMESTAMP BUILD_DATE UTC)
 target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/src/=")
 
-configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
@@ -56,14 +55,31 @@ option(ENABLE_WAYLAND "Enable wayland support" ON)
 option(ENABLE_OPENCV "Enable OpenCV image processing" ON)
 option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
-add_subdirectory(third_party/)
+add_subdirectory(libraries/)
 target_compile_definitions(ueberzugpp PRIVATE
     $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
     $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
 )
 
+include(GNUInstallDirs)
+include(CheckCXXSymbolExists)
+include(CheckSourceCompiles)
+
+find_package(TBB REQUIRED)
+find_package(Threads REQUIRED)
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+# check if <execution> is available
+set(CMAKE_REQUIRED_LIBRARIES TBB::tbb Threads::Threads)
+set(CMAKE_REQUIRED_FLAGS -std=c++23)
+check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION)
+
+# check if <jthread> is available
+check_source_compiles(CXX "
+#include <thread>
+int main(void) {auto t = std::jthread([] {}); return 0;}
+" HAVE_STD_JTHREAD)
 
 if (ENABLE_X11)
     find_package(XCB REQUIRED COMPONENTS XCB SHM IMAGE RES)
@@ -84,6 +100,9 @@ if (ENABLE_WAYLAND)
     target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
 endif ()
 
+configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
+target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
+
 target_sources(
     ueberzugpp
     PRIVATE
@@ -94,18 +113,27 @@ target_sources(
         src/os/os.cpp
         src/os/process.cpp
         src/terminal/context.cpp
+        src/command/command.cpp
 
     PRIVATE
     FILE_SET HEADERS
     BASE_DIRS include/
     FILES
         include/application.hpp
-        include/result.hpp
+        include/util/result.hpp
+        include/util/thread.hpp
         include/unix/fd.hpp
         include/unix/socket.hpp
         include/terminal.hpp
         include/os/os.hpp
+        include/command.hpp
 )
-target_link_libraries(ueberzugpp PRIVATE CLI11::CLI11 spdlog::spdlog glaze::glaze)
+target_link_libraries(ueberzugpp PRIVATE
+    CLI11::CLI11
+    spdlog::spdlog
+    glaze::glaze
+    TBB::tbb
+    Threads::Threads
+)
 
 # cmake-format: on

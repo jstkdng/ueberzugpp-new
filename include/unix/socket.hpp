@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "result.hpp"
 #include "unix/fd.hpp"
+#include "util/result.hpp"
 
 #include <cstddef>
 #include <span>
@@ -39,7 +39,6 @@ class Client
 
   private:
     fd sockfd;
-    std::string endpoint;
 };
 
 } // namespace upp::unix::socket

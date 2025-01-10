@@ -18,54 +18,13 @@
 
 #pragma once
 
-#include "unix/fd.hpp"
-#include "util/result.hpp"
+#include "buildconfig.hpp"
 
-#include <string>
-#include <utility>
-
-namespace upp::terminal
-{
-
-namespace geometry
-{
-
-struct x11 {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct wayland {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct iotctl {
-    int cols;
-    int rows;
-    int xpixel;
-    int ypixel;
-};
-
-} // namespace geometry
-
-class Geometry
-{
-  public:
-    Geometry(int pty_fd, int pid);
-};
-
-class Context
-{
-  public:
-    auto open_first_pty() -> Result<void>;
-
-  private:
-    std::string pty_path;
-    unix::fd pty_fd;
-    int pid = -1;
-};
-
-} // namespace upp::terminal
+// IWYU pragma: begin_exports
+#ifdef HAVE_STD_JTHREAD
+#include <stop_token>
+#include <thread>
+#else
+#include <jthread/jthread.hpp>
+#endif
+// IWYU pragma: end_exports

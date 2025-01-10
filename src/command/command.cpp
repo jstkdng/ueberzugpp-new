@@ -16,56 +16,48 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "unix/fd.hpp"
+#include "command.hpp"
 #include "util/result.hpp"
 
+#include <glaze/json/json_t.hpp>
+#include <glaze/json/read.hpp>
+
 #include <string>
+#include <string_view>
 #include <utility>
+#include <format>
 
-namespace upp::terminal
+namespace upp::command
 {
 
-namespace geometry
+auto Command::init(std::string_view parser, std::string line) -> Result<void>
 {
+    if (parser == "json") {
+        return parse_json(std::move(line));
+    }
 
-struct x11 {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
+    return {};
+}
 
-struct wayland {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct iotctl {
-    int cols;
-    int rows;
-    int xpixel;
-    int ypixel;
-};
-
-} // namespace geometry
-
-class Geometry
+auto Command::parse_json(std::string line) -> Result<void>
 {
-  public:
-    Geometry(int pty_fd, int pid);
-};
+    glz::json_t json;
+    auto err = glz::read_json(json, line);
+    if (err) {
+        return Err(std::format("could not read json: {}", err.custom_error_message));
+    }
 
-class Context
-{
-  public:
-    auto open_first_pty() -> Result<void>;
+    action = json["action"].get_string();
+    if (action == "exit" || action == "flush") {
+        return {};
+    }
 
-  private:
-    std::string pty_path;
-    unix::fd pty_fd;
-    int pid = -1;
-};
+    preview_id = json["identifier"].get_string();
+    if (action == "remove") {
+        return {};
+    }
 
-} // namespace upp::terminal
+    return {};
+}
+
+} // namespace upp::command

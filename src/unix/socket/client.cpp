@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "result.hpp"
 #include "unix/socket.hpp"
+#include "util/result.hpp"
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -35,7 +35,6 @@ namespace upp::unix::socket
 
 auto Client::connect(std::string_view endpoint) -> Result<void>
 {
-    this->endpoint = endpoint;
     sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
     if (!sockfd) {
         return Err("could not create socket");
