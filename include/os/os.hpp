@@ -18,12 +18,18 @@
 
 #pragma once
 
+#include "util/result.hpp"
+
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace upp::os
 {
+
+constexpr int bufsize = 4 * 1024; // 4K at a time
+constexpr int waitms = 50;
 
 struct Process {
     explicit Process(int pid);
@@ -45,5 +51,13 @@ struct Process {
 auto getpid() -> int;
 auto strerror() -> std::string;
 auto getenv(const std::string &var) -> std::optional<std::string>;
+
+auto wait_for_data_on_fd(int filde) -> Result<bool>;
+auto wait_for_data_on_stdin() -> Result<bool>;
+
+auto read_data_from_fd(int filde) -> Result<std::string>;
+auto read_data_from_stdin() -> Result<std::string>;
+
+auto get_poll_err(int event) -> std::string_view;
 
 } // namespace upp::os

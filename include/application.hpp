@@ -18,10 +18,12 @@
 
 #pragma once
 
+#include "command.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
 
 #include <CLI/CLI.hpp>
+#include <atomic>
 #include <spdlog/logger.h>
 
 #include <memory>
@@ -37,9 +39,16 @@ class Application
     auto setup_logging() -> Result<void>;
     auto run() -> Result<void>;
 
+    static void terminate();
+    static void signal_handler(int signal);
+    static void setup_signal_handler();
+
+    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
+
   private:
     CLI::App *app = nullptr;
     terminal::Context terminal;
+    command::Listener listener;
 
     std::shared_ptr<spdlog::logger> logger;
 };

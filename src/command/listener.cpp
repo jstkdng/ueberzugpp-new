@@ -16,15 +16,47 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "application.hpp"
 #include "command.hpp"
+#include "os/os.hpp"
+#include "util/result.hpp"
 #include "util/thread.hpp"
+
+#include <spdlog/spdlog.h>
+
+#include <format>
 
 namespace upp::command
 {
 
+auto Listener::init() -> Result<void>
+{
+    stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
+    return {};
+}
+
 void Listener::wait_for_input_on_stdin(const std::stop_token &token)
 {
+    SPDLOG_INFO("listening for commands on stdin");
     while (!token.stop_requested()) {
+        auto in_event = os::wait_for_data_on_stdin();
+        if (!in_event) {
+            SPDLOG_TRACE(std::format("stdin thread terminated: {}", in_event.error().lmessage()));
+            Application::terminate(); // stop this program if this thread dies
+            return;
+        }
+        if (!in_event.value()) {
+            continue;
+        }
+        auto data = os::read_data_from_stdin();
+        if (!data) {
+            SPDLOG_DEBUG(data.error().lmessage());
+            return;
+        }
+        // append new data to old data and search
+        stdin_buffer.append(data.value());
+        SPDLOG_INFO(data.value());
+        // stdin_buffer = extract_commands(stdin_buffer);
     }
 }
 

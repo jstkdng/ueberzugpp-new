@@ -114,6 +114,7 @@ target_sources(
         src/os/process.cpp
         src/terminal/context.cpp
         src/command/command.cpp
+        src/command/listener.cpp
 
     PRIVATE
     FILE_SET HEADERS

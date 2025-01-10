@@ -48,10 +48,14 @@ class Command
 
 class Listener
 {
+  public:
+    auto init() -> Result<void>;
+
   private:
     void wait_for_input_on_stdin(const std::stop_token &token);
 
     std::jthread stdin_thread;
+    std::string stdin_buffer;
 };
 
 } // namespace upp::command

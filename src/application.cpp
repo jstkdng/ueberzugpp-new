@@ -17,32 +17,18 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
-#include "os/os.hpp"
-#include "unix/socket.hpp"
 #include "util/result.hpp"
 
 #include <CLI/CLI.hpp>
-#include <span>
 #include <spdlog/common.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include <format>
+#include <csignal>
 #include <string>
 
 namespace upp
 {
-
-auto test(unix::socket::Client &client) -> Result<void>
-{
-    std::string input = std::format("[[BATCH]]j/{0};j/{0}", "activewindow");
-    auto result = client.write(std::as_bytes(std::span{input}));
-    if (!result) {
-        SPDLOG_WARN(result.error().lmessage());
-    }
-    SPDLOG_INFO(client.read_until_empty());
-    return {};
-}
 
 Application::Application(CLI::App *app) :
     app(app)
@@ -51,17 +37,14 @@ Application::Application(CLI::App *app) :
 
 auto Application::run() -> Result<void>
 {
-    unix::socket::Client client;
+    setup_signal_handler();
     return setup_logging()
-        .and_then([this] -> Result<void> { return terminal.open_first_pty(); })
-        .and_then([&client] {
-            const auto signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE").value_or("");
-            const auto socket_base_dir = os::getenv("XDG_RUNTIME_DIR").value_or("/tmp");
-            const auto socket_rel_path = std::format("hypr/{}/.socket.sock", signature);
-            const auto socket_path = std::format("{}/{}", socket_base_dir, socket_rel_path);
-            return client.connect(socket_path);
-        })
-        .and_then([&client] { return test(client); });
+        .and_then([this] { return terminal.open_first_pty(); })
+        .and_then([this] { return listener.init(); })
+        .and_then([] -> Result<void> {
+            stop_flag_.wait(false);
+            return {};
+        });
 }
 
 auto Application::setup_logging() -> Result<void>
@@ -83,6 +66,31 @@ auto Application::setup_logging() -> Result<void>
         return Err("spdlog", ex);
     }
     return {};
+}
+
+void Application::terminate()
+{
+    stop_flag_.test_and_set();
+    stop_flag_.notify_one();
+}
+
+void Application::setup_signal_handler()
+{
+    struct sigaction sga {
+    };
+    sga.sa_handler = signal_handler;
+    sigemptyset(&sga.sa_mask);
+    sga.sa_flags = 0;
+    sigaction(SIGINT, &sga, nullptr);
+    sigaction(SIGTERM, &sga, nullptr);
+    sigaction(SIGHUP, nullptr, nullptr);
+    sigaction(SIGCHLD, nullptr, nullptr);
+}
+
+void Application::signal_handler([[maybe_unused]] int signal)
+{
+    SPDLOG_WARN("received signal, terminating");
+    terminate();
 }
 
 } // namespace upp
