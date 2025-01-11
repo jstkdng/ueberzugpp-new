@@ -36,12 +36,12 @@ struct glz::meta<upp::Command> {
         "identifier", &T::preview_id,
         "scaler", &T::image_scaler,
         "path", &T::image_path,
-        "x", glz::quoted_num<&T::x>,
-        "y", glz::quoted_num<&T::y>,
-        "width", glz::quoted_num<&T::width>,
-        "height", glz::quoted_num<&T::height>,
-        "max_width", glz::quoted_num<&T::width>,
-        "max_height", glz::quoted_num<&T::height>
+        "x", &T::x_,
+        "y", &T::y_,
+        "width", &T::width_,
+        "height", &T::height_,
+        "max_width", &T::width_,
+        "max_height", &T::height_
         // clang-format on
     );
 };

@@ -116,6 +116,7 @@ target_sources(
         src/terminal/context.cpp
         src/command/command.cpp
         src/command/listener.cpp
+        src/util/util.cpp
 
     PRIVATE
     FILE_SET HEADERS

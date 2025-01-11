@@ -20,12 +20,14 @@
 
 #include "util/result.hpp"
 #include "util/thread.hpp"
+#include "util/util.hpp"
 
 #include <moodycamel/blockingconcurrentqueue.h>
 
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <variant>
 
 namespace upp
 {
@@ -34,15 +36,20 @@ struct Command {
     static auto create(std::string_view parser, std::string line) -> Result<Command>;
     static auto from_json(std::string line) -> Result<Command>;
 
+    [[nodiscard]] auto x() const -> int { return util::variant_to_int(x_); }
+    [[nodiscard]] auto y() const -> int { return util::variant_to_int(y_); }
+    [[nodiscard]] auto width() const -> int { return util::variant_to_int(width_); }
+    [[nodiscard]] auto height() const -> int { return util::variant_to_int(height_); }
+
     std::string action;
     std::string preview_id;
     std::string image_scaler = "contain";
     std::filesystem::path image_path;
 
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
+    std::variant<int, std::string> x_;
+    std::variant<int, std::string> y_;
+    std::variant<int, std::string> width_;
+    std::variant<int, std::string> height_;
 };
 
 using CommandQueue = moodycamel::BlockingConcurrentQueue<Command>;

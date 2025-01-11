@@ -16,29 +16,27 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "util/util.hpp"
 
-#include "util/result.hpp"
+#include <spdlog/spdlog.h>
 
-#include <string_view>
-#include <system_error>
-#include <variant>
 #include <string>
+#include <variant>
 
 namespace upp::util
 {
 
-template <typename T>
-constexpr auto view_to_numeral(const std::string_view view) -> Result<T>
+auto variant_to_int(const std::variant<int, std::string> &var) -> int
 {
-    T result{};
-    auto [ptr, err] = std::from_chars(view.data(), view.data() + view.size(), result);
-    if (err == std::errc()) {
-        return result;
+    try {
+        return std::get<int>(var);
+    } catch (const std::bad_variant_access &) {
+        auto result = util::view_to_numeral<int>(std::get<std::string>(var));
+        if (!result) {
+            SPDLOG_DEBUG(result.error().message());
+        }
+        return result.value_or(0);
     }
-    return Err("parse_num", err);
 }
-
-auto variant_to_int(const std::variant<int, std::string>& var) -> int;
 
 } // namespace upp::util
