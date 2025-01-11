@@ -64,18 +64,41 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
         // append new data to old data and search
         stdin_buffer.append(data.value());
         extract_commands(data.value());
-        // stdin_buffer = extract_commands(stdin_buffer);
     }
 }
 
-void CommandListener::extract_commands(std::string_view line)
+void CommandListener::extract_commands(std::string &line)
 {
-    auto cmd = Command::create(parser, std::string{line});
-    if (!cmd) {
-        SPDLOG_ERROR(cmd.error().message());
-        return;
+    while (true) {
+        const auto find_result = line.find('\n');
+        if (find_result == std::string::npos) {
+            break;
+        }
+
+        auto cmd = Command::create(parser, line.substr(0, find_result));
+        if (cmd) {
+            if (cmd->action == "exit") {
+                Application::terminate();
+            } else if (cmd->action == "flush") {
+                flush_command_queue();
+            } else {
+                queue->enqueue(*cmd);
+            }
+        } else {
+            SPDLOG_ERROR(cmd.error().message());
+        }
+
+        line.erase(0, find_result + 1);
     }
-    queue->enqueue(*cmd);
 };
+
+void CommandListener::flush_command_queue() const
+{
+    SPDLOG_DEBUG("flushing command queue");
+    Command cmd;
+    while (queue->try_dequeue(cmd)) {
+        // no need to process the commands
+    }
+}
 
 } // namespace upp

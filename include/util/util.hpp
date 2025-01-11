@@ -16,32 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
-#include "cli.hpp"
+#pragma once
 
-#include <CLI/CLI.hpp>
+#include "util/result.hpp"
 
-#include <print>
+#include <string_view>
+#include <system_error>
 
-auto main(int argc, char *argv[]) -> int
+namespace upp::util
 {
-    upp::Cli cli;
-    try {
-        cli.program.parse(argc, argv);
-    } catch (const CLI::ParseError &e) {
-        return cli.program.exit(e);
-    }
 
-    upp::Application application(&cli);
-    auto result = application.run();
-    if (!result) {
-        auto msg = result.error().lmessage();
-        if (msg.back() == '\n') {
-            msg.pop_back();
-        }
-        std::println(stderr, "{}", msg);
-        return 1;
+template <typename T>
+constexpr auto view_to_numeral(const std::string_view view) -> Result<T>
+{
+    T result{};
+    auto [ptr, err] = std::from_chars(view.data(), view.data() + view.size(), result);
+    if (err == std::errc()) {
+        return result;
     }
-
-    return 0;
+    return Err("parse_num", err);
 }
+
+} // namespace upp::util

@@ -55,8 +55,8 @@ class CommandListener
 
   private:
     void wait_for_input_on_stdin(const std::stop_token &token);
-
-    void extract_commands(std::string_view line);
+    void extract_commands(std::string &line);
+    void flush_command_queue() const;
 
     CommandQueue *queue;
     std::string parser;
@@ -65,4 +65,3 @@ class CommandListener
 };
 
 } // namespace upp
-
