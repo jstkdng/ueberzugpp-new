@@ -72,7 +72,7 @@ void CommandListener::extract_commands(std::string_view line)
 {
     auto cmd = Command::create(parser, std::string{line});
     if (!cmd) {
-        SPDLOG_ERROR(cmd.error().lmessage());
+        SPDLOG_ERROR(cmd.error().message());
         return;
     }
     queue->enqueue(*cmd);

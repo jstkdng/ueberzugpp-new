@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "buildconfig.hpp"
 #include "cli.hpp"
 #include "util/result.hpp"
 
@@ -25,8 +26,12 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
+#include <array>
 #include <signal.h> // NOLINT
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace upp
 {
@@ -44,16 +49,34 @@ auto Application::run() -> Result<void>
 auto Application::handle_cli_commands() -> Result<void>
 {
     if (cli->layer_command->parsed()) {
+        print_header();
         setup_signal_handler();
         return terminal.open_first_pty()
             .and_then([this] { return listener.start(cli->layer.parser); })
-            .and_then([] -> Result<void> {
-                stop_flag_.wait(false);
-                return {};
-            });
+            .and_then(wait_for_layer_commands);
     }
 
     return {};
+}
+
+auto Application::wait_for_layer_commands() -> Result<void>
+{
+    stop_flag_.wait(false);
+    return {};
+}
+
+void Application::print_header()
+{
+    const auto *art = R"(starting
+ _   _      _
+| | | |    | |                                _     _
+| | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_
+| | | |/ _ \ '_ \ / _ \ '__|_  / | | |/ _` |_   _|_   _|   version: {}
+| |_| |  __/ |_) |  __/ |   / /| |_| | (_| | |_|   |_|     build date: {}
+ \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
+                                       __/ |    new
+                                      |___/)";
+    SPDLOG_INFO(art, version_str, build_date);
 }
 
 auto Application::setup_logging() -> Result<void>
@@ -93,13 +116,28 @@ void Application::setup_signal_handler()
     sga.sa_flags = 0;
     sigaction(SIGINT, &sga, nullptr);
     sigaction(SIGTERM, &sga, nullptr);
-    sigaction(SIGHUP, nullptr, nullptr);
+    sigaction(SIGHUP, &sga, nullptr);
     sigaction(SIGCHLD, nullptr, nullptr);
 }
 
-void Application::signal_handler([[maybe_unused]] int signal)
+void Application::signal_handler(int signal)
 {
-    SPDLOG_WARN("received signal, terminating");
+    using pair_t = std::pair<int, std::string_view>;
+    constexpr auto signal_map = std::to_array<pair_t>({
+        // clang-format off
+        {SIGINT, "SIGINT"},
+        {SIGTERM, "SIGTERM"},
+        {SIGHUP, "SIGHUP"}
+        // clang-format on
+    });
+
+    const auto *found = std::ranges::find_if(signal_map, [signal](const pair_t &pair) { return pair.first == signal; });
+    if (found == signal_map.end()) {
+        SPDLOG_WARN("received unknown signal, terminating");
+    } else {
+        SPDLOG_WARN("received {}, terminating", found->second);
+    }
+
     terminate();
 }
 

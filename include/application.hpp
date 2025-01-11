@@ -18,9 +18,9 @@
 
 #pragma once
 
+#include "cli.hpp"
 #include "command.hpp"
 #include "terminal.hpp"
-#include "cli.hpp"
 #include "util/result.hpp"
 
 #include <CLI/CLI.hpp>
@@ -37,23 +37,26 @@ class Application
   public:
     explicit Application(Cli *cli);
 
-    auto setup_logging() -> Result<void>;
     auto run() -> Result<void>;
 
     static void terminate();
-    static void signal_handler(int signal);
     static void setup_signal_handler();
+    static void signal_handler(int signal);
+    static void print_header();
+
+    static auto wait_for_layer_commands() -> Result<void>;
 
     inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
 
   private:
-    Cli* cli;
+    Cli *cli;
     CommandQueue queue;
     CommandListener listener{&queue};
     terminal::Context terminal;
 
     std::shared_ptr<spdlog::logger> logger;
 
+    auto setup_logging() -> Result<void>;
     auto handle_cli_commands() -> Result<void>;
 };
 

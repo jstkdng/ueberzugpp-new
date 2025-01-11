@@ -28,7 +28,7 @@ namespace upp
 
 Cli::Cli()
 {
-    program.set_version_flag("-V,--version", version_str);
+    program.set_version_flag("-V,--version", full_version_str);
     program.allow_extras(false);
     program.require_subcommand(1);
 
