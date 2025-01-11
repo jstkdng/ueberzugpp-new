@@ -39,7 +39,7 @@ CommandListener::CommandListener(CommandQueue *queue) :
 auto CommandListener::start(std::string_view parser) -> Result<void>
 {
     this->parser = parser;
-    stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
+    stdin_thread = std::jthread([this](const auto &token) { wait_for_input_on_stdin(token); });
     return {};
 }
 

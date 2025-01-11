@@ -21,7 +21,6 @@
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
-#include <glaze/glaze.hpp>
 #include <moodycamel/blockingconcurrentqueue.h>
 
 #include <filesystem>
@@ -67,22 +66,3 @@ class CommandListener
 
 } // namespace upp
 
-template <>
-struct glz::meta<upp::Command> {
-    using T = upp::Command;
-    // NOLINTNEXTLINE
-    static constexpr auto value = object(
-        // clang-format off
-        &T::action,
-        "identifier", &T::preview_id,
-        "scaler", &T::image_scaler,
-        "path", &T::image_path,
-        "x", glz::quoted_num<&T::x>,
-        "y", glz::quoted_num<&T::y>,
-        "width", glz::quoted_num<&T::width>,
-        "height", glz::quoted_num<&T::height>,
-        "max_width", glz::quoted_num<&T::width>,
-        "max_height", glz::quoted_num<&T::height>
-        // clang-format on
-    );
-};
