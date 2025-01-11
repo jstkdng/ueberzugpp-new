@@ -53,6 +53,8 @@ class Application
     terminal::Context terminal;
 
     std::shared_ptr<spdlog::logger> logger;
+
+    auto handle_cli_commands() -> Result<void>;
 };
 
 } // namespace upp

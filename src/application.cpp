@@ -38,14 +38,20 @@ Application::Application(Cli *cli) :
 
 auto Application::run() -> Result<void>
 {
-    setup_signal_handler();
-    return setup_logging()
-        .and_then([this] { return terminal.open_first_pty(); })
-        .and_then([this] { return listener.init(); })
-        .and_then([] -> Result<void> {
+    return setup_logging().and_then([this] { return handle_cli_commands(); });
+}
+
+auto Application::handle_cli_commands() -> Result<void>
+{
+    if (cli->layer_command->parsed()) {
+        setup_signal_handler();
+        return terminal.open_first_pty().and_then([this] { return listener.init(); }).and_then([] -> Result<void> {
             stop_flag_.wait(false);
             return {};
         });
+    }
+
+    return {};
 }
 
 auto Application::setup_logging() -> Result<void>
@@ -77,6 +83,7 @@ void Application::terminate()
 
 void Application::setup_signal_handler()
 {
+    SPDLOG_DEBUG("setting up signal handlers");
     struct sigaction sga {
     };
     sga.sa_handler = signal_handler;
