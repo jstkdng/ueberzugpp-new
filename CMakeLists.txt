@@ -100,6 +100,11 @@ if (ENABLE_WAYLAND)
     target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
 endif ()
 
+find_program(IWYU_EXE NAMES include-what-you-use REQUIRED)
+if (IWYU_EXE)
+    set_target_properties(ueberzugpp PROPERTIES CXX_INCLUDE_WHAT_YOU_USE ${IWYU_EXE})
+endif ()
+
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 

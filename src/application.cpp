@@ -28,7 +28,7 @@
 
 #include <algorithm>
 #include <array>
-#include <signal.h> // NOLINT
+#include <csignal>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -92,7 +92,7 @@ auto Application::setup_logging() -> Result<void>
 
     try {
         logger = spdlog::stdout_color_mt("main");
-        logger->set_pattern("[%Y-%m-%d %T.%F] [%^%L%$] [%@] %v");
+        logger->set_pattern("[%Y-%m-%d %T.%f] %^[%8l]%$ [%@] %v");
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return Err("spdlog", ex);
@@ -108,7 +108,7 @@ void Application::terminate()
 
 void Application::setup_signal_handler()
 {
-    SPDLOG_DEBUG("setting up signal handlers");
+    SPDLOG_DEBUG("setting up signal handler");
     struct sigaction sga {
     };
     sga.sa_handler = signal_handler;
