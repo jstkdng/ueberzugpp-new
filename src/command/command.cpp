@@ -23,7 +23,6 @@
 #include <glaze/json/json_t.hpp>
 #include <glaze/json/read.hpp>
 
-#include <format>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -42,24 +41,29 @@ auto Command::create(std::string_view parser, std::string line) -> Result<Comman
 
 auto Command::from_json(std::string line) -> Result<Command>
 {
-    glz::json_t json;
-    auto err = glz::read_json(json, line);
-
     Command cmd;
+    auto err = glz::read_json(cmd, line);
     if (err) {
-        return Err(std::format("command: {}", glz::format_error(err, line)));
+        return Err(glz::format_error(err, line));
     }
 
-    cmd.action = json["action"].get_string();
-    if (cmd.action == "exit" || cmd.action == "flush") {
+    /*
+    try {
+        Command cmd;
+        cmd.action = json["action"].get_string();
+        if (cmd.action == "exit" || cmd.action == "flush") {
+            return cmd;
+        }
+
+        cmd.preview_id = json["identifier"].get_string();
+        if (cmd.action == "remove") {
+            return cmd;
+        }
+
         return cmd;
-    }
-
-    cmd.preview_id = json["identifier"].get_string();
-    if (cmd.action == "remove") {
-        return cmd;
-    }
-
+    } catch (const std::exception& ex) {
+        return Err(
+    }*/
     return cmd;
 }
 

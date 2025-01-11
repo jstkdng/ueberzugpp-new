@@ -25,6 +25,8 @@
 #include <spdlog/spdlog.h>
 
 #include <format>
+#include <string>
+#include <string_view>
 
 namespace upp
 {
@@ -34,8 +36,9 @@ CommandListener::CommandListener(CommandQueue *queue) :
 {
 }
 
-auto CommandListener::init() -> Result<void>
+auto CommandListener::start(std::string_view parser) -> Result<void>
 {
+    this->parser = parser;
     stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
     return {};
 }
@@ -60,9 +63,19 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
         }
         // append new data to old data and search
         stdin_buffer.append(data.value());
-        SPDLOG_INFO(data.value());
+        extract_commands(data.value());
         // stdin_buffer = extract_commands(stdin_buffer);
     }
 }
+
+void CommandListener::extract_commands(std::string_view line)
+{
+    auto cmd = Command::create(parser, std::string{line});
+    if (!cmd) {
+        SPDLOG_ERROR(cmd.error().lmessage());
+        return;
+    }
+    queue->enqueue(*cmd);
+};
 
 } // namespace upp

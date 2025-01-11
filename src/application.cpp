@@ -45,10 +45,12 @@ auto Application::handle_cli_commands() -> Result<void>
 {
     if (cli->layer_command->parsed()) {
         setup_signal_handler();
-        return terminal.open_first_pty().and_then([this] { return listener.init(); }).and_then([] -> Result<void> {
-            stop_flag_.wait(false);
-            return {};
-        });
+        return terminal.open_first_pty()
+            .and_then([this] { return listener.start(cli->layer.parser); })
+            .and_then([] -> Result<void> {
+                stop_flag_.wait(false);
+                return {};
+            });
     }
 
     return {};
