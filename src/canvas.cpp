@@ -16,49 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
 #include "base/canvas.hpp"
-#include "cli.hpp"
+#include "buildconfig.hpp"
 #include "command.hpp"
-#include "terminal.hpp"
 #include "util/result.hpp"
 
-#include <CLI/CLI.hpp>
-#include <atomic>
-#include <spdlog/logger.h>
+#ifdef ENABLE_WAYLAND
+#include "wayland/canvas.hpp"
+#endif
 
 #include <memory>
+#include <string_view>
 
 namespace upp
 {
 
-class Application
+auto Canvas::create(std::string_view output, CommandQueue *queue) -> Result<std::unique_ptr<Canvas>>
 {
-  public:
-    explicit Application(Cli *cli);
+#ifdef ENABLE_WAYLAND
+    if (output == "wayland") {
+        return std::make_unique<WaylandCanvas>(queue);
+    }
+#endif
 
-    auto run() -> Result<void>;
-
-    static void terminate();
-    static void setup_signal_handler();
-    static void signal_handler(int signal);
-    static void print_header();
-    static auto wait_for_layer_commands() -> Result<void>;
-
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
-
-  private:
-    Cli *cli;
-    CommandQueue queue;
-    CommandListener listener{&queue};
-    terminal::Context terminal;
-    CanvasPtr canvas;
-
-    std::shared_ptr<spdlog::logger> logger;
-
-    auto setup_logging() -> Result<void>;
-    auto handle_cli_commands() -> Result<void>;
-};
+    return Err("could not create canvas");
+}
 
 } // namespace upp

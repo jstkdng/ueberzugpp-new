@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "util/concurrent_deque.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
 #include "util/util.hpp"
@@ -58,7 +59,7 @@ class CommandListener
 {
   public:
     explicit CommandListener(CommandQueue *queue);
-    auto start(std::string_view parser) -> Result<void>;
+    auto start(std::string_view new_parser) -> Result<void>;
 
   private:
     void wait_for_input_on_stdin(const std::stop_token &token);
@@ -66,6 +67,7 @@ class CommandListener
     void flush_command_queue() const;
 
     CommandQueue *queue;
+    ConcurrentDeque<Command> queue2;
     std::string parser;
     std::jthread stdin_thread;
     std::string stdin_buffer;

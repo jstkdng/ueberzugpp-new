@@ -98,6 +98,17 @@ if (ENABLE_WAYLAND)
         BASENAME "xdg-shell")
 
     target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
+    target_sources(
+        ueberzugpp
+        PRIVATE
+            src/wayland/canvas.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            include/wayland/canvas.hpp
+    )
 endif ()
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
@@ -117,6 +128,7 @@ target_sources(
         src/command/command.cpp
         src/command/listener.cpp
         src/util/util.cpp
+        src/canvas.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -126,11 +138,13 @@ target_sources(
         include/cli.hpp
         include/util/result.hpp
         include/util/thread.hpp
+        include/util/concurrent_deque.hpp
         include/unix/fd.hpp
         include/unix/socket.hpp
         include/terminal.hpp
         include/os/os.hpp
         include/command.hpp
+        include/base/canvas.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
     CLI11::CLI11

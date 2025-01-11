@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "base/canvas.hpp"
 #include "buildconfig.hpp"
 #include "cli.hpp"
 #include "util/result.hpp"
@@ -52,6 +53,11 @@ auto Application::handle_cli_commands() -> Result<void>
         print_header();
         setup_signal_handler();
         return terminal.open_first_pty()
+            .and_then([this] { return Canvas::create(cli->layer.output, &queue); })
+            .and_then([this](CanvasPtr new_canvas) {
+                canvas = std::move(new_canvas);
+                return canvas->init();
+            })
             .and_then([this] { return listener.start(cli->layer.parser); })
             .and_then(wait_for_layer_commands);
     }

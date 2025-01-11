@@ -36,9 +36,9 @@ CommandListener::CommandListener(CommandQueue *queue) :
 {
 }
 
-auto CommandListener::start(std::string_view parser) -> Result<void>
+auto CommandListener::start(std::string_view new_parser) -> Result<void>
 {
-    this->parser = parser;
+    parser = new_parser;
     stdin_thread = std::jthread([this](const auto &token) { wait_for_input_on_stdin(token); });
     return {};
 }
@@ -82,7 +82,9 @@ void CommandListener::extract_commands(std::string &line)
             } else if (cmd->action == "flush") {
                 flush_command_queue();
             } else {
-                queue->enqueue(*cmd);
+                // TODO: dequeue add command if it is immediately followed by a remove command
+                //queue->enqueue(*cmd);
+                queue2.enqueue(std::move(*cmd));
             }
         } else {
             SPDLOG_ERROR(cmd.error().message());

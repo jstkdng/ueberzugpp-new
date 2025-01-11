@@ -16,49 +16,24 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "base/canvas.hpp"
-#include "cli.hpp"
+#include "wayland/canvas.hpp"
 #include "command.hpp"
-#include "terminal.hpp"
 #include "util/result.hpp"
 
-#include <CLI/CLI.hpp>
-#include <atomic>
-#include <spdlog/logger.h>
-
-#include <memory>
+#include <spdlog/spdlog.h>
 
 namespace upp
 {
 
-class Application
+WaylandCanvas::WaylandCanvas(CommandQueue *queue) :
+    queue(queue)
 {
-  public:
-    explicit Application(Cli *cli);
+}
 
-    auto run() -> Result<void>;
-
-    static void terminate();
-    static void setup_signal_handler();
-    static void signal_handler(int signal);
-    static void print_header();
-    static auto wait_for_layer_commands() -> Result<void>;
-
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
-
-  private:
-    Cli *cli;
-    CommandQueue queue;
-    CommandListener listener{&queue};
-    terminal::Context terminal;
-    CanvasPtr canvas;
-
-    std::shared_ptr<spdlog::logger> logger;
-
-    auto setup_logging() -> Result<void>;
-    auto handle_cli_commands() -> Result<void>;
-};
+auto WaylandCanvas::init() -> Result<void>
+{
+    SPDLOG_INFO("canvas created");
+    return {};
+}
 
 } // namespace upp

@@ -18,47 +18,26 @@
 
 #pragma once
 
-#include "base/canvas.hpp"
-#include "cli.hpp"
-#include "command.hpp"
-#include "terminal.hpp"
 #include "util/result.hpp"
-
-#include <CLI/CLI.hpp>
-#include <atomic>
-#include <spdlog/logger.h>
+#include "command.hpp"
 
 #include <memory>
+#include <string_view>
 
 namespace upp
 {
 
-class Application
+class Canvas;
+
+using CanvasPtr = std::unique_ptr<Canvas>;
+
+class Canvas
 {
   public:
-    explicit Application(Cli *cli);
+    virtual ~Canvas() = default;
 
-    auto run() -> Result<void>;
-
-    static void terminate();
-    static void setup_signal_handler();
-    static void signal_handler(int signal);
-    static void print_header();
-    static auto wait_for_layer_commands() -> Result<void>;
-
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
-
-  private:
-    Cli *cli;
-    CommandQueue queue;
-    CommandListener listener{&queue};
-    terminal::Context terminal;
-    CanvasPtr canvas;
-
-    std::shared_ptr<spdlog::logger> logger;
-
-    auto setup_logging() -> Result<void>;
-    auto handle_cli_commands() -> Result<void>;
+    static auto create(std::string_view output, CommandQueue *queue) -> Result<CanvasPtr>;
+    virtual auto init() -> Result<void> = 0;
 };
 
 } // namespace upp
