@@ -17,7 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
-#include "buildconfig.hpp"
+#include "cli.hpp"
 
 #include <CLI/CLI.hpp>
 
@@ -25,16 +25,14 @@
 
 auto main(int argc, char *argv[]) -> int
 {
-    CLI::App app{"Display images in the terminal", "ueberzugpp"};
-    app.set_version_flag("-V,--version", version_str);
-
+    upp::Cli cli;
     try {
-        app.parse(argc, argv);
+        cli.program.parse(argc, argv);
     } catch (const CLI::ParseError &e) {
-        return app.exit(e);
+        return cli.program.exit(e);
     }
 
-    upp::Application application(&app);
+    upp::Application application(&cli);
     auto result = application.run();
     if (!result) {
         std::println(stderr, "{}", result.error().lmessage());

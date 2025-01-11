@@ -108,6 +108,7 @@ target_sources(
     PRIVATE
         src/main.cpp
         src/application.cpp
+        src/cli.cpp
         src/unix/fd.cpp
         src/unix/socket/client.cpp
         src/os/os.cpp
@@ -121,6 +122,7 @@ target_sources(
     BASE_DIRS include/
     FILES
         include/application.hpp
+        include/cli.hpp
         include/util/result.hpp
         include/util/thread.hpp
         include/unix/fd.hpp

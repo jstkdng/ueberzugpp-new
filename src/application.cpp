@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "cli.hpp"
 #include "util/result.hpp"
 
 #include <CLI/CLI.hpp>
@@ -24,14 +25,14 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include <csignal>
+#include <signal.h> // NOLINT
 #include <string>
 
 namespace upp
 {
 
-Application::Application(CLI::App *app) :
-    app(app)
+Application::Application(Cli *cli) :
+    cli(cli)
 {
 }
 

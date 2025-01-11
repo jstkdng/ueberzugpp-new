@@ -26,16 +26,21 @@
 
 #include <format>
 
-namespace upp::command
+namespace upp
 {
 
-auto Listener::init() -> Result<void>
+CommandListener::CommandListener(CommandQueue *queue) :
+    queue(queue)
+{
+}
+
+auto CommandListener::init() -> Result<void>
 {
     stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
     return {};
 }
 
-void Listener::wait_for_input_on_stdin(const std::stop_token &token)
+void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
 {
     SPDLOG_INFO("listening for commands on stdin");
     while (!token.stop_requested()) {
@@ -60,4 +65,4 @@ void Listener::wait_for_input_on_stdin(const std::stop_token &token)
     }
 }
 
-} // namespace upp::command
+} // namespace upp

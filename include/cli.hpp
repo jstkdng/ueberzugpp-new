@@ -18,41 +18,47 @@
 
 #pragma once
 
-#include "command.hpp"
-#include "terminal.hpp"
-#include "cli.hpp"
-#include "util/result.hpp"
-
 #include <CLI/CLI.hpp>
-#include <atomic>
-#include <spdlog/logger.h>
 
-#include <memory>
+#include <string>
+
+namespace upp::subcommands
+{
+
+struct layer {
+    bool silent;
+    bool use_escape_codes;
+    bool no_stdin;
+    bool no_cache;
+    bool no_opencv;
+    bool origin_center;
+
+    std::string pid_file;
+    std::string parser;
+    std::string output;
+};
+
+} // namespace upp::subcommands
 
 namespace upp
 {
 
-class Application
+class Cli
 {
   public:
-    explicit Application(Cli *cli);
+    Cli();
+    void parse();
 
-    auto setup_logging() -> Result<void>;
-    auto run() -> Result<void>;
-
-    static void terminate();
-    static void signal_handler(int signal);
-    static void setup_signal_handler();
-
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
+    CLI::App program{"Display images in the terminal", "ueberzugpp"};
 
   private:
-    Cli* cli;
-    CommandQueue queue;
-    CommandListener listener{&queue};
-    terminal::Context terminal;
+    CLI::App *layer_command{program.add_subcommand("layer", "Display images on the terminal")};
+    CLI::App *cmd_command{program.add_subcommand("cmd", "Send a command to a running ueberzugpp instance")};
+    CLI::App *tmux_command{program.add_subcommand("tmux", "Handle tmux hooks. Used internaly")};
 
-    std::shared_ptr<spdlog::logger> logger;
+    subcommands::layer layer;
+
+    void setup_layer_subcommand();
 };
 
 } // namespace upp

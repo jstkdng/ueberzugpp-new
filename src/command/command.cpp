@@ -19,45 +19,48 @@
 #include "command.hpp"
 #include "util/result.hpp"
 
+#include <glaze/core/reflect.hpp>
 #include <glaze/json/json_t.hpp>
 #include <glaze/json/read.hpp>
 
+#include <format>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <format>
 
-namespace upp::command
+namespace upp
 {
 
-auto Command::init(std::string_view parser, std::string line) -> Result<void>
+auto Command::create(std::string_view parser, std::string line) -> Result<Command>
 {
     if (parser == "json") {
-        return parse_json(std::move(line));
+        return from_json(std::move(line));
     }
 
     return {};
 }
 
-auto Command::parse_json(std::string line) -> Result<void>
+auto Command::from_json(std::string line) -> Result<Command>
 {
     glz::json_t json;
     auto err = glz::read_json(json, line);
+
+    Command cmd;
     if (err) {
-        return Err(std::format("could not read json: {}", err.custom_error_message));
+        return Err(std::format("command: {}", glz::format_error(err, line)));
     }
 
-    action = json["action"].get_string();
-    if (action == "exit" || action == "flush") {
-        return {};
+    cmd.action = json["action"].get_string();
+    if (cmd.action == "exit" || cmd.action == "flush") {
+        return cmd;
     }
 
-    preview_id = json["identifier"].get_string();
-    if (action == "remove") {
-        return {};
+    cmd.preview_id = json["identifier"].get_string();
+    if (cmd.action == "remove") {
+        return cmd;
     }
 
-    return {};
+    return cmd;
 }
 
-} // namespace upp::command
+} // namespace upp

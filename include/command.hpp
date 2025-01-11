@@ -21,17 +21,18 @@
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
+#include <moodycamel/blockingconcurrentqueue.h>
+
 #include <filesystem>
 #include <string>
 #include <string_view>
 
-namespace upp::command
+namespace upp
 {
 
-class Command
-{
-  public:
-    auto init(std::string_view parser, std::string line) -> Result<void>;
+struct Command {
+    static auto create(std::string_view parser, std::string line) -> Result<Command>;
+    static auto from_json(std::string line) -> Result<Command>;
 
     std::string action;
     std::string preview_id;
@@ -41,21 +42,24 @@ class Command
     int y = 0;
     int width = 0;
     int height = 0;
-
-  private:
-    auto parse_json(std::string line) -> Result<void>;
 };
 
-class Listener
+using CommandQueue = moodycamel::BlockingConcurrentQueue<Command>;
+
+class CommandListener
 {
   public:
+    explicit CommandListener(CommandQueue *queue);
     auto init() -> Result<void>;
 
   private:
     void wait_for_input_on_stdin(const std::stop_token &token);
 
+    void extract_commands(std::string_view line);
+
+    CommandQueue *queue;
     std::jthread stdin_thread;
     std::string stdin_buffer;
 };
 
-} // namespace upp::command
+} // namespace upp
