@@ -20,17 +20,18 @@
 #include "command.hpp"
 #include "util/result.hpp"
 #include "wayland/types.hpp"
+#include "wayland/socket/socket.hpp"
 
 #include <spdlog/spdlog.h>
 
 #include <cstdint>
 #include <string_view>
 
-namespace upp
+namespace upp::wl
 {
 
 constexpr wl_registry_listener registry_listener = {.global = WaylandCanvas::wl_registry_global,
-                                                    .global_remove = wl::ignore};
+                                                    .global_remove = ignore};
 
 constexpr xdg_wm_base_listener xdg_wm_base_listener = {.ping = WaylandCanvas::xdg_wm_base_ping};
 
@@ -75,6 +76,7 @@ auto WaylandCanvas::init() -> Result<void>
     }
 
     SPDLOG_INFO("canvas created");
+    auto sock = Socket::create();
     return {};
 }
 
@@ -82,4 +84,4 @@ void WaylandCanvas::execute([[maybe_unused]] const Command &cmd)
 {
 }
 
-} // namespace upp
+} // namespace upp::wl

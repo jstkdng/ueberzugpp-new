@@ -18,27 +18,21 @@
 
 #pragma once
 
-#include "unix/fd.hpp"
 #include "util/result.hpp"
 
-#include <cstddef>
-#include <span>
-#include <string>
-#include <string_view>
+#include <memory>
 
-namespace upp::unix::socket
+namespace upp::wl
 {
 
-class Client
+class Socket;
+
+using SocketPtr = std::unique_ptr<Socket>;
+
+class Socket
 {
   public:
-    auto connect(std::string_view endpoint) -> Result<void>;
-    [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> Result<void>;
-    [[nodiscard]] auto read(std::span<std::byte> buffer) const -> Result<void>;
-    [[nodiscard]] auto read_until_empty() const -> Result<std::string>;
-
-  private:
-    fd sockfd;
+    static auto create() -> Result<SocketPtr>;
 };
 
-} // namespace upp::unix::socket
+} // namespace upp::wl

@@ -25,7 +25,7 @@
 
 #include <cstdint>
 
-namespace upp
+namespace upp::wl
 {
 
 class WaylandCanvas : public Canvas
@@ -36,7 +36,7 @@ class WaylandCanvas : public Canvas
 
     static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
                                    uint32_t version);
-    static void xdg_wm_base_ping(void * data, xdg_wm_base *xdg_wm_base, uint32_t serial);
+    static void xdg_wm_base_ping(void *data, xdg_wm_base *xdg_wm_base, uint32_t serial);
 
   private:
     wl::display display;
@@ -48,4 +48,4 @@ class WaylandCanvas : public Canvas
     int display_fd = -1;
 };
 
-} // namespace upp
+} // namespace upp::wl

@@ -18,27 +18,26 @@
 
 #pragma once
 
-#include "unix/fd.hpp"
-#include "util/result.hpp"
+#include "wayland/socket/socket.hpp"
 
-#include <cstddef>
-#include <span>
 #include <string>
 #include <string_view>
 
-namespace upp::unix::socket
+namespace upp::wl
 {
 
-class Client
+class HyprlandSocket : public Socket
 {
   public:
-    auto connect(std::string_view endpoint) -> Result<void>;
-    [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> Result<void>;
-    [[nodiscard]] auto read(std::span<std::byte> buffer) const -> Result<void>;
-    [[nodiscard]] auto read_until_empty() const -> Result<std::string>;
+    explicit HyprlandSocket(std::string instance_signature);
 
   private:
-    fd sockfd;
+    std::string signature;
+    std::string socket_path;
+
+    void get_version();
+    void request(std::string_view payload);
+    auto request_result(std::string_view payload) -> std::string;
 };
 
-} // namespace upp::unix::socket
+} // namespace upp::wl

@@ -16,29 +16,24 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "unix/fd.hpp"
+#include "wayland/socket/socket.hpp"
 #include "util/result.hpp"
+#include "os/os.hpp"
+#include "wayland/socket/hyprland.hpp"
 
-#include <cstddef>
-#include <span>
-#include <string>
-#include <string_view>
+#include <memory>
 
-namespace upp::unix::socket
+namespace upp::wl
 {
 
-class Client
+auto Socket::create() -> Result<SocketPtr>
 {
-  public:
-    auto connect(std::string_view endpoint) -> Result<void>;
-    [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> Result<void>;
-    [[nodiscard]] auto read(std::span<std::byte> buffer) const -> Result<void>;
-    [[nodiscard]] auto read_until_empty() const -> Result<std::string>;
+    auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE");
+    if (hyprland_signature) {
+        return std::make_unique<HyprlandSocket>(*hyprland_signature);
+    }
 
-  private:
-    fd sockfd;
-};
+    return {};
+}
 
-} // namespace upp::unix::socket
+} // namespace upp::wl

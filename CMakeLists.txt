@@ -103,6 +103,8 @@ if (ENABLE_WAYLAND)
         ueberzugpp
         PRIVATE
             src/wayland/canvas.cpp
+            src/wayland/socket/socket.cpp
+            src/wayland/socket/hyprland.cpp
 
         PRIVATE
         FILE_SET HEADERS
@@ -111,6 +113,11 @@ if (ENABLE_WAYLAND)
             include/wayland/canvas.hpp
             include/wayland/types.hpp
     )
+endif ()
+
+if (ENABLE_OPENCV)
+    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+    target_link_libraries(ueberzugpp PRIVATE ${OpenCV_LIBS})
 endif ()
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
