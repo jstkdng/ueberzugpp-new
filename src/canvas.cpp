@@ -18,7 +18,6 @@
 
 #include "base/canvas.hpp"
 #include "buildconfig.hpp"
-#include "command.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_WAYLAND
@@ -31,11 +30,11 @@
 namespace upp
 {
 
-auto Canvas::create(std::string_view output, CommandQueue *queue) -> Result<std::unique_ptr<Canvas>>
+auto Canvas::create(std::string_view output) -> Result<CanvasPtr>
 {
 #ifdef ENABLE_WAYLAND
     if (output == "wayland") {
-        return std::make_unique<WaylandCanvas>(queue);
+        return std::make_unique<WaylandCanvas>();
     }
 #endif
 

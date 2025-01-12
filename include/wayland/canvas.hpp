@@ -29,10 +29,8 @@ class WaylandCanvas : public Canvas
 {
   public:
     auto init() -> Result<void> override;
-    void execute(Command cmd) override;
+    void execute(const Command &cmd) override;
 
-  private:
-    CommandQueue *queue;
 };
 
 } // namespace upp

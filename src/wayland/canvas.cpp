@@ -31,7 +31,8 @@ auto WaylandCanvas::init() -> Result<void>
     return {};
 }
 
-auto WaylandCanvas::execute(Command cmd)
-{}
+void WaylandCanvas::execute([[maybe_unused]] const Command &cmd)
+{
+}
 
 } // namespace upp

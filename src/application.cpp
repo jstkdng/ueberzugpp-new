@@ -60,7 +60,7 @@ auto Application::handle_cli_commands() -> Result<void>
         print_header();
         setup_signal_handler();
         return terminal.open_first_pty()
-            .and_then([this] { return Canvas::create(cli->layer.output, &queue); })
+            .and_then([this] { return Canvas::create(cli->layer.output); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
                 return canvas->init();
@@ -86,6 +86,7 @@ void Application::execute_layer_commands(const std::stop_token &token)
         if (!cmd) {
             break;
         }
+        canvas->execute(*cmd);
     }
 }
 
