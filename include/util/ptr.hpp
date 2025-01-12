@@ -18,34 +18,20 @@
 
 #pragma once
 
-#include "base/canvas.hpp"
-#include "command.hpp"
-#include "util/result.hpp"
-#include "wayland/types.hpp"
-
-#include <cstdint>
+#include <cstdlib>
+#include <memory>
+#include <type_traits>
 
 namespace upp
 {
 
-class WaylandCanvas : public Canvas
-{
-  public:
-    auto init() -> Result<void> override;
-    void execute(const Command &cmd) override;
+template <auto fn>
+using deleter_fn = std::integral_constant<std::decay_t<decltype(fn)>, fn>;
 
-    static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
-                                   uint32_t version);
-    static void xdg_wm_base_ping(void * data, xdg_wm_base *xdg_wm_base, uint32_t serial);
+template <typename T, auto fn>
+using c_unique_ptr = std::unique_ptr<T, deleter_fn<fn>>;
 
-  private:
-    wl::display display;
-    wl::registry registry;
-    wl::compositor compositor;
-    wl::shm shm;
-    wl::xdg::wm_base wm_base;
-
-    int display_fd = -1;
-};
+template <typename T>
+using unique_C_ptr = c_unique_ptr<T, std::free>;
 
 } // namespace upp

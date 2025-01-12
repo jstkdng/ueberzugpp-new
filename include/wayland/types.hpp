@@ -18,34 +18,28 @@
 
 #pragma once
 
-#include "base/canvas.hpp"
-#include "command.hpp"
-#include "util/result.hpp"
-#include "wayland/types.hpp"
+#include "util/ptr.hpp"
 
-#include <cstdint>
+// IWYU pragma: begin_exports
+#include <wayland-client-core.h>
+#include <wayland-client-protocol.h>
+#include <wayland-client.h>
+#include <wayland-xdg-shell-client-protocol.h>
+// IWYU pragma: end_exports
 
-namespace upp
+namespace upp::wl
 {
+using display = c_unique_ptr<wl_display, wl_display_disconnect>;
+using registry = c_unique_ptr<wl_registry, wl_registry_destroy>;
+using compositor = c_unique_ptr<wl_compositor, wl_compositor_destroy>;
+using shm = c_unique_ptr<wl_shm, wl_shm_destroy>;
 
-class WaylandCanvas : public Canvas
+template <typename... Args>
+void ignore([[maybe_unused]] Args... args) {};
+
+namespace xdg
 {
-  public:
-    auto init() -> Result<void> override;
-    void execute(const Command &cmd) override;
+using wm_base = c_unique_ptr<xdg_wm_base, xdg_wm_base_destroy>;
+}
 
-    static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
-                                   uint32_t version);
-    static void xdg_wm_base_ping(void * data, xdg_wm_base *xdg_wm_base, uint32_t serial);
-
-  private:
-    wl::display display;
-    wl::registry registry;
-    wl::compositor compositor;
-    wl::shm shm;
-    wl::xdg::wm_base wm_base;
-
-    int display_fd = -1;
-};
-
-} // namespace upp
+} // namespace upp::wl

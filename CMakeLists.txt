@@ -97,6 +97,7 @@ if (ENABLE_WAYLAND)
         PROTOCOL "${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml"
         BASENAME "xdg-shell")
 
+    target_compile_options(ueberzugpp PRIVATE -Wno-subobject-linkage)
     target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
     target_sources(
         ueberzugpp
@@ -108,6 +109,7 @@ if (ENABLE_WAYLAND)
         BASE_DIRS include/
         FILES
             include/wayland/canvas.hpp
+            include/wayland/types.hpp
     )
 endif ()
 
@@ -136,14 +138,16 @@ target_sources(
     FILES
         include/application.hpp
         include/cli.hpp
+        include/command.hpp
+        include/terminal.hpp
         include/util/result.hpp
         include/util/thread.hpp
         include/util/concurrent_deque.hpp
+        include/util/ptr.hpp
+        include/util/util.hpp
         include/unix/fd.hpp
         include/unix/socket.hpp
-        include/terminal.hpp
         include/os/os.hpp
-        include/command.hpp
         include/base/canvas.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE

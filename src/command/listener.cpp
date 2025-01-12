@@ -101,7 +101,6 @@ void CommandListener::flush_command_queue() const
 
 void CommandListener::enqueue_or_discard(const Command &cmd)
 {
-    //queue->enqueue(cmd);
     queue->enqueue(cmd, [&cmd](auto &deque) {
         if (deque.size() <= 2 || cmd.action != "remove") {
             return true;

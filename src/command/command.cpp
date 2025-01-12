@@ -21,7 +21,6 @@
 
 #include <glaze/glaze.hpp>
 
-#include <format>
 #include <string>
 #include <string_view>
 #include <utility>
