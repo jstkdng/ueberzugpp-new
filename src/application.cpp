@@ -21,17 +21,22 @@
 #include "buildconfig.hpp"
 #include "cli.hpp"
 #include "util/result.hpp"
+#include "util/util.hpp"
 
 #include <CLI/CLI.hpp>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <array>
 #include <csignal>
+#include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <utility>
 
 namespace upp
@@ -93,12 +98,20 @@ auto Application::setup_logging() -> Result<void>
     auto level = spdlog::level::info;
 #endif
 
-    spdlog::set_level(level);
-    spdlog::flush_on(level);
+    auto log_file = util::get_log_filename();
+    auto log_path = util::temp_directory_path() / log_file;
 
     try {
-        logger = spdlog::stdout_color_mt("main");
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
+        std::vector<spdlog::sink_ptr> sinks {file_sink};
+        if (!cli->layer.silent) {
+            sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+        }
+
+        logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
         logger->set_pattern("[%Y-%m-%d %T.%F] %^[%8l]%$ [%@] %v");
+        logger->set_level(level);
+        logger->flush_on(level);
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return Err("spdlog", ex);

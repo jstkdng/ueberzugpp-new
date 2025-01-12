@@ -17,14 +17,19 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "util/util.hpp"
+#include "os/os.hpp"
 
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
 #include <string>
 #include <variant>
+#include <format>
 
 namespace upp::util
 {
+
+namespace fs = std::filesystem;
 
 auto variant_to_int(const std::variant<int, std::string> &var) -> int
 {
@@ -37,6 +42,20 @@ auto variant_to_int(const std::variant<int, std::string> &var) -> int
         }
         return result.value_or(0);
     }
+}
+
+auto get_log_filename() -> std::string
+{
+    const auto user = os::getenv("USER");
+    if (!user) {
+        return "ueberzugpp.log";
+    }
+    return std::format("ueberzugpp-{}.log", *user);
+}
+
+auto temp_directory_path() -> std::filesystem::path
+{
+    return os::getenv("UEBERZUGPP_TMPDIR").value_or(fs::temp_directory_path());
 }
 
 } // namespace upp::util

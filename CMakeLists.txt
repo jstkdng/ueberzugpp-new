@@ -154,4 +154,6 @@ target_link_libraries(ueberzugpp PRIVATE
     Threads::Threads
 )
 
+file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
+
 # cmake-format: on

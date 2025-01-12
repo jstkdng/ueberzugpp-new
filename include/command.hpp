@@ -65,7 +65,7 @@ class CommandListener
     void wait_for_input_on_stdin(const std::stop_token &token);
     void extract_commands(std::string &line);
     void flush_command_queue() const;
-    void enqueue_or_discard(Command cmd);
+    void enqueue_or_discard(const Command& cmd);
 
     CommandQueue *queue;
     std::string parser;

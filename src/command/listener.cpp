@@ -27,7 +27,6 @@
 #include <format>
 #include <string>
 #include <string_view>
-#include <utility>
 
 namespace upp
 {
@@ -76,6 +75,8 @@ void CommandListener::extract_commands(std::string &line)
             break;
         }
 
+        auto cmd_str = line.substr(0, find_result);
+        SPDLOG_DEBUG("received command: {}", cmd_str);
         auto cmd = Command::create(parser, line.substr(0, find_result));
         if (cmd) {
             if (cmd->action == "exit") {
@@ -99,25 +100,20 @@ void CommandListener::flush_command_queue() const
     queue->clear();
 }
 
-void CommandListener::enqueue_or_discard(Command cmd)
+void CommandListener::enqueue_or_discard(const Command &cmd)
 {
-    bool discard = false;
-    if (cmd.action == "remove") {
-        queue->run_locked([&cmd, &discard](auto &deque) {
-            if (deque.empty()) {
-                return;
-            }
-            auto last = deque.back();
-            if (last.action == "add" && last.preview_id == cmd.preview_id && last.image_path == cmd.image_path) {
-                discard = true;
-                deque.pop_back();
-            }
-        });
-    }
-
-    if (!discard) {
-        queue->enqueue(std::move(cmd));
-    }
+    queue->enqueue(cmd, [&cmd](auto &deque) {
+        if (deque.size() <= 1 || cmd.action != "remove") {
+            return true;
+        }
+        auto last = deque.back();
+        if (last.action == "add" && last.preview_id == cmd.preview_id) {
+            SPDLOG_DEBUG("discarding add/remove command pair");
+            deque.pop_back();
+            return false;
+        }
+        return true;
+    });
 }
 
 } // namespace upp

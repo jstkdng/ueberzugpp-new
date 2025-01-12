@@ -51,7 +51,8 @@ void Cli::setup_layer_subcommand()
     layer_command->add_flag("--no-opencv", layer.no_opencv, "Do not use OpenCV, use Libvips instead")
         ->default_val(false);
     layer_command->add_option("-o,--output", layer.output, "Image output method")
-        ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}));
+        ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}))
+        ->default_val("wayland");
     layer_command->add_flag("--origin-center", layer.origin_center, "Location of the origin wrt the image")
         ->default_val(false);
     layer_command->add_option("-p,--parser", layer.parser, "Command parser to use")

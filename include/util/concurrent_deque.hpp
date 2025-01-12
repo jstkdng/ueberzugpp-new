@@ -47,6 +47,15 @@ class ConcurrentDeque
         cond.notify_all();
     }
 
+    void enqueue(const T &item, std::function<bool(std::deque<T> &)> func)
+    {
+        std::scoped_lock lock{queue_mutex};
+        if (func(queue)) {
+            queue.push_back(item);
+            cond.notify_all();
+        }
+    }
+
     auto dequeue() -> T
     {
         std::unique_lock lock{queue_mutex};
@@ -73,12 +82,6 @@ class ConcurrentDeque
     {
         std::scoped_lock lock{queue_mutex};
         queue.clear();
-    }
-
-    void run_locked(std::function<void(std::deque<T> &)> func)
-    {
-        std::scoped_lock lock{queue_mutex};
-        func(queue);
     }
 
     auto size() -> std::size_t
