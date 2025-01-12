@@ -26,6 +26,7 @@
 #include <moodycamel/blockingconcurrentqueue.h>
 
 #include <filesystem>
+#include <format>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -65,7 +66,7 @@ class CommandListener
     void wait_for_input_on_stdin(const std::stop_token &token);
     void extract_commands(std::string &line);
     void flush_command_queue() const;
-    void enqueue_or_discard(const Command& cmd);
+    void enqueue_or_discard(const Command &cmd);
 
     CommandQueue *queue;
     std::string parser;
@@ -74,3 +75,20 @@ class CommandListener
 };
 
 } // namespace upp
+
+template <>
+struct std::formatter<upp::Command> : std::formatter<std::string> {
+    static auto format(const upp::Command &cmd, format_context &ctx)
+    {
+        if (cmd.action == "exit" || cmd.action == "flush") {
+            return std::format_to(ctx.out(), "Command[action={}]", cmd.action);
+        }
+
+        if (cmd.action == "remove") {
+            return std::format_to(ctx.out(), "Command[action={} identifier={}]", cmd.action, cmd.preview_id);
+        }
+
+        return std::format_to(ctx.out(), "Command[action={} identifier={} path={}]", cmd.action, cmd.preview_id,
+                              cmd.image_path.string());
+    }
+};

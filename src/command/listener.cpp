@@ -77,6 +77,7 @@ void CommandListener::extract_commands(std::string &line)
 
         auto cmd = Command::create(parser, line.substr(0, find_result));
         if (cmd) {
+            SPDLOG_DEBUG(*cmd);
             if (cmd->action == "exit") {
                 Application::terminate();
             } else if (cmd->action == "flush") {

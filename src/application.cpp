@@ -86,9 +86,7 @@ void Application::execute_layer_commands(const std::stop_token &token)
         if (!cmd) {
             continue;
         }
-        SPDLOG_INFO("running command for path: {}", cmd->image_path.string());
         canvas->execute(*cmd);
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 
