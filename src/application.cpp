@@ -22,6 +22,8 @@
 #include "cli.hpp"
 #include "util/result.hpp"
 #include "util/util.hpp"
+#include "util/thread.hpp"
+#include "os/os.hpp"
 
 #include <CLI/CLI.hpp>
 #include <spdlog/common.h>
@@ -64,7 +66,7 @@ auto Application::handle_cli_commands() -> Result<void>
                 return canvas->init();
             })
             .and_then([this] { return listener.start(cli->layer.parser); })
-            .and_then(wait_for_layer_commands);
+            .and_then([this] { return wait_for_layer_commands(); });
     }
 
     return {};
@@ -72,8 +74,19 @@ auto Application::handle_cli_commands() -> Result<void>
 
 auto Application::wait_for_layer_commands() -> Result<void>
 {
+    command_thread = std::jthread([this] (const auto&token) { execute_layer_commands(token);});
     stop_flag_.wait(false);
     return {};
+}
+
+void Application::execute_layer_commands(const std::stop_token &token)
+{
+    while (!token.stop_requested()) {
+        auto cmd = queue.try_dequeue(os::waitms);
+        if (!cmd) {
+            break;
+        }
+    }
 }
 
 void Application::print_header()

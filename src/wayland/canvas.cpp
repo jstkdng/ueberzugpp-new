@@ -25,15 +25,13 @@
 namespace upp
 {
 
-WaylandCanvas::WaylandCanvas(CommandQueue *queue) :
-    queue(queue)
-{
-}
-
 auto WaylandCanvas::init() -> Result<void>
 {
     SPDLOG_INFO("canvas created");
     return {};
 }
+
+auto WaylandCanvas::execute(Command cmd)
+{}
 
 } // namespace upp

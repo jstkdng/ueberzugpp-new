@@ -23,6 +23,7 @@
 #include "command.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
+#include "util/thread.hpp"
 
 #include <CLI/CLI.hpp>
 #include <atomic>
@@ -44,7 +45,6 @@ class Application
     static void setup_signal_handler();
     static void signal_handler(int signal);
     static void print_header();
-    static auto wait_for_layer_commands() -> Result<void>;
 
     inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
 
@@ -55,10 +55,13 @@ class Application
     terminal::Context terminal;
     CanvasPtr canvas;
 
+    std::jthread command_thread;
     std::shared_ptr<spdlog::logger> logger;
 
+    void execute_layer_commands(const std::stop_token &token);
     auto setup_logging() -> Result<void>;
     auto handle_cli_commands() -> Result<void>;
+    auto wait_for_layer_commands() -> Result<void>;
 };
 
 } // namespace upp

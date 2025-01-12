@@ -28,8 +28,8 @@ namespace upp
 class WaylandCanvas : public Canvas
 {
   public:
-    explicit WaylandCanvas(CommandQueue *queue);
     auto init() -> Result<void> override;
+    void execute(Command cmd) override;
 
   private:
     CommandQueue *queue;

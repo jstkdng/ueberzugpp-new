@@ -36,8 +36,9 @@ class Canvas
   public:
     virtual ~Canvas() = default;
 
-    static auto create(std::string_view output, CommandQueue *queue) -> Result<CanvasPtr>;
+    static auto create(std::string_view output) -> Result<CanvasPtr>;
     virtual auto init() -> Result<void> = 0;
+    virtual void execute(const Command& cmd) = 0;
 };
 
 } // namespace upp
