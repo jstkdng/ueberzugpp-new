@@ -98,7 +98,7 @@ auto Application::setup_logging() -> Result<void>
 
     try {
         logger = spdlog::stdout_color_mt("main");
-        logger->set_pattern("[%Y-%m-%d %T.%f] %^[%8l]%$ [%@] %v");
+        logger->set_pattern("[%Y-%m-%d %T.%F] %^[%8l]%$ [%@] %v");
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return Err("spdlog", ex);

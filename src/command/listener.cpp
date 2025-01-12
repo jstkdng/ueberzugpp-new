@@ -27,6 +27,7 @@
 #include <format>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace upp
 {
@@ -82,9 +83,7 @@ void CommandListener::extract_commands(std::string &line)
             } else if (cmd->action == "flush") {
                 flush_command_queue();
             } else {
-                // TODO: dequeue add command if it is immediately followed by a remove command
-                //queue->enqueue(*cmd);
-                queue2.enqueue(std::move(*cmd));
+                enqueue_or_discard(*cmd);
             }
         } else {
             SPDLOG_ERROR(cmd.error().message());
@@ -97,9 +96,27 @@ void CommandListener::extract_commands(std::string &line)
 void CommandListener::flush_command_queue() const
 {
     SPDLOG_DEBUG("flushing command queue");
-    Command cmd;
-    while (queue->try_dequeue(cmd)) {
-        // no need to process the commands
+    queue->clear();
+}
+
+void CommandListener::enqueue_or_discard(Command cmd)
+{
+    bool discard = false;
+    if (cmd.action == "remove") {
+        queue->run_locked([&cmd, &discard](auto &deque) {
+            if (deque.empty()) {
+                return;
+            }
+            auto last = deque.back();
+            if (last.action == "add" && last.preview_id == cmd.preview_id && last.image_path == cmd.image_path) {
+                discard = true;
+                deque.pop_back();
+            }
+        });
+    }
+
+    if (!discard) {
+        queue->enqueue(std::move(cmd));
     }
 }
 

@@ -53,7 +53,7 @@ struct Command {
     std::variant<int, std::string> height_;
 };
 
-using CommandQueue = moodycamel::BlockingConcurrentQueue<Command>;
+using CommandQueue = ConcurrentDeque<Command>;
 
 class CommandListener
 {
@@ -65,9 +65,9 @@ class CommandListener
     void wait_for_input_on_stdin(const std::stop_token &token);
     void extract_commands(std::string &line);
     void flush_command_queue() const;
+    void enqueue_or_discard(Command cmd);
 
     CommandQueue *queue;
-    ConcurrentDeque<Command> queue2;
     std::string parser;
     std::jthread stdin_thread;
     std::string stdin_buffer;
