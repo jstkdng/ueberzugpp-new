@@ -84,9 +84,11 @@ void Application::execute_layer_commands(const std::stop_token &token)
     while (!token.stop_requested()) {
         auto cmd = queue.try_dequeue(os::waitms);
         if (!cmd) {
-            break;
+            continue;
         }
+        SPDLOG_INFO("running command for path: {}", cmd->image_path.string());
         canvas->execute(*cmd);
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 

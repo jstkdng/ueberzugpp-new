@@ -75,8 +75,6 @@ void CommandListener::extract_commands(std::string &line)
             break;
         }
 
-        auto cmd_str = line.substr(0, find_result);
-        SPDLOG_DEBUG("received command: {}", cmd_str);
         auto cmd = Command::create(parser, line.substr(0, find_result));
         if (cmd) {
             if (cmd->action == "exit") {
@@ -102,8 +100,9 @@ void CommandListener::flush_command_queue() const
 
 void CommandListener::enqueue_or_discard(const Command &cmd)
 {
+    //queue->enqueue(cmd);
     queue->enqueue(cmd, [&cmd](auto &deque) {
-        if (deque.size() <= 1 || cmd.action != "remove") {
+        if (deque.size() <= 2 || cmd.action != "remove") {
             return true;
         }
         auto last = deque.back();
