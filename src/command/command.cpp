@@ -20,7 +20,14 @@
 #include "util/result.hpp"
 
 #include <glaze/glaze.hpp>
+// a bunch of includes to shutup clang-tidy
+#include <glaze/core/common.hpp>
+#include <glaze/core/meta.hpp>
+#include <glaze/core/opts.hpp>
+#include <glaze/core/reflect.hpp>
+#include <glaze/json/read.hpp>
 
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -28,6 +35,23 @@
 template <>
 struct glz::meta<upp::Command> {
     using T = upp::Command;
+
+    template <auto MemberPointer>
+    static constexpr auto maybe_quoted_int_read = [](T &self, const glz::raw_json &json) {
+        // first attempt to parse without quotes
+        auto err = glz::read_json(self.*MemberPointer, json.str);
+        if (err) {
+            // if we error then attempt parsing as a quoted number
+            err = glz::read<glz::opts{.quoted_num = true}>(self.*MemberPointer, json.str);
+        }
+        if (err) {
+            throw std::runtime_error("maybe_quoted_int_read failure");
+        }
+    };
+
+    template <auto MemberPointer>
+    static constexpr auto custom_int = custom<maybe_quoted_int_read<MemberPointer>, MemberPointer>;
+
     // NOLINTNEXTLINE
     static constexpr auto value = object(
         // clang-format off
@@ -35,12 +59,12 @@ struct glz::meta<upp::Command> {
         "identifier", &T::preview_id,
         "scaler", &T::image_scaler,
         "path", &T::image_path,
-        "x", &T::x_,
-        "y", &T::y_,
-        "width", &T::width_,
-        "height", &T::height_,
-        "max_width", &T::width_,
-        "max_height", &T::height_
+        "x", custom_int<&T::x>,
+        "y", custom_int<&T::y>,
+        "width", custom_int<&T::width>,
+        "height", custom_int<&T::height>,
+        "max_width", custom_int<&T::width>,
+        "max_height", custom_int<&T::height>
         // clang-format on
     );
 };
