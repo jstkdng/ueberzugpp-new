@@ -65,6 +65,7 @@ include(GNUInstallDirs)
 include(CheckCXXSymbolExists)
 include(CheckSourceCompiles)
 
+find_package(PkgConfig REQUIRED)
 find_package(TBB REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ECM REQUIRED NO_MODULE)
@@ -82,8 +83,9 @@ int main(void) {auto t = std::jthread([] {}); return 0;}
 " HAVE_STD_JTHREAD)
 
 if (ENABLE_X11)
+    pkg_check_modules(XCBERRORS REQUIRED IMPORTED_TARGET xcb-errors)
     find_package(XCB REQUIRED COMPONENTS XCB SHM IMAGE RES)
-    target_link_libraries(ueberzugpp PRIVATE XCB::XCB XCB::SHM XCB::IMAGE XCB::RES)
+    target_link_libraries(ueberzugpp PRIVATE XCB::XCB XCB::SHM XCB::IMAGE XCB::RES PkgConfig::XCBERRORS)
 
     target_sources(
         ueberzugpp

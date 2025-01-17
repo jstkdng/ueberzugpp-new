@@ -22,6 +22,7 @@
 
 // IWYU pragma: begin_exports
 #include <xcb/xcb.h>
+#include <xcb/xcb_errors.h>
 #include <xcb/xcb_image.h>
 #include <xcb/xproto.h>
 // IWYU pragma: end_exports
@@ -36,14 +37,16 @@ using connection = c_unique_ptr<xcb_connection_t, &xcb_disconnect>;
 using screen = xcb_screen_t *;
 using window_id = xcb_window_t;
 
+using error = unique_C_ptr<xcb_generic_error_t>;
+using errors_context = c_unique_ptr<xcb_errors_context_t, &xcb_errors_context_free>;
+
 template <class Fn, class... Args>
 auto get_result(Fn func, Args &&...args)
 {
     xcb_generic_error_t *err = nullptr;
     auto *result = func(std::forward<Args>(args)..., &err);
-    using XCBError = unique_C_ptr<xcb_generic_error_t>;
     using XCBFunc = unique_C_ptr<std::remove_pointer_t<decltype(result)>>;
-    using XCBResult = std::expected<XCBFunc, XCBError>;
+    using XCBResult = std::expected<XCBFunc, error>;
     if (!result) {
         return XCBResult{std::unexpected(err)};
     }

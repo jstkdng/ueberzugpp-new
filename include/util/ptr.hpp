@@ -26,7 +26,7 @@ namespace upp
 {
 
 template<auto Fn>
-struct generic_deleter {
+struct deleter_type {
     template <typename T>
     constexpr void operator()(T *ptr) const
     {
@@ -34,10 +34,21 @@ struct generic_deleter {
     }
 };
 
-template <typename T, auto fn>
-using c_unique_ptr = std::unique_ptr<T, generic_deleter<fn>>;
+struct free_deleter {
+    template <typename T>
+    constexpr void operator()(T *ptr) const
+    {
+        std::free(const_cast<std::remove_const_t<T> *>(ptr)); // NOLINT
+    }
+};
+
+template <auto Fn>
+using deleter_fn = std::integral_constant<std::decay_t<decltype(Fn)>, Fn>;
+
+template <typename T, auto Fn>
+using c_unique_ptr = std::unique_ptr<T, deleter_type<Fn>>;
 
 template <typename T>
-using unique_C_ptr = c_unique_ptr<T, std::free>;
+using unique_C_ptr = std::unique_ptr<T, free_deleter>;
 
 } // namespace upp
