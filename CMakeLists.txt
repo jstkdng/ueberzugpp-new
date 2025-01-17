@@ -84,6 +84,19 @@ int main(void) {auto t = std::jthread([] {}); return 0;}
 if (ENABLE_X11)
     find_package(XCB REQUIRED COMPONENTS XCB SHM IMAGE RES)
     target_link_libraries(ueberzugpp PRIVATE XCB::XCB XCB::SHM XCB::IMAGE XCB::RES)
+
+    target_sources(
+        ueberzugpp
+        PRIVATE
+            src/x11/canvas.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            include/x11/x11.hpp
+            include/x11/types.hpp
+    )
 endif ()
 
 if (ENABLE_WAYLAND)

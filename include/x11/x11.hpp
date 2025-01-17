@@ -16,39 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#pragma once
+
 #include "base/canvas.hpp"
-#include "buildconfig.hpp"
+#include "command.hpp"
 #include "util/result.hpp"
-
-#ifdef ENABLE_WAYLAND
-#include "wayland/canvas.hpp"
-#endif
-
-#ifdef ENABLE_X11
-#include "x11/x11.hpp"
-#endif
-
-#include <memory>
-#include <string_view>
+#include "x11/types.hpp"
 
 namespace upp
 {
 
-auto Canvas::create(std::string_view output) -> Result<CanvasPtr>
+class X11Canvas : public Canvas
 {
-#ifdef ENABLE_WAYLAND
-    if (output == "wayland") {
-        return std::make_unique<wl::WaylandCanvas>();
-    }
-#endif
+  public:
+    auto init() -> Result<void> override;
+    void execute(const Command &cmd) override;
 
-#ifdef ENABLE_X11
-    if (output == "x11") {
-        return std::make_unique<X11Canvas>();
-    }
-#endif
-
-    return Err("could not create canvas");
-}
+  private:
+    xcb::connection connection;
+    xcb::screen screen;
+};
 
 } // namespace upp

@@ -16,39 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "base/canvas.hpp"
-#include "buildconfig.hpp"
-#include "util/result.hpp"
+#pragma once
 
-#ifdef ENABLE_WAYLAND
-#include "wayland/canvas.hpp"
-#endif
+#include "util/ptr.hpp"
 
-#ifdef ENABLE_X11
-#include "x11/x11.hpp"
-#endif
+// IWYU pragma: begin_exports
+#include <xcb/xcb.h>
+#include <xcb/xcb_image.h>
+#include <xcb/xproto.h>
+// IWYU pragma: end_exports
 
-#include <memory>
-#include <string_view>
-
-namespace upp
+namespace upp::xcb
 {
 
-auto Canvas::create(std::string_view output) -> Result<CanvasPtr>
-{
-#ifdef ENABLE_WAYLAND
-    if (output == "wayland") {
-        return std::make_unique<wl::WaylandCanvas>();
-    }
-#endif
+using connection = c_unique_ptr<xcb_connection_t, xcb_disconnect>;
+using screen = xcb_screen_t *;
 
-#ifdef ENABLE_X11
-    if (output == "x11") {
-        return std::make_unique<X11Canvas>();
-    }
-#endif
-
-    return Err("could not create canvas");
-}
-
-} // namespace upp
+} // namespace upp::xcb
