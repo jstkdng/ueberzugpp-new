@@ -19,7 +19,6 @@
 #include "x11/x11.hpp"
 #include "command.hpp"
 #include "util/result.hpp"
-#include "x11/types.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -28,12 +27,6 @@ namespace upp
 
 auto X11Canvas::init() -> Result<void>
 {
-    connection.reset(xcb_connect(nullptr, nullptr));
-    if (xcb_connection_has_error(connection.get()) > 0) {
-        return Err("can't connect to x11");
-    }
-    screen = xcb_setup_roots_iterator(xcb_get_setup(connection.get())).data;
-
     SPDLOG_INFO("canvas created");
     return {};
 }

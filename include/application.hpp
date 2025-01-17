@@ -19,11 +19,15 @@
 #pragma once
 
 #include "base/canvas.hpp"
+#include "buildconfig.hpp"
 #include "cli.hpp"
 #include "command.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
+#ifdef ENABLE_X11
+#include "x11/x11.hpp"
+#endif
 
 #include <CLI/CLI.hpp>
 #include <atomic>
@@ -33,6 +37,20 @@
 
 namespace upp
 {
+
+class ApplicationContext
+{
+  public:
+    auto init() -> Result<void>;
+
+  private:
+#ifdef ENABLE_X11
+    X11Context x11;
+#endif
+    terminal::Context terminal;
+
+    auto x11_init() -> Result<void>;
+};
 
 class Application
 {
@@ -46,13 +64,13 @@ class Application
     static void signal_handler(int signal);
     static void print_header();
 
-    inline static std::atomic_flag stop_flag_ = ATOMIC_FLAG_INIT;
+    inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 
   private:
     Cli *cli;
     CommandQueue queue;
     CommandListener listener{&queue};
-    terminal::Context terminal;
+    ApplicationContext ctx;
     CanvasPtr canvas;
 
     std::jthread command_thread;

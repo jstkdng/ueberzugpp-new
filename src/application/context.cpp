@@ -16,36 +16,24 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "base/canvas.hpp"
-#include "command.hpp"
+#include "application.hpp"
 #include "util/result.hpp"
-#include "x11/types.hpp"
-
-#include <expected>
-#include <vector>
 
 namespace upp
 {
 
-class X11Context
+auto ApplicationContext::init() -> Result<void>
 {
-  public:
-    auto init() -> Result<void>;
+    return x11_init();
+}
 
-  private:
-    xcb::connection connection;
-    xcb::screen screen = nullptr;
-
-    auto get_server_window_ids() -> std::vector<xcb::window_id>;
-};
-
-class X11Canvas final : public Canvas
+auto ApplicationContext::x11_init() -> Result<void>
 {
-  public:
-    auto init() -> Result<void> override;
-    void execute(const Command &cmd) override;
-};
+#ifdef ENABLE_X11
+    return x11.init();
+#else
+    return {};
+#endif
+}
 
 } // namespace upp

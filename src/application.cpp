@@ -59,7 +59,7 @@ auto Application::handle_cli_commands() -> Result<void>
     if (cli->layer_command->parsed()) {
         print_header();
         setup_signal_handler();
-        return terminal.open_first_pty()
+        return ctx.init()
             .and_then([this] { return Canvas::create(cli->layer.output); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
@@ -75,7 +75,7 @@ auto Application::handle_cli_commands() -> Result<void>
 auto Application::wait_for_layer_commands() -> Result<void>
 {
     command_thread = std::jthread([this] (const auto&token) { execute_layer_commands(token);});
-    stop_flag_.wait(false);
+    stop_flag.wait(false);
     return {};
 }
 
@@ -135,8 +135,8 @@ auto Application::setup_logging() -> Result<void>
 
 void Application::terminate()
 {
-    stop_flag_.test_and_set();
-    stop_flag_.notify_one();
+    stop_flag.test_and_set();
+    stop_flag.notify_one();
 }
 
 void Application::setup_signal_handler()

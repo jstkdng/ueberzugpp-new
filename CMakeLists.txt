@@ -89,6 +89,7 @@ if (ENABLE_X11)
         ueberzugpp
         PRIVATE
             src/x11/canvas.cpp
+            src/x11/context.cpp
 
         PRIVATE
         FILE_SET HEADERS
@@ -141,6 +142,7 @@ target_sources(
     PRIVATE
         src/main.cpp
         src/application.cpp
+        src/application/context.cpp
         src/cli.cpp
         src/unix/fd.cpp
         src/unix/socket/client.cpp
