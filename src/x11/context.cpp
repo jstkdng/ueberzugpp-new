@@ -49,7 +49,6 @@ auto X11Context::get_server_window_ids() -> std::vector<xcb::window_id>
 
     std::stack<xcb_query_tree_cookie_t> cookies_st;
     cookies_st.push(xcb_query_tree(connection.get(), screen->root));
-    SPDLOG_INFO("getting window ids");
     while (!cookies_st.empty()) {
         auto cookie = cookies_st.top();
         cookies_st.pop();
@@ -79,7 +78,6 @@ auto X11Context::get_server_window_ids() -> std::vector<xcb::window_id>
             cookies_st.push(xcb_query_tree(connection.get(), child));
         }
     }
-    SPDLOG_INFO("done getting window ids");
     return windows;
 }
 

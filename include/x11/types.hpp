@@ -26,8 +26,8 @@
 #include <xcb/xproto.h>
 // IWYU pragma: end_exports
 
-#include <type_traits>
 #include <expected>
+#include <type_traits>
 
 namespace upp::xcb
 {
@@ -35,15 +35,15 @@ namespace upp::xcb
 using connection = c_unique_ptr<xcb_connection_t, xcb_disconnect>;
 using screen = xcb_screen_t *;
 using window_id = xcb_window_t;
-using error = unique_C_ptr<xcb_generic_error_t>;
 
 template <class Fn, class... Args>
 auto get_result(Fn func, Args &&...args)
 {
     xcb_generic_error_t *err = nullptr;
-    auto result = func(std::forward<Args>(args)..., &err);
+    auto *result = func(std::forward<Args>(args)..., &err);
+    using XCBError = unique_C_ptr<xcb_generic_error_t>;
     using XCBFunc = unique_C_ptr<std::remove_pointer_t<decltype(result)>>;
-    using XCBResult = std::expected<XCBFunc, error>;
+    using XCBResult = std::expected<XCBFunc, XCBError>;
     if (!result) {
         return XCBResult{std::unexpected(err)};
     }
