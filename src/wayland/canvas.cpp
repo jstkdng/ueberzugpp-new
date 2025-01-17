@@ -82,6 +82,7 @@ auto WaylandCanvas::init() -> Result<void>
 
 void WaylandCanvas::execute([[maybe_unused]] const Command &cmd)
 {
+    // do nothing for now
 }
 
 } // namespace upp::wl

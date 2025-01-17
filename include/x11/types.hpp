@@ -32,7 +32,7 @@
 namespace upp::xcb
 {
 
-using connection = c_unique_ptr<xcb_connection_t, xcb_disconnect>;
+using connection = c_unique_ptr<xcb_connection_t, &xcb_disconnect>;
 using screen = xcb_screen_t *;
 using window_id = xcb_window_t;
 

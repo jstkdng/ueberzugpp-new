@@ -33,6 +33,7 @@ auto X11Canvas::init() -> Result<void>
 
 void X11Canvas::execute([[maybe_unused]] const Command &cmd)
 {
+    // do nothing for now
 }
 
 } // namespace upp

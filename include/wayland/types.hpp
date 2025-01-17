@@ -29,17 +29,17 @@
 
 namespace upp::wl
 {
-using display = c_unique_ptr<wl_display, wl_display_disconnect>;
-using registry = c_unique_ptr<wl_registry, wl_registry_destroy>;
-using compositor = c_unique_ptr<wl_compositor, wl_compositor_destroy>;
-using shm = c_unique_ptr<wl_shm, wl_shm_destroy>;
+using display = c_unique_ptr<wl_display, &wl_display_disconnect>;
+using registry = c_unique_ptr<wl_registry, &wl_registry_destroy>;
+using compositor = c_unique_ptr<wl_compositor, &wl_compositor_destroy>;
+using shm = c_unique_ptr<wl_shm, &wl_shm_destroy>;
 
 template <typename... Args>
-void ignore([[maybe_unused]] Args... args) {};
+void ignore([[maybe_unused]] Args... args) { /* ignore wayland callback */ };
 
 namespace xdg
 {
-using wm_base = c_unique_ptr<xdg_wm_base, xdg_wm_base_destroy>;
+using wm_base = c_unique_ptr<xdg_wm_base, &xdg_wm_base_destroy>;
 }
 
 } // namespace upp::wl
