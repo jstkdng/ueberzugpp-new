@@ -21,6 +21,7 @@
 #include "util/ptr.hpp"
 
 // IWYU pragma: begin_exports
+#include <xcb/res.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_errors.h>
 #include <xcb/xcb_image.h>

@@ -16,7 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "os/os.hpp"
 #include "util/result.hpp"
+#include "util/util.hpp"
 #include "x11/types.hpp"
 #include "x11/x11.hpp"
 
@@ -25,6 +27,8 @@
 #include <algorithm>
 #include <array>
 #include <cstdlib>
+#include <iterator>
+#include <optional>
 #include <span>
 #include <stack>
 #include <string_view>
@@ -46,12 +50,13 @@ auto X11Context::init() -> Result<void>
     xcb_errors_context_new(connection.get(), &tmp);
     err_ctx.reset(tmp);
 
+    pid_window_map.reserve(num_clients);
+    set_pid_window_map();
     return {};
 }
 
 auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
 {
-    constexpr int num_clients = 256;
     std::vector<xcb::window_id> windows;
     windows.reserve(num_clients);
 
@@ -71,13 +76,58 @@ auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
         auto num_children = xcb_query_tree_children_length(reply.get());
         auto *children_ptr = xcb_query_tree_children(reply.get());
 
-        std::span children{children_ptr, static_cast<size_t>(num_children)};
+        const std::span children{children_ptr, static_cast<size_t>(num_children)};
         windows.insert(windows.end(), children.begin(), children.end());
         for (auto child : children) {
             cookies_st.push(xcb_query_tree(connection.get(), child));
         }
     }
     return windows;
+}
+
+void X11Context::set_parent_window(int pid)
+{
+    auto wid = os::getenv("WINDOWID").transform([](std::string_view var) {
+        return util::view_to_numeral<int>(var).value_or(-1);
+    });
+    if (wid && *wid != -1) {
+        parent = *wid;
+        return;
+    }
+    auto search = pid_window_map.find(pid);
+    if (search != pid_window_map.end()) {
+        parent = search->second;
+    }
+}
+
+void X11Context::set_pid_window_map()
+{
+    auto windows = get_complete_window_ids();
+    std::vector<xcb_res_query_client_ids_cookie_t> cookies;
+    cookies.reserve(windows.size());
+
+    xcb_res_client_id_spec_t spec;
+    spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
+    for (auto window : windows) {
+        spec.client = window;
+        cookies.push_back(xcb_res_query_client_ids(connection.get(), 1, &spec));
+    }
+
+    pid_window_map.clear();
+    auto win_iter = windows.cbegin();
+    for (auto &cookie : cookies) {
+        auto reply_result = xcb::get_result(xcb_res_query_client_ids_reply, connection.get(), cookie);
+        if (!reply_result) {
+            handle_xcb_error(reply_result.error());
+            continue;
+        }
+
+        auto &reply = *reply_result;
+        auto iter = xcb_res_query_client_ids_ids_iterator(reply.get());
+        auto pid = *xcb_res_client_id_value_value(iter.data);
+        pid_window_map.emplace(static_cast<int>(pid), *win_iter);
+        std::advance(win_iter, 1);
+    }
 }
 
 auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
@@ -100,7 +150,7 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
     }
 
     for (auto &cookie_prop : cookies) {
-        bool is_complete = std::ranges::any_of(cookie_prop.cookies, [this](auto &cookie) {
+        const bool is_complete = std::ranges::any_of(cookie_prop.cookies, [this](auto &cookie) {
             auto reply = xcb::get_result(xcb_get_property_reply, connection.get(), cookie);
             if (!reply) {
                 handle_xcb_error(reply.error());
@@ -116,7 +166,7 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
     return result;
 }
 
-auto X11Context::get_window_dimensions(xcb_window_t window) const -> std::pair<int, int>
+auto X11Context::get_window_dimensions(xcb::window_id window) const -> std::pair<int, int>
 {
     auto cookie = xcb_get_geometry(connection.get(), window);
     auto reply_result = xcb::get_result(xcb_get_geometry_reply, connection.get(), cookie);

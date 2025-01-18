@@ -24,6 +24,7 @@
 #include "x11/types.hpp"
 
 #include <expected>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -34,17 +35,23 @@ class X11Context
 {
   public:
     auto init() -> Result<void>;
+    static constexpr int num_clients = 256;
 
-  private:
     xcb::connection connection;
     xcb::screen screen = nullptr;
+    xcb::window_id parent;
+
+  private:
     xcb::errors_context err_ctx;
+    std::unordered_multimap<int, xcb::window_id> pid_window_map;
+
+    void set_pid_window_map();
+    void set_parent_window(int pid);
+    void handle_xcb_error(xcb::error &err) const;
 
     [[nodiscard]] auto get_window_ids() const -> std::vector<xcb::window_id>;
     [[nodiscard]] auto get_complete_window_ids() const -> std::vector<xcb::window_id>;
     [[nodiscard]] auto get_window_dimensions(xcb::window_id window) const -> std::pair<int, int>;
-
-    void handle_xcb_error(xcb::error &err) const;
 };
 
 class X11Canvas final : public Canvas
