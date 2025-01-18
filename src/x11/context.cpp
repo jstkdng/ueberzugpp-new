@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdlib>
+#include <format>
 #include <iterator>
 #include <optional>
 #include <span>
@@ -51,8 +52,16 @@ auto X11Context::init() -> Result<void>
     err_ctx.reset(tmp);
 
     pid_window_map.reserve(num_clients);
-    set_pid_window_map();
     return {};
+}
+
+auto X11Context::load_state(int pid) -> Result<void>
+{
+    set_pid_window_map();
+    return set_parent_window(pid).and_then([this] {
+        SPDLOG_INFO("parent window: {}", parent);
+        return set_parent_window_geometry();
+    });
 }
 
 auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
@@ -85,19 +94,21 @@ auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
     return windows;
 }
 
-void X11Context::set_parent_window(int pid)
+auto X11Context::set_parent_window(int pid) -> Result<void>
 {
     auto wid = os::getenv("WINDOWID").transform([](std::string_view var) {
         return util::view_to_numeral<int>(var).value_or(-1);
     });
     if (wid && *wid != -1) {
         parent = *wid;
-        return;
+        return {};
     }
     auto search = pid_window_map.find(pid);
-    if (search != pid_window_map.end()) {
-        parent = search->second;
+    if (search == pid_window_map.end()) {
+        return Err(std::format("parent not found for pid {}", pid));
     }
+    parent = search->second;
+    return {};
 }
 
 void X11Context::set_pid_window_map()
@@ -166,16 +177,21 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
     return result;
 }
 
-auto X11Context::get_window_dimensions(xcb::window_id window) const -> std::pair<int, int>
+auto X11Context::set_parent_window_geometry() -> Result<void>
 {
-    auto cookie = xcb_get_geometry(connection.get(), window);
+    auto cookie = xcb_get_geometry(connection.get(), parent);
     auto reply_result = xcb::get_result(xcb_get_geometry_reply, connection.get(), cookie);
     if (!reply_result) {
         handle_xcb_error(reply_result.error());
-        return std::make_pair(0, 0);
+        return Err(std::format("failed to set geometry for window {}", parent));
     }
     auto &reply = *reply_result;
-    return std::make_pair(reply->width, reply->height);
+    parent_geometry.width = reply->width;
+    parent_geometry.height = reply->height;
+    parent_geometry.x = reply->x;
+    parent_geometry.y = reply->y;
+    parent_geometry.border_width = reply->border_width;
+    return {};
 }
 
 void X11Context::handle_xcb_error(xcb::error &err) const

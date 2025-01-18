@@ -25,33 +25,44 @@
 
 #include <expected>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace upp
 {
 
+struct X11Geometry
+{
+    int width = -1;
+    int height = -1;
+    int x = -1;
+    int y = -1;
+    int border_width = -1;
+};
+
 class X11Context
 {
   public:
     auto init() -> Result<void>;
+    auto load_state(int pid) -> Result<void>;
     static constexpr int num_clients = 256;
 
     xcb::connection connection;
     xcb::screen screen = nullptr;
-    xcb::window_id parent;
+    xcb::window_id parent = -1;
+    X11Geometry parent_geometry;
 
   private:
     xcb::errors_context err_ctx;
     std::unordered_multimap<int, xcb::window_id> pid_window_map;
 
     void set_pid_window_map();
-    void set_parent_window(int pid);
+    auto set_parent_window(int pid) -> Result<void>;
+    auto set_parent_window_geometry() -> Result<void>;
+
     void handle_xcb_error(xcb::error &err) const;
 
     [[nodiscard]] auto get_window_ids() const -> std::vector<xcb::window_id>;
     [[nodiscard]] auto get_complete_window_ids() const -> std::vector<xcb::window_id>;
-    [[nodiscard]] auto get_window_dimensions(xcb::window_id window) const -> std::pair<int, int>;
 };
 
 class X11Canvas final : public Canvas

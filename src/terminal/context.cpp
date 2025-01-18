@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "application.hpp"
 #include "os/os.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
@@ -27,13 +28,18 @@
 
 #include <algorithm>
 
-namespace upp::terminal
+namespace upp
 {
 
-auto Context::open_first_pty() -> Result<void>
+auto TerminalContext::init(ApplicationContext *app_ctx) -> Result<void>
 {
-    struct stat stat_info {
-    };
+    ctx = app_ctx;
+    return open_first_pty().and_then([this] { return ctx->x11.load_state(pid); });
+}
+
+auto TerminalContext::open_first_pty() -> Result<void>
+{
+    struct stat stat_info{};
     auto tree = os::Process::get_tree(os::getpid());
     std::ranges::reverse(tree);
 
@@ -59,4 +65,4 @@ auto Context::open_first_pty() -> Result<void>
     return Err("could not open terminal");
 }
 
-} // namespace upp::terminal
+} // namespace upp

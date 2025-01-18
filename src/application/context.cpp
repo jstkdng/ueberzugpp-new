@@ -24,7 +24,7 @@ namespace upp
 
 auto ApplicationContext::init() -> Result<void>
 {
-    return x11_init();
+    return x11_init().and_then([this] { return terminal.init(this); });
 }
 
 auto ApplicationContext::x11_init() -> Result<void>

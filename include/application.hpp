@@ -43,12 +43,12 @@ class ApplicationContext
   public:
     auto init() -> Result<void>;
 
-  private:
 #ifdef ENABLE_X11
     X11Context x11;
 #endif
-    terminal::Context terminal;
+    TerminalContext terminal;
 
+  private:
     auto x11_init() -> Result<void>;
 };
 

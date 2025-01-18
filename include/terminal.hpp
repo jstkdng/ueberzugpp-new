@@ -22,50 +22,24 @@
 #include "util/result.hpp"
 
 #include <string>
-#include <utility>
 
-namespace upp::terminal
+namespace upp
 {
 
-namespace geometry
-{
+class ApplicationContext;
 
-struct x11 {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct wayland {
-    std::pair<int, int> coords;
-    int width;
-    int height;
-};
-
-struct iotctl {
-    int cols;
-    int rows;
-    int xpixel;
-    int ypixel;
-};
-
-} // namespace geometry
-
-class Geometry
+class TerminalContext
 {
   public:
-    Geometry(int pty_fd, int pid);
-};
-
-class Context
-{
-  public:
-    auto open_first_pty() -> Result<void>;
+    auto init(ApplicationContext *app_ctx) -> Result<void>;
 
   private:
+    ApplicationContext *ctx = nullptr;
     std::string pty_path;
     unix::fd pty_fd;
     int pid = -1;
+
+    auto open_first_pty() -> Result<void>;
 };
 
-} // namespace upp::terminal
+} // namespace upp
