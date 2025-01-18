@@ -26,6 +26,7 @@
 #include <xcb/xcb_image.h>
 #include <xcb/xproto.h>
 // IWYU pragma: end_exports
+#include <spdlog/spdlog.h>
 
 #include <expected>
 #include <type_traits>

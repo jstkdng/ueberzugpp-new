@@ -24,7 +24,6 @@
 #include "x11/types.hpp"
 
 #include <expected>
-#include <initializer_list>
 #include <utility>
 #include <vector>
 
@@ -41,9 +40,8 @@ class X11Context
     xcb::screen screen = nullptr;
     xcb::errors_context err_ctx;
 
-    [[nodiscard]] auto get_server_window_ids() const -> std::vector<xcb::window_id>;
-    [[nodiscard]] auto window_has_properties(xcb::window_id window, std::initializer_list<xcb_atom_t> properties) const
-        -> bool;
+    [[nodiscard]] auto get_window_ids() const -> std::vector<xcb::window_id>;
+    [[nodiscard]] auto get_complete_window_ids() const -> std::vector<xcb::window_id>;
     [[nodiscard]] auto get_window_dimensions(xcb::window_id window) const -> std::pair<int, int>;
 
     void handle_xcb_error(xcb::error &err) const;

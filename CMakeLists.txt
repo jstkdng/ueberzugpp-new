@@ -44,7 +44,7 @@ endif ()
 
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)
-target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/src/=")
+target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
 
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)

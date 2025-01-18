@@ -23,8 +23,9 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdlib>
-#include <initializer_list>
+#include <span>
 #include <stack>
 #include <string_view>
 #include <utility>
@@ -48,12 +49,11 @@ auto X11Context::init() -> Result<void>
     return {};
 }
 
-auto X11Context::get_server_window_ids() const -> std::vector<xcb::window_id>
+auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
 {
     constexpr int num_clients = 256;
     std::vector<xcb::window_id> windows;
     windows.reserve(num_clients);
-    windows.push_back(screen->root);
 
     std::stack<xcb_query_tree_cookie_t> cookies_st;
     cookies_st.push(xcb_query_tree(connection.get(), screen->root));
@@ -68,39 +68,52 @@ auto X11Context::get_server_window_ids() const -> std::vector<xcb::window_id>
         }
 
         auto &reply = *reply_result;
-        const auto num_children = xcb_query_tree_children_length(reply.get());
-        if (num_children == 0) {
-            continue;
-        }
+        auto num_children = xcb_query_tree_children_length(reply.get());
+        auto *children_ptr = xcb_query_tree_children(reply.get());
 
-        const auto *children = xcb_query_tree_children(reply.get());
-        for (int i = 0; i < num_children; ++i) {
-            auto child = children[i];
-            const bool is_complete_window = window_has_properties(child, {XCB_ATOM_WM_CLASS, XCB_ATOM_WM_NAME});
-            if (is_complete_window) {
-                windows.push_back(child);
-            }
+        std::span children{children_ptr, static_cast<size_t>(num_children)};
+        windows.insert(windows.end(), children.begin(), children.end());
+        for (auto child : children) {
             cookies_st.push(xcb_query_tree(connection.get(), child));
         }
     }
     return windows;
 }
 
-auto X11Context::window_has_properties(xcb_window_t window, std::initializer_list<xcb_atom_t> properties) const -> bool
+auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
 {
-    std::vector<xcb_get_property_cookie_t> cookies;
-    cookies.reserve(properties.size());
-    for (auto prop : properties) {
-        cookies.push_back(xcb_get_property(connection.get(), 0, window, prop, XCB_ATOM_ANY, 0, 4));
+    struct cookie_props {
+        xcb::window_id window_id;
+        std::array<xcb_get_property_cookie_t, 2> cookies;
+    };
+    auto windows = get_window_ids();
+    std::vector<cookie_props> cookies;
+    std::vector<xcb::window_id> result;
+    cookies.reserve(windows.size());
+    result.reserve(windows.size());
+
+    for (auto window : windows) {
+        cookies.push_back(
+            {.window_id = window,
+             .cookies = {xcb_get_property(connection.get(), 0, window, XCB_ATOM_WM_CLASS, XCB_ATOM_ANY, 0, 4),
+                         xcb_get_property(connection.get(), 0, window, XCB_ATOM_WM_NAME, XCB_ATOM_ANY, 0, 4)}});
     }
-    return std::ranges::any_of(cookies, [this](xcb_get_property_cookie_t cookie) -> bool {
-        auto reply = xcb::get_result(xcb_get_property_reply, connection.get(), cookie);
-        if (!reply) {
-            handle_xcb_error(reply.error());
-            return false;
+
+    for (auto &cookie_prop : cookies) {
+        bool is_complete = std::ranges::any_of(cookie_prop.cookies, [this](auto &cookie) {
+            auto reply = xcb::get_result(xcb_get_property_reply, connection.get(), cookie);
+            if (!reply) {
+                handle_xcb_error(reply.error());
+                return false;
+            }
+            return xcb_get_property_value_length(reply->get()) != 0;
+        });
+        if (is_complete) {
+            result.push_back(cookie_prop.window_id);
         }
-        return xcb_get_property_value_length(reply->get()) != 0;
-    });
+    }
+
+    return result;
 }
 
 auto X11Context::get_window_dimensions(xcb_window_t window) const -> std::pair<int, int>

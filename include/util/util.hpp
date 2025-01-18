@@ -20,11 +20,14 @@
 
 #include "util/result.hpp"
 
+#include <chrono>
+#include <filesystem>
+#include <print>
+#include <ratio>
+#include <string>
 #include <string_view>
 #include <system_error>
 #include <variant>
-#include <string>
-#include <filesystem>
 
 namespace upp::util
 {
@@ -40,8 +43,23 @@ constexpr auto view_to_numeral(const std::string_view view) -> Result<T>
     return Err("parse_num", err);
 }
 
-auto variant_to_int(const std::variant<int, std::string>& var) -> int;
+auto variant_to_int(const std::variant<int, std::string> &var) -> int;
 auto get_log_filename() -> std::string;
 auto temp_directory_path() -> std::filesystem::path;
+
+template <typename Func>
+void benchmark(Func func)
+{
+    using std::chrono::duration;
+    using std::chrono::duration_cast;
+    using std::chrono::high_resolution_clock;
+    using std::chrono::milliseconds;
+
+    const auto time1 = high_resolution_clock::now();
+    func();
+    const auto time2 = high_resolution_clock::now();
+    const duration<double, std::milli> ms_double = time2 - time1;
+    std::print("{}ms\n", ms_double.count());
+}
 
 } // namespace upp::util
