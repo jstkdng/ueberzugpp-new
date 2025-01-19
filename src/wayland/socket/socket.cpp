@@ -17,8 +17,8 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "wayland/socket/socket.hpp"
-#include "util/result.hpp"
 #include "os/os.hpp"
+#include "util/result.hpp"
 #include "wayland/socket/hyprland.hpp"
 
 #include <memory>
@@ -28,8 +28,7 @@ namespace upp::wl
 
 auto Socket::create() -> Result<SocketPtr>
 {
-    auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE");
-    if (hyprland_signature) {
+    if (auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE"); hyprland_signature) {
         return std::make_unique<HyprlandSocket>(*hyprland_signature);
     }
 

@@ -105,8 +105,7 @@ void CommandListener::enqueue_or_discard(const Command &cmd)
         if (deque.size() <= 2 || cmd.action != "remove") {
             return true;
         }
-        auto last = deque.back();
-        if (last.action == "add" && last.preview_id == cmd.preview_id) {
+        if (auto last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
             SPDLOG_DEBUG("discarding add/remove command pair");
             deque.pop_back();
             return false;

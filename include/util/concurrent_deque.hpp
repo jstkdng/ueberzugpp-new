@@ -68,8 +68,8 @@ class ConcurrentDeque
     auto try_dequeue(int waitms) -> std::optional<T>
     {
         std::unique_lock lock{queue_mutex};
-        bool ready = cond.wait_for(lock, std::chrono::milliseconds(waitms), [this] { return !queue.empty(); });
-        if (!ready) {
+        if (bool ready = cond.wait_for(lock, std::chrono::milliseconds(waitms), [this] { return !queue.empty(); });
+            !ready) {
             return {};
         }
 

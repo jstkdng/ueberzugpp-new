@@ -84,8 +84,7 @@ auto Command::create(std::string_view parser, std::string line) -> Result<Comman
 auto Command::from_json(std::string line) -> Result<Command>
 {
     Command cmd;
-    auto err = glz::read_json(cmd, line);
-    if (err) {
+    if (auto err = glz::read_json(cmd, line); err) {
         return Err(glz::format_error(err, line));
     }
     return cmd;

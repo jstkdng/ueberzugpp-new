@@ -74,8 +74,7 @@ auto wait_for_data_on_fd(int filde) -> Result<bool>
     fds.fd = filde;
     fds.events = POLLIN;
 
-    const int res = poll(&fds, 1, waitms);
-    if (res == -1) {
+    if (int res = poll(&fds, 1, waitms); res == -1) {
         return Err("could not poll on file descriptor");
     }
 
