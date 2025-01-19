@@ -28,8 +28,8 @@
 #include <array>
 #include <cstdlib>
 #include <format>
-#include <iterator>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <stack>
 #include <string_view>
@@ -66,8 +66,7 @@ auto X11Context::load_state(int pid) -> Result<void>
 
 auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
 {
-    std::vector<xcb::window_id> windows;
-    windows.reserve(num_clients);
+    auto windows = util::get_vector<xcb::window_id>(num_clients);
 
     std::stack<xcb_query_tree_cookie_t> cookies_st;
     cookies_st.push(xcb_query_tree(connection.get(), screen->root));
@@ -117,8 +116,7 @@ auto X11Context::set_parent_window(int pid) -> Result<void>
 void X11Context::set_pid_window_map()
 {
     auto windows = get_complete_window_ids();
-    std::vector<xcb_res_query_client_ids_cookie_t> cookies;
-    cookies.reserve(windows.size());
+    auto cookies = util::get_vector<xcb_res_query_client_ids_cookie_t>(windows.size());
 
     xcb_res_client_id_spec_t spec;
     spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
@@ -128,9 +126,8 @@ void X11Context::set_pid_window_map()
     }
 
     pid_window_map.clear();
-    auto win_iter = windows.cbegin();
-    for (auto &cookie : cookies) {
-        auto reply_result = xcb::get_result(xcb_res_query_client_ids_reply, connection.get(), cookie);
+    for (auto elem : std::views::zip(windows, cookies)) {
+        auto reply_result = xcb::get_result(xcb_res_query_client_ids_reply, connection.get(), std::get<1>(elem));
         if (!reply_result) {
             handle_xcb_error(reply_result.error());
             continue;
@@ -139,8 +136,7 @@ void X11Context::set_pid_window_map()
         auto &reply = *reply_result;
         auto iter = xcb_res_query_client_ids_ids_iterator(reply.get());
         auto pid = *xcb_res_client_id_value_value(iter.data);
-        pid_window_map.emplace(static_cast<int>(pid), *win_iter);
-        std::advance(win_iter, 1);
+        pid_window_map.emplace(static_cast<int>(pid), std::get<0>(elem));
     }
 }
 
@@ -151,10 +147,8 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
         std::array<xcb_get_property_cookie_t, 2> cookies;
     };
     auto windows = get_window_ids();
-    std::vector<cookie_props> cookies;
-    std::vector<xcb::window_id> result;
-    cookies.reserve(windows.size());
-    result.reserve(windows.size());
+    auto cookies = util::get_vector<cookie_props>(windows.size());
+    auto result = util::get_vector<xcb::window_id>(windows.size());
 
     for (auto window : windows) {
         cookies.push_back(

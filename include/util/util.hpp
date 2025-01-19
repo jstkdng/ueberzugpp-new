@@ -21,6 +21,7 @@
 #include "util/result.hpp"
 
 #include <chrono>
+#include <cstddef>
 #include <filesystem>
 #include <print>
 #include <ratio>
@@ -28,6 +29,7 @@
 #include <string_view>
 #include <system_error>
 #include <variant>
+#include <vector>
 
 namespace upp::util
 {
@@ -60,6 +62,14 @@ void benchmark(Func func)
     const auto time2 = high_resolution_clock::now();
     const duration<double, std::milli> ms_double = time2 - time1;
     std::print("{}ms\n", ms_double.count());
+}
+
+template <class T>
+inline auto get_vector(size_t reserve_size) -> std::vector<T>
+{
+    std::vector<T> result;
+    result.reserve(reserve_size);
+    return result;
 }
 
 } // namespace upp::util
