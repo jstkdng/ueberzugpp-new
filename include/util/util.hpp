@@ -23,6 +23,7 @@
 #include <chrono>
 #include <cstddef>
 #include <filesystem>
+#include <memory>
 #include <print>
 #include <ratio>
 #include <string>
@@ -64,11 +65,11 @@ void benchmark(Func func)
     std::print("{}ms\n", ms_double.count());
 }
 
-template <class T>
-inline auto get_vector(size_t reserve_size) -> std::vector<T>
+template <class T, class Allocator = std::allocator<T>>
+auto make_vector(size_t capacity) -> std::vector<T>
 {
-    std::vector<T> result;
-    result.reserve(reserve_size);
+    std::vector<T, Allocator> result;
+    result.reserve(capacity);
     return result;
 }
 
