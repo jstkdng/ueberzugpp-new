@@ -103,12 +103,15 @@ auto X11Context::set_parent_window(int pid) -> Result<void>
         parent = *wid;
         return {};
     }
-    auto search = pid_window_map.find(pid);
-    if (search == pid_window_map.end()) {
-        return Err(std::format("parent not found for pid {}", pid));
+    SPDLOG_DEBUG("WINDOWID not set or invalid");
+    for (auto spid : os::Process::get_pid_tree(pid)) {
+        auto search = pid_window_map.find(spid);
+        if (search != pid_window_map.end()) {
+            parent = search->second;
+            return {};
+        }
     }
-    parent = search->second;
-    return {};
+    return Err(std::format("parent not found for pid {}", pid));
 }
 
 void X11Context::set_pid_window_map()
