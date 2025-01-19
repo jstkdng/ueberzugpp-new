@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <array>
 #include <csignal>
+#include <signal.h> // NOLINT
 #include <memory>
 #include <string>
 #include <string_view>
