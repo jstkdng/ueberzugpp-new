@@ -80,7 +80,7 @@ auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
             continue;
         }
 
-        auto &reply = *reply_result;
+        const auto &reply = *reply_result;
         auto num_children = xcb_query_tree_children_length(reply.get());
         auto *children_ptr = xcb_query_tree_children(reply.get());
 
@@ -126,17 +126,17 @@ void X11Context::set_pid_window_map()
     }
 
     pid_window_map.clear();
-    for (auto elem : std::views::zip(windows, cookies)) {
-        auto reply_result = xcb::get_result(xcb_res_query_client_ids_reply, connection.get(), std::get<1>(elem));
+    for (auto [window, cookie] : std::views::zip(windows, cookies)) {
+        auto reply_result = xcb::get_result(xcb_res_query_client_ids_reply, connection.get(), cookie);
         if (!reply_result) {
             handle_xcb_error(reply_result.error());
             continue;
         }
 
-        auto &reply = *reply_result;
+        const auto &reply = *reply_result;
         auto iter = xcb_res_query_client_ids_ids_iterator(reply.get());
         auto pid = *xcb_res_client_id_value_value(iter.data);
-        pid_window_map.emplace(static_cast<int>(pid), std::get<0>(elem));
+        pid_window_map.emplace(static_cast<int>(pid), window);
     }
 }
 
@@ -182,7 +182,7 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
         handle_xcb_error(reply_result.error());
         return Err(std::format("failed to set geometry for window {}", parent));
     }
-    auto &reply = *reply_result;
+    const auto &reply = *reply_result;
     parent_geometry.width = reply->width;
     parent_geometry.height = reply->height;
     parent_geometry.x = reply->x;
