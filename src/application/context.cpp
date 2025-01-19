@@ -19,6 +19,8 @@
 #include "application.hpp"
 #include "util/result.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace upp
 {
 
@@ -30,10 +32,12 @@ auto ApplicationContext::init() -> Result<void>
 auto ApplicationContext::x11_init() -> Result<void>
 {
 #ifdef ENABLE_X11
-    return x11.init();
-#else
-    return {};
+    auto result = x11.init();
+    if (!result) {
+        SPDLOG_INFO(result.error().message());
+    }
 #endif
+    return {};
 }
 
 } // namespace upp

@@ -61,12 +61,17 @@ auto X11Context::init() -> Result<void>
             is_xwayland = true;
         }
         is_valid = true;
+        SPDLOG_DEBUG("X11 context initialized");
         return {};
     });
 }
 
 auto X11Context::load_state(int pid) -> Result<void>
 {
+    if (!is_valid) {
+        return Err("invalid x11 state");
+    }
+
     set_pid_window_map();
     return set_parent_window(pid).and_then([this] {
         SPDLOG_DEBUG("parent window: {}", parent);

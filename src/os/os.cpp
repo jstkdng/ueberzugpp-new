@@ -76,7 +76,7 @@ auto wait_for_data_on_fd(int filde) -> Result<bool>
     fds.fd = filde;
     fds.events = POLLIN;
 
-    if (int res = poll(&fds, 1, waitms); res == -1) {
+    if (poll(&fds, 1, waitms) == -1) {
         return Err("could not poll on file descriptor");
     }
 
@@ -122,8 +122,7 @@ auto get_pid_from_socket(int sockfd) -> Result<int>
 {
     struct ucred ucred;
     socklen_t len = sizeof(struct ucred);
-    int result = getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
-    if (result == -1) {
+    if (getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
         return Err("getsockopt");
     }
     return ucred.pid;
