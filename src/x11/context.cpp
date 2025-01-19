@@ -46,20 +46,30 @@ auto X11Context::init() -> Result<void>
         return Err("can't connect to x11");
     }
     screen = xcb_setup_roots_iterator(xcb_get_setup(connection.get())).data;
+    connection_fd = xcb_get_file_descriptor(connection.get());
 
     xcb_errors_context_t *tmp = nullptr;
     xcb_errors_context_new(connection.get(), &tmp);
     err_ctx.reset(tmp);
 
     pid_window_map.reserve(num_clients);
-    return {};
+
+    return os::get_pid_from_socket(connection_fd).and_then([this](int pid) -> Result<void> {
+        auto proc_name = os::get_pid_process_name(pid);
+        SPDLOG_DEBUG("X11 vendor: {}", proc_name);
+        if (proc_name != "Xorg") {
+            is_xwayland = true;
+        }
+        is_valid = true;
+        return {};
+    });
 }
 
 auto X11Context::load_state(int pid) -> Result<void>
 {
     set_pid_window_map();
     return set_parent_window(pid).and_then([this] {
-        SPDLOG_INFO("parent window: {}", parent);
+        SPDLOG_DEBUG("parent window: {}", parent);
         return set_parent_window_geometry();
     });
 }
@@ -183,11 +193,9 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
         return Err(std::format("failed to set geometry for window {}", parent));
     }
     const auto &reply = *reply_result;
+    SPDLOG_DEBUG("parent window size: {}x{}", reply->width, reply->height);
     parent_geometry.width = reply->width;
     parent_geometry.height = reply->height;
-    parent_geometry.x = reply->x;
-    parent_geometry.y = reply->y;
-    parent_geometry.border_width = reply->border_width;
     return {};
 }
 

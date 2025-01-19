@@ -59,5 +59,7 @@ auto read_data_from_fd(int filde) -> Result<std::string>;
 auto read_data_from_stdin() -> Result<std::string>;
 
 auto get_poll_err(int event) -> std::string_view;
+auto get_pid_process_name(int pid) -> std::string;
+auto get_pid_from_socket(int sockfd) -> Result<int>;
 
 } // namespace upp::os

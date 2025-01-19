@@ -30,13 +30,9 @@
 namespace upp
 {
 
-struct X11Geometry
-{
+struct X11Geometry {
     int width = -1;
     int height = -1;
-    int x = -1;
-    int y = -1;
-    int border_width = -1;
 };
 
 class X11Context
@@ -50,6 +46,9 @@ class X11Context
     xcb::screen screen = nullptr;
     xcb::window_id parent = -1;
     X11Geometry parent_geometry;
+    int connection_fd = -1;
+    bool is_xwayland = false;
+    bool is_valid = false;
 
   private:
     xcb::errors_context err_ctx;
