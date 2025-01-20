@@ -17,24 +17,100 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "buildconfig.hpp"
 #include "os/os.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
 
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cmath>
 
 namespace upp
 {
 
+namespace
+{
+
+auto guess_padding(const int chars, const int pixels) -> double
+{
+    const double font_size = std::floor(static_cast<double>(pixels) / chars);
+    return (pixels - font_size * chars) / 2;
+}
+
+auto guess_font_size(const int chars, const int pixels, const int padding) -> double
+{
+    return (static_cast<double>(pixels) - 2 * padding) / chars;
+}
+
+} // namespace
+
 auto TerminalContext::init(ApplicationContext *app_ctx) -> Result<void>
 {
     ctx = app_ctx;
-    return open_first_pty().and_then([this] { return ctx->x11.load_state(pid); });
+    return open_first_pty().and_then([this] { return set_terminal_size(); }).and_then([this] {
+        return set_font_size();
+    });
+}
+
+auto TerminalContext::set_terminal_size() -> Result<void>
+{
+    struct winsize termsize;
+    if (ioctl(pty_fd.get(), TIOCGWINSZ, &termsize) == -1) {
+        return Err("ioctl");
+    }
+    size.cols = termsize.ws_col;
+    size.rows = termsize.ws_row;
+    size.width = termsize.ws_xpixel;
+    size.height = termsize.ws_ypixel;
+    SPDLOG_DEBUG("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", size.cols, size.rows, size.width, size.height);
+
+    set_fallback_size_from_x11();
+
+    if (size.width == 0 || size.height == 0) {
+        size.width = size.fallback_width;
+        size.height = size.fallback_height;
+    }
+
+    if (size.width == 0 || size.height == 0) {
+        return Err("unable to calculate terminal sizes");
+    }
+
+    return {};
+}
+
+auto TerminalContext::set_font_size() -> Result<void>
+{
+    const double padding_horiz = guess_padding(size.cols, size.width);
+    const double padding_vert = guess_padding(size.rows, size.height);
+    font.horizontal_padding = static_cast<int>(std::max(padding_horiz, padding_vert));
+    font.vertical_padding = font.horizontal_padding;
+    font.width = static_cast<int>(std::floor(guess_font_size(size.cols, size.width, font.horizontal_padding)));
+    font.height = static_cast<int>(std::floor(guess_font_size(size.rows, size.height, font.vertical_padding)));
+    SPDLOG_DEBUG("padding_horiz={} padding_vert={}", font.horizontal_padding, font.vertical_padding);
+    SPDLOG_DEBUG("font_width={} font_height={}", font.width, font.height);
+    return {};
+}
+
+void TerminalContext::set_fallback_size_from_x11()
+{
+#ifdef ENABLE_X11
+    auto result = ctx->x11.load_state(pid);
+    if (!result) {
+        SPDLOG_DEBUG(result.error().message());
+        return;
+    }
+    auto &x11 = ctx->x11.parent_geometry;
+    size.fallback_width = x11.width;
+    size.fallback_height = x11.height;
+    SPDLOG_DEBUG("x11 sizes: XPIXEL={} YPIXEL={}", x11.width, x11.height);
+#endif
 }
 
 auto TerminalContext::open_first_pty() -> Result<void>

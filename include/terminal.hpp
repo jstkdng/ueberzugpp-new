@@ -28,10 +28,28 @@ namespace upp
 
 class ApplicationContext;
 
+struct TerminalSize {
+    int width = -1;
+    int height = -1;
+    int cols = -1;
+    int rows = -1;
+    int fallback_width = -1;
+    int fallback_height = -1;
+};
+
+struct TerminalFont {
+    int width = -1;
+    int height = -1;
+    int horizontal_padding = -1;
+    int vertical_padding = -1;
+};
+
 class TerminalContext
 {
   public:
     auto init(ApplicationContext *app_ctx) -> Result<void>;
+    TerminalSize size;
+    TerminalFont font;
 
   private:
     ApplicationContext *ctx = nullptr;
@@ -40,6 +58,9 @@ class TerminalContext
     int pid = -1;
 
     auto open_first_pty() -> Result<void>;
+    auto set_terminal_size() -> Result<void>;
+    auto set_font_size() -> Result<void>;
+    void set_fallback_size_from_x11();
 };
 
 } // namespace upp
