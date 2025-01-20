@@ -61,7 +61,7 @@ auto TerminalContext::init(ApplicationContext *app_ctx) -> Result<void>
 
 auto TerminalContext::set_terminal_size() -> Result<void>
 {
-    struct winsize termsize;
+    winsize termsize;
     if (ioctl(pty_fd.get(), TIOCGWINSZ, &termsize) == -1) {
         return Err("ioctl");
     }
@@ -93,6 +93,14 @@ auto TerminalContext::set_font_size() -> Result<void>
     font.vertical_padding = font.horizontal_padding;
     font.width = static_cast<int>(std::floor(guess_font_size(size.cols, size.width, font.horizontal_padding)));
     font.height = static_cast<int>(std::floor(guess_font_size(size.rows, size.height, font.vertical_padding)));
+
+    if (size.width < size.fallback_width && size.height < size.fallback_height) {
+        font.horizontal_padding = static_cast<int>(std::ceil(static_cast<float>(size.fallback_width - size.width) / 2));
+        font.vertical_padding = static_cast<int>(std::ceil(static_cast<float>(size.fallback_height - size.height) / 2));
+        font.width = size.width / size.cols;
+        font.height = size.height / size.rows;
+    }
+
     SPDLOG_DEBUG("padding_horiz={} padding_vert={}", font.horizontal_padding, font.vertical_padding);
     SPDLOG_DEBUG("font_width={} font_height={}", font.width, font.height);
     return {};
