@@ -109,15 +109,14 @@ auto TerminalContext::set_font_size() -> Result<void>
 void TerminalContext::set_fallback_size_from_x11()
 {
 #ifdef ENABLE_X11
-    auto result = ctx->x11.load_state(pid);
-    if (!result) {
+    if (auto result = ctx->x11.load_state(pid); !result) {
         SPDLOG_DEBUG(result.error().message());
         return;
     }
-    auto &x11 = ctx->x11.parent_geometry;
-    size.fallback_width = x11.width;
-    size.fallback_height = x11.height;
-    SPDLOG_DEBUG("x11 sizes: XPIXEL={} YPIXEL={}", x11.width, x11.height);
+    auto [width, height] = ctx->x11.parent_geometry;
+    size.fallback_width = width;
+    size.fallback_height = height;
+    SPDLOG_DEBUG("x11 sizes: XPIXEL={} YPIXEL={}", width, height);
 #endif
 }
 
