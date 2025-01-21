@@ -19,6 +19,7 @@
 #include "base/canvas.hpp"
 #include "application/context.hpp"
 #include "buildconfig.hpp"
+#include "terminal.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_WAYLAND
@@ -35,7 +36,7 @@
 namespace upp
 {
 
-auto Canvas::create(std::string_view output, ApplicationContext *ctx) -> Result<CanvasPtr>
+auto Canvas::create(std::string_view output, ApplicationContext *ctx, Terminal *terminal) -> Result<CanvasPtr>
 {
 #ifdef ENABLE_WAYLAND
     if (output == "wayland") {
@@ -45,7 +46,7 @@ auto Canvas::create(std::string_view output, ApplicationContext *ctx) -> Result<
 
 #ifdef ENABLE_X11
     if (output == "x11") {
-        return std::make_unique<X11Canvas>(ctx);
+        return std::make_unique<X11Canvas>(ctx, terminal);
     }
 #endif
 

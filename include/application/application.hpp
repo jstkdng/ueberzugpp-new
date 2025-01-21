@@ -54,7 +54,7 @@ class Application
     CommandQueue queue;
     CommandListener listener{&queue};
     ApplicationContext ctx;
-    TerminalContext terminal{&ctx};
+    Terminal terminal{&ctx};
     CanvasPtr canvas;
 
     std::jthread command_thread;

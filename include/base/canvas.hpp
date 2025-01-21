@@ -20,6 +20,7 @@
 
 #include "application/context.hpp"
 #include "command.hpp"
+#include "terminal.hpp"
 #include "util/result.hpp"
 
 #include <memory>
@@ -37,7 +38,7 @@ class Canvas
   public:
     virtual ~Canvas() = default;
 
-    static auto create(std::string_view output, ApplicationContext *ctx) -> Result<CanvasPtr>;
+    static auto create(std::string_view output, ApplicationContext *ctx, Terminal *terminal) -> Result<CanvasPtr>;
     virtual auto init() -> Result<void> = 0;
     virtual void execute(const Command &cmd) = 0;
 };

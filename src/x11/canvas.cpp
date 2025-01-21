@@ -19,6 +19,7 @@
 #include "x11/canvas.hpp"
 #include "application/context.hpp"
 #include "command.hpp"
+#include "terminal.hpp"
 #include "util/result.hpp"
 
 #include <spdlog/spdlog.h>
@@ -26,8 +27,9 @@
 namespace upp
 {
 
-X11Canvas::X11Canvas(ApplicationContext *ctx) :
-    ctx(ctx)
+X11Canvas::X11Canvas(ApplicationContext *ctx, Terminal *terminal) :
+    ctx(ctx),
+    terminal(terminal)
 {
 }
 

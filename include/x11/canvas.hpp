@@ -21,6 +21,7 @@
 #include "application/context.hpp"
 #include "base/canvas.hpp"
 #include "command.hpp"
+#include "terminal.hpp"
 #include "util/result.hpp"
 
 #include <expected>
@@ -31,12 +32,13 @@ namespace upp
 class X11Canvas final : public Canvas
 {
   public:
-    explicit X11Canvas(ApplicationContext *ctx);
+    explicit X11Canvas(ApplicationContext *ctx, Terminal *terminal);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
 
   private:
     ApplicationContext *ctx;
+    Terminal *terminal;
 };
 
 } // namespace upp

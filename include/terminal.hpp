@@ -43,10 +43,10 @@ struct TerminalFont {
     int vertical_padding = -1;
 };
 
-class TerminalContext
+class Terminal
 {
   public:
-    explicit TerminalContext(ApplicationContext *ctx);
+    explicit Terminal(ApplicationContext *ctx);
     auto init() -> Result<void>;
     TerminalSize size;
     TerminalFont font;

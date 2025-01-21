@@ -51,19 +51,19 @@ auto guess_font_size(const int chars, const int pixels, const int padding) -> do
 
 } // namespace
 
-TerminalContext::TerminalContext(ApplicationContext *ctx) :
+Terminal::Terminal(ApplicationContext *ctx) :
     ctx(ctx)
 {
 }
 
-auto TerminalContext::init() -> Result<void>
+auto Terminal::init() -> Result<void>
 {
     return open_first_pty().and_then([this] { return set_terminal_size(); }).and_then([this] {
         return set_font_size();
     });
 }
 
-auto TerminalContext::set_terminal_size() -> Result<void>
+auto Terminal::set_terminal_size() -> Result<void>
 {
     winsize termsize;
     if (ioctl(pty_fd.get(), TIOCGWINSZ, &termsize) == -1) {
@@ -89,7 +89,7 @@ auto TerminalContext::set_terminal_size() -> Result<void>
     return {};
 }
 
-auto TerminalContext::set_font_size() -> Result<void>
+auto Terminal::set_font_size() -> Result<void>
 {
     const double padding_horiz = guess_padding(size.cols, size.width);
     const double padding_vert = guess_padding(size.rows, size.height);
@@ -110,7 +110,7 @@ auto TerminalContext::set_font_size() -> Result<void>
     return {};
 }
 
-void TerminalContext::set_fallback_size_from_x11()
+void Terminal::set_fallback_size_from_x11()
 {
 #ifdef ENABLE_X11
     if (auto result = ctx->x11.load_state(pid); !result) {
@@ -124,7 +124,7 @@ void TerminalContext::set_fallback_size_from_x11()
 #endif
 }
 
-auto TerminalContext::open_first_pty() -> Result<void>
+auto Terminal::open_first_pty() -> Result<void>
 {
     struct stat stat_info{};
     auto tree = os::Process::get_tree(os::getpid());

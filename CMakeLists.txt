@@ -151,7 +151,7 @@ target_sources(
         src/unix/socket/client.cpp
         src/os/os.cpp
         src/os/process.cpp
-        src/terminal/context.cpp
+        src/terminal.cpp
         src/command/command.cpp
         src/command/listener.cpp
         src/util/util.cpp
