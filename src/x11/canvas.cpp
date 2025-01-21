@@ -18,6 +18,7 @@
 
 #include "x11/canvas.hpp"
 #include "application/context.hpp"
+#include "base/image.hpp"
 #include "command.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
@@ -39,9 +40,19 @@ auto X11Canvas::init() -> Result<void>
     return {};
 }
 
-void X11Canvas::execute([[maybe_unused]] const Command &cmd)
+void X11Canvas::execute(const Command &cmd)
 {
-    // do nothing for now
+    auto image_result = Image::create();
+    if (!image_result) {
+        SPDLOG_WARN(image_result.error().message());
+        return;
+    }
+    auto &image = *image_result;
+    auto load_result = image->init({.file_path = cmd.image_path.string(), .output = "x11"});
+    if (!load_result) {
+        SPDLOG_WARN(load_result.error().message());
+        return;
+    }
 }
 
 } // namespace upp

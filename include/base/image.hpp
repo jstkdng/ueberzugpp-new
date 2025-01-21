@@ -21,6 +21,7 @@
 #include "util/result.hpp"
 
 #include <memory>
+#include <string_view>
 
 namespace upp
 {
@@ -29,13 +30,20 @@ class Image;
 
 using ImagePtr = std::unique_ptr<Image>;
 
+struct ImageProps {
+    std::string_view file_path;
+    int width = -1;
+    int height = -1;
+    std::string_view output;
+};
+
 class Image
 {
   public:
     virtual ~Image() = default;
 
     static auto create() -> Result<ImagePtr>;
-    virtual auto init() -> Result<void> = 0;
+    virtual auto init(ImageProps props) -> Result<void> = 0;
 };
 
 } // namespace upp

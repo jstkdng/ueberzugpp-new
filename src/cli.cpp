@@ -52,7 +52,7 @@ void Cli::setup_layer_subcommand()
         ->default_val(false);
     layer_command->add_option("-o,--output", layer.output, "Image output method")
         ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}))
-        ->default_val("wayland");
+        ->default_val("x11");
     layer_command->add_flag("--origin-center", layer.origin_center, "Location of the origin wrt the image")
         ->default_val(false);
     layer_command->add_option("-p,--parser", layer.parser, "Command parser to use")

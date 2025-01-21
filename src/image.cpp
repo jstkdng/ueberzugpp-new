@@ -16,24 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
 #include "base/image.hpp"
+#include "buildconfig.hpp"
 #include "util/result.hpp"
+#ifdef ENABLE_OPENCV
+#include "image/opencl.hpp"
+#endif
 
-#include <opencv2/core.hpp>
-#include <opencv2/core/mat.hpp>
+#include <memory>
 
 namespace upp
 {
 
-class OpenclImage : public Image
+auto Image::create() -> Result<ImagePtr>
 {
-  public:
-    auto init(ImageProps props) -> Result<void> override;
-
-  private:
-    cv::UMat image;
-};
+#ifdef ENABLE_OPENCV
+    return std::make_unique<OpenclImage>();
+#else
+    return Err("could not create image loader");
+#endif
+}
 
 } // namespace upp

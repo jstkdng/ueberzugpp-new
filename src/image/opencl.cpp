@@ -17,13 +17,17 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "image/opencl.hpp"
+#include "base/image.hpp"
 #include "util/result.hpp"
+
+#include <spdlog/spdlog.h>
 
 namespace upp
 {
 
-auto OpenclImage::init() -> Result<void>
+auto OpenclImage::init(ImageProps props) -> Result<void>
 {
+    SPDLOG_INFO(props.file_path);
     return {};
 }
 

@@ -168,6 +168,7 @@ target_sources(
         src/command/listener.cpp
         src/util/util.cpp
         src/canvas.cpp
+        src/image.cpp
 
     PRIVATE
     FILE_SET HEADERS
