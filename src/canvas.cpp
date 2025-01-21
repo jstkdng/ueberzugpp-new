@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "base/canvas.hpp"
+#include "application/context.hpp"
 #include "buildconfig.hpp"
 #include "util/result.hpp"
 
@@ -25,7 +26,7 @@
 #endif
 
 #ifdef ENABLE_X11
-#include "x11/x11.hpp"
+#include "x11/canvas.hpp"
 #endif
 
 #include <memory>
@@ -34,7 +35,7 @@
 namespace upp
 {
 
-auto Canvas::create(std::string_view output) -> Result<CanvasPtr>
+auto Canvas::create(std::string_view output, ApplicationContext *ctx) -> Result<CanvasPtr>
 {
 #ifdef ENABLE_WAYLAND
     if (output == "wayland") {
@@ -44,7 +45,7 @@ auto Canvas::create(std::string_view output) -> Result<CanvasPtr>
 
 #ifdef ENABLE_X11
     if (output == "x11") {
-        return std::make_unique<X11Canvas>();
+        return std::make_unique<X11Canvas>(ctx);
     }
 #endif
 

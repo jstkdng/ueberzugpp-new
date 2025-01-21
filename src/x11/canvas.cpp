@@ -16,14 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "x11/canvas.hpp"
+#include "application/context.hpp"
 #include "command.hpp"
 #include "util/result.hpp"
-#include "x11/x11.hpp"
 
 #include <spdlog/spdlog.h>
 
 namespace upp
 {
+
+X11Canvas::X11Canvas(ApplicationContext *ctx) :
+    ctx(ctx)
+{
+}
 
 auto X11Canvas::init() -> Result<void>
 {

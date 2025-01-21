@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "application/context.hpp"
 #include "base/canvas.hpp"
 #include "cli.hpp"
 #include "command.hpp"
