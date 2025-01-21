@@ -30,6 +30,8 @@
 namespace upp
 {
 
+class ApplicationContext;
+
 struct X11Geometry {
     int width = -1;
     int height = -1;
@@ -67,8 +69,11 @@ class X11Context
 class X11Canvas final : public Canvas
 {
   public:
-    auto init() -> Result<void> override;
+    auto init(ApplicationContext *new_ctx) -> Result<void> override;
     void execute(const Command &cmd) override;
+
+  private:
+    ApplicationContext *ctx;
 };
 
 } // namespace upp

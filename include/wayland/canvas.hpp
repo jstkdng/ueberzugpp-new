@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "application.hpp"
 #include "base/canvas.hpp"
 #include "command.hpp"
 #include "util/result.hpp"
@@ -31,7 +32,7 @@ namespace upp::wl
 class WaylandCanvas : public Canvas
 {
   public:
-    auto init() -> Result<void> override;
+    auto init(ApplicationContext *new_ctx) -> Result<void> override;
     void execute(const Command &cmd) override;
 
     static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
@@ -39,6 +40,7 @@ class WaylandCanvas : public Canvas
     static void xdg_wm_base_ping(void *data, xdg_wm_base *xdg_wm_base, uint32_t serial);
 
   private:
+    ApplicationContext *ctx;
     wl::display display;
     wl::registry registry;
     wl::compositor compositor;

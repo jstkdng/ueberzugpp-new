@@ -17,10 +17,11 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "wayland/canvas.hpp"
+#include "application.hpp"
 #include "command.hpp"
 #include "util/result.hpp"
-#include "wayland/types.hpp"
 #include "wayland/socket/socket.hpp"
+#include "wayland/types.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -62,8 +63,9 @@ void WaylandCanvas::xdg_wm_base_ping(void * /*data*/, xdg_wm_base *xdg_wm_base, 
     xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
-auto WaylandCanvas::init() -> Result<void>
+auto WaylandCanvas::init(ApplicationContext *new_ctx) -> Result<void>
 {
+    ctx = new_ctx;
     display.reset(wl_display_connect(nullptr));
     if (display) {
         registry.reset(wl_display_get_registry(display.get()));

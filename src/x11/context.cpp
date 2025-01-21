@@ -72,7 +72,7 @@ auto X11Context::load_state(int pid) -> Result<void>
         return Err("invalid x11 state");
     }
 
-    set_pid_window_map();
+    util::benchmark([this] { set_pid_window_map(); });
     return set_parent_window(pid).and_then([this] {
         SPDLOG_DEBUG("parent window: {}", parent);
         return set_parent_window_geometry();
@@ -137,7 +137,7 @@ void X11Context::set_pid_window_map()
     spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
     for (auto window : windows) {
         spec.client = window;
-        cookies.push_back(xcb_res_query_client_ids(connection.get(), 1, &spec));
+        cookies.emplace_back(xcb_res_query_client_ids(connection.get(), 1, &spec));
     }
 
     pid_window_map.clear();
@@ -160,16 +160,19 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
     struct cookie_props {
         xcb::window_id window_id;
         std::array<xcb_get_property_cookie_t, 2> cookies;
+        cookie_props(xcb::window_id window_id, xcb::connection_ptr conn) :
+            window_id(window_id)
+        {
+            cookies[0] = xcb_get_property(conn, 0, window_id, XCB_ATOM_WM_CLASS, XCB_ATOM_ANY, 0, 4);
+            cookies[1] = xcb_get_property(conn, 0, window_id, XCB_ATOM_WM_NAME, XCB_ATOM_ANY, 0, 4);
+        }
     };
     auto windows = get_window_ids();
     auto cookies = util::make_vector<cookie_props>(windows.size());
     auto result = util::make_vector<xcb::window_id>(windows.size());
 
     for (auto window : windows) {
-        cookies.push_back(
-            {.window_id = window,
-             .cookies = {xcb_get_property(connection.get(), 0, window, XCB_ATOM_WM_CLASS, XCB_ATOM_ANY, 0, 4),
-                         xcb_get_property(connection.get(), 0, window, XCB_ATOM_WM_NAME, XCB_ATOM_ANY, 0, 4)}});
+        cookies.emplace_back(window, connection.get());
     }
 
     for (auto &cookie_prop : cookies) {
@@ -182,7 +185,7 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
             return xcb_get_property_value_length(reply->get()) != 0;
         });
         if (is_complete) {
-            result.push_back(cookie_prop.window_id);
+            result.emplace_back(cookie_prop.window_id);
         }
     }
 

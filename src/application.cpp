@@ -20,27 +20,27 @@
 #include "base/canvas.hpp"
 #include "buildconfig.hpp"
 #include "cli.hpp"
-#include "util/result.hpp"
-#include "util/util.hpp"
-#include "util/thread.hpp"
 #include "os/os.hpp"
+#include "util/result.hpp"
+#include "util/thread.hpp"
+#include "util/util.hpp"
 
 #include <CLI/CLI.hpp>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <array>
 #include <csignal>
-#include <signal.h> // NOLINT
 #include <memory>
+#include <signal.h> // NOLINT
 #include <string>
 #include <string_view>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace upp
 {
@@ -64,7 +64,7 @@ auto Application::handle_cli_commands() -> Result<void>
             .and_then([this] { return Canvas::create(cli->layer.output); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
-                return canvas->init();
+                return canvas->init(&ctx);
             })
             .and_then([this] { return listener.start(cli->layer.parser); })
             .and_then([this] { return wait_for_layer_commands(); });
@@ -75,7 +75,7 @@ auto Application::handle_cli_commands() -> Result<void>
 
 auto Application::wait_for_layer_commands() -> Result<void>
 {
-    command_thread = std::jthread([this] (const auto&token) { execute_layer_commands(token);});
+    command_thread = std::jthread([this](const auto &token) { execute_layer_commands(token); });
     stop_flag.wait(false);
     return {};
 }
@@ -118,7 +118,7 @@ auto Application::setup_logging() -> Result<void>
 
     try {
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
-        std::vector<spdlog::sink_ptr> sinks {file_sink};
+        std::vector<spdlog::sink_ptr> sinks{file_sink};
         if (!cli->layer.silent) {
             sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
         }
@@ -143,8 +143,7 @@ void Application::terminate()
 void Application::setup_signal_handler()
 {
     SPDLOG_DEBUG("setting up signal handler");
-    struct sigaction sga {
-    };
+    struct sigaction sga{};
     sga.sa_handler = signal_handler;
     sigemptyset(&sga.sa_mask);
     sga.sa_flags = 0;
@@ -161,8 +160,7 @@ void Application::signal_handler(int signal)
         // clang-format off
         {SIGINT, "SIGINT"},
         {SIGTERM, "SIGTERM"},
-        {SIGHUP, "SIGHUP"}
-        // clang-format on
+        {SIGHUP, "SIGHUP"} // clang-format on
     });
 
     const auto *found = std::ranges::find_if(signal_map, [signal](const pair_t &pair) { return pair.first == signal; });

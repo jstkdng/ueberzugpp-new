@@ -27,6 +27,7 @@
 namespace upp
 {
 
+class ApplicationContext;
 class Canvas;
 
 using CanvasPtr = std::unique_ptr<Canvas>;
@@ -37,7 +38,7 @@ class Canvas
     virtual ~Canvas() = default;
 
     static auto create(std::string_view output) -> Result<CanvasPtr>;
-    virtual auto init() -> Result<void> = 0;
+    virtual auto init(ApplicationContext *ctx) -> Result<void> = 0;
     virtual void execute(const Command& cmd) = 0;
 };
 
