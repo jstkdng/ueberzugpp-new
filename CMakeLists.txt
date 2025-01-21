@@ -98,6 +98,7 @@ if (ENABLE_X11)
         BASE_DIRS include/
         FILES
             include/x11/x11.hpp
+            include/x11/context.hpp
             include/x11/types.hpp
     )
 endif ()
@@ -143,7 +144,7 @@ target_sources(
     ueberzugpp
     PRIVATE
         src/main.cpp
-        src/application.cpp
+        src/application/application.cpp
         src/application/context.cpp
         src/cli.cpp
         src/unix/fd.cpp
@@ -160,7 +161,8 @@ target_sources(
     FILE_SET HEADERS
     BASE_DIRS include/
     FILES
-        include/application.hpp
+        include/application/application.hpp
+        include/application/context.hpp
         include/cli.hpp
         include/command.hpp
         include/terminal.hpp

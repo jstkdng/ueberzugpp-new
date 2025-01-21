@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
+#include "application/context.hpp"
 #include "buildconfig.hpp"
 #include "os/os.hpp"
 #include "terminal.hpp"
@@ -51,9 +51,13 @@ auto guess_font_size(const int chars, const int pixels, const int padding) -> do
 
 } // namespace
 
-auto TerminalContext::init(ApplicationContext *app_ctx) -> Result<void>
+TerminalContext::TerminalContext(ApplicationContext *ctx) :
+    ctx(ctx)
 {
-    ctx = app_ctx;
+}
+
+auto TerminalContext::init() -> Result<void>
+{
     return open_first_pty().and_then([this] { return set_terminal_size(); }).and_then([this] {
         return set_font_size();
     });

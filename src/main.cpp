@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
+#include "application/application.hpp"
 #include "cli.hpp"
 
 #include <CLI/CLI.hpp>

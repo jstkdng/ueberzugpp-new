@@ -16,11 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "x11/context.hpp"
 #include "os/os.hpp"
 #include "util/result.hpp"
 #include "util/util.hpp"
 #include "x11/types.hpp"
-#include "x11/x11.hpp"
 
 #include <spdlog/spdlog.h>
 

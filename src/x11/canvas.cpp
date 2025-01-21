@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
 #include "command.hpp"
 #include "util/result.hpp"
 #include "x11/x11.hpp"
@@ -26,9 +25,8 @@
 namespace upp
 {
 
-auto X11Canvas::init(ApplicationContext *new_ctx) -> Result<void>
+auto X11Canvas::init() -> Result<void>
 {
-    ctx = new_ctx;
     SPDLOG_INFO("canvas created");
     return {};
 }

@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
+#include "application/context.hpp"
 #include "util/result.hpp"
 
 #include <spdlog/spdlog.h>
@@ -26,7 +26,7 @@ namespace upp
 
 auto ApplicationContext::init() -> Result<void>
 {
-    return x11_init().and_then([this] { return terminal.init(this); });
+    return x11_init();
 }
 
 auto ApplicationContext::x11_init() -> Result<void>

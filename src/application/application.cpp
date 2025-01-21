@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
+#include "application/application.hpp"
 #include "base/canvas.hpp"
 #include "buildconfig.hpp"
 #include "cli.hpp"
@@ -64,7 +64,7 @@ auto Application::handle_cli_commands() -> Result<void>
             .and_then([this] { return Canvas::create(cli->layer.output); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
-                return canvas->init(&ctx);
+                return canvas->init();
             })
             .and_then([this] { return listener.start(cli->layer.parser); })
             .and_then([this] { return wait_for_layer_commands(); });

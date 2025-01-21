@@ -18,49 +18,47 @@
 
 #pragma once
 
-#include "application/context.hpp"
-#include "unix/fd.hpp"
 #include "util/result.hpp"
+#include "x11/types.hpp"
 
-#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace upp
 {
 
-struct TerminalSize {
+struct X11Geometry {
     int width = -1;
     int height = -1;
-    int cols = -1;
-    int rows = -1;
-    int fallback_width = -1;
-    int fallback_height = -1;
 };
 
-struct TerminalFont {
-    int width = -1;
-    int height = -1;
-    int horizontal_padding = -1;
-    int vertical_padding = -1;
-};
-
-class TerminalContext
+class X11Context
 {
   public:
-    explicit TerminalContext(ApplicationContext *ctx);
     auto init() -> Result<void>;
-    TerminalSize size;
-    TerminalFont font;
+    auto load_state(int pid) -> Result<void>;
+    static constexpr int num_clients = 256;
+
+    xcb::connection connection;
+    xcb::screen screen = nullptr;
+    xcb::window_id parent = -1;
+    X11Geometry parent_geometry;
+    int connection_fd = -1;
+    bool is_xwayland = false;
+    bool is_valid = false;
 
   private:
-    ApplicationContext *ctx;
-    std::string pty_path;
-    unix::fd pty_fd;
-    int pid = -1;
+    xcb::errors_context err_ctx;
+    std::unordered_multimap<int, xcb::window_id> pid_window_map;
 
-    auto open_first_pty() -> Result<void>;
-    auto set_terminal_size() -> Result<void>;
-    auto set_font_size() -> Result<void>;
-    void set_fallback_size_from_x11();
+    void set_pid_window_map();
+    auto set_parent_window(int pid) -> Result<void>;
+    auto set_parent_window_geometry() -> Result<void>;
+
+    void handle_xcb_error(xcb::error &err) const;
+
+    [[nodiscard]] auto get_window_ids() const -> std::vector<xcb::window_id>;
+    [[nodiscard]] auto get_complete_window_ids() const -> std::vector<xcb::window_id>;
 };
 
 } // namespace upp

@@ -18,36 +18,27 @@
 
 #pragma once
 
-#include "application/context.hpp"
-#include "base/canvas.hpp"
-#include "command.hpp"
+#include "buildconfig.hpp"
 #include "util/result.hpp"
-#include "wayland/types.hpp"
 
-#include <cstdint>
+#ifdef ENABLE_X11
+#include "x11/context.hpp"
+#endif
 
-namespace upp::wl
+namespace upp
 {
 
-class WaylandCanvas : public Canvas
+class ApplicationContext
 {
   public:
-    auto init() -> Result<void> override;
-    void execute(const Command &cmd) override;
+    auto init() -> Result<void>;
 
-    static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
-                                   uint32_t version);
-    static void xdg_wm_base_ping(void *data, xdg_wm_base *xdg_wm_base, uint32_t serial);
+#ifdef ENABLE_X11
+    X11Context x11;
+#endif
 
   private:
-    ApplicationContext *ctx;
-    wl::display display;
-    wl::registry registry;
-    wl::compositor compositor;
-    wl::shm shm;
-    wl::xdg::wm_base wm_base;
-
-    int display_fd = -1;
+    auto x11_init() -> Result<void>;
 };
 
-} // namespace upp::wl
+} // namespace upp
