@@ -135,6 +135,18 @@ endif ()
 if (ENABLE_OPENCV)
     find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
     target_link_libraries(ueberzugpp PRIVATE ${OpenCV_LIBS})
+
+    target_sources(
+        ueberzugpp
+        PRIVATE
+            src/image/opencl.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            include/image/opencl.hpp
+    )
 endif ()
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
@@ -175,6 +187,7 @@ target_sources(
         include/unix/socket.hpp
         include/os/os.hpp
         include/base/canvas.hpp
+        include/base/image.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
     CLI11::CLI11
