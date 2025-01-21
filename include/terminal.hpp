@@ -52,7 +52,7 @@ class TerminalContext
     TerminalFont font;
 
   private:
-    ApplicationContext *ctx = nullptr;
+    ApplicationContext *ctx;
     std::string pty_path;
     unix::fd pty_fd;
     int pid = -1;
