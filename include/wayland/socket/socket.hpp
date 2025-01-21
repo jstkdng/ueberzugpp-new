@@ -22,17 +22,17 @@
 
 #include <memory>
 
-namespace upp::wl
+namespace upp
 {
 
-class Socket;
+class WaylandSocket;
 
-using SocketPtr = std::unique_ptr<Socket>;
+using WaylandSocketPtr = std::unique_ptr<WaylandSocket>;
 
-class Socket
+class WaylandSocket
 {
   public:
-    static auto create() -> Result<SocketPtr>;
+    static auto create() -> Result<WaylandSocketPtr>;
 };
 
-} // namespace upp::wl
+} // namespace upp

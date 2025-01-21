@@ -31,7 +31,7 @@
 #include <string_view>
 #include <utility>
 
-namespace upp::wl
+namespace upp
 {
 
 HyprlandSocket::HyprlandSocket(std::string instance_signature) :
@@ -83,4 +83,4 @@ auto HyprlandSocket::request_result(std::string_view payload) -> std::string
     return *result;
 }
 
-} // namespace upp::wl
+} // namespace upp

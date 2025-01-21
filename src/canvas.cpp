@@ -39,7 +39,7 @@ auto Canvas::create(std::string_view output, ApplicationContext *ctx) -> Result<
 {
 #ifdef ENABLE_WAYLAND
     if (output == "wayland") {
-        return std::make_unique<wl::WaylandCanvas>();
+        return std::make_unique<WaylandCanvas>(ctx);
     }
 #endif
 

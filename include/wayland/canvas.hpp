@@ -26,12 +26,13 @@
 
 #include <cstdint>
 
-namespace upp::wl
+namespace upp
 {
 
 class WaylandCanvas : public Canvas
 {
   public:
+    explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
 
@@ -50,4 +51,4 @@ class WaylandCanvas : public Canvas
     int display_fd = -1;
 };
 
-} // namespace upp::wl
+} // namespace upp

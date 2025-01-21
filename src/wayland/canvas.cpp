@@ -17,9 +17,9 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "wayland/canvas.hpp"
+#include "application/context.hpp"
 #include "command.hpp"
 #include "util/result.hpp"
-#include "wayland/socket/socket.hpp"
 #include "wayland/types.hpp"
 
 #include <spdlog/spdlog.h>
@@ -27,11 +27,11 @@
 #include <cstdint>
 #include <string_view>
 
-namespace upp::wl
+namespace upp
 {
 
 constexpr wl_registry_listener registry_listener = {.global = WaylandCanvas::wl_registry_global,
-                                                    .global_remove = ignore};
+                                                    .global_remove = wl::ignore};
 
 constexpr xdg_wm_base_listener xdg_wm_base_listener = {.ping = WaylandCanvas::xdg_wm_base_ping};
 
@@ -62,6 +62,11 @@ void WaylandCanvas::xdg_wm_base_ping(void * /*data*/, xdg_wm_base *xdg_wm_base, 
     xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
+WaylandCanvas::WaylandCanvas(ApplicationContext *ctx) :
+    ctx(ctx)
+{
+}
+
 auto WaylandCanvas::init() -> Result<void>
 {
     display.reset(wl_display_connect(nullptr));
@@ -76,7 +81,6 @@ auto WaylandCanvas::init() -> Result<void>
     }
 
     SPDLOG_INFO("canvas created");
-    auto sock = Socket::create();
     return {};
 }
 
@@ -85,4 +89,4 @@ void WaylandCanvas::execute([[maybe_unused]] const Command &cmd)
     // do nothing for now
 }
 
-} // namespace upp::wl
+} // namespace upp

@@ -72,7 +72,7 @@ auto X11Context::load_state(int pid) -> Result<void>
         return Err("invalid x11 state");
     }
 
-    util::benchmark([this] { set_pid_window_map(); });
+    set_pid_window_map();
     return set_parent_window(pid).and_then([this] {
         SPDLOG_DEBUG("parent window: {}", parent);
         return set_parent_window_geometry();

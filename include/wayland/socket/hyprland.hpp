@@ -23,10 +23,10 @@
 #include <string>
 #include <string_view>
 
-namespace upp::wl
+namespace upp
 {
 
-class HyprlandSocket : public Socket
+class HyprlandSocket : public WaylandSocket
 {
   public:
     explicit HyprlandSocket(std::string instance_signature);
@@ -40,4 +40,4 @@ class HyprlandSocket : public Socket
     auto request_result(std::string_view payload) -> std::string;
 };
 
-} // namespace upp::wl
+} // namespace upp

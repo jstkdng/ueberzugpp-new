@@ -23,16 +23,16 @@
 
 #include <memory>
 
-namespace upp::wl
+namespace upp
 {
 
-auto Socket::create() -> Result<SocketPtr>
+auto WaylandSocket::create() -> Result<WaylandSocketPtr>
 {
     if (auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE"); hyprland_signature) {
         return std::make_unique<HyprlandSocket>(*hyprland_signature);
     }
 
-    return {};
+    return Err("no wayland socket available");
 }
 
-} // namespace upp::wl
+} // namespace upp

@@ -19,14 +19,20 @@
 #include "application/context.hpp"
 #include "util/result.hpp"
 
+#ifdef ENABLE_WAYLAND
+#include "wayland/socket/socket.hpp"
+#endif
+
 #include <spdlog/spdlog.h>
+
+#include <utility>
 
 namespace upp
 {
 
 auto ApplicationContext::init() -> Result<void>
 {
-    return x11_init();
+    return x11_init().and_then([this] { return wayland_init(); });
 }
 
 auto ApplicationContext::x11_init() -> Result<void>
@@ -34,7 +40,21 @@ auto ApplicationContext::x11_init() -> Result<void>
 #ifdef ENABLE_X11
     auto result = x11.init();
     if (!result) {
-        SPDLOG_INFO(result.error().message());
+        SPDLOG_DEBUG(result.error().message());
+    }
+#endif
+    return {};
+}
+
+auto ApplicationContext::wayland_init() -> Result<void>
+{
+#ifdef ENABLE_WAYLAND
+    auto result = WaylandSocket::create().and_then([this](WaylandSocketPtr socket) -> Result<void> {
+        wl_socket = std::move(socket);
+        return {};
+    });
+    if (!result) {
+        SPDLOG_DEBUG(result.error().message());
     }
 #endif
     return {};

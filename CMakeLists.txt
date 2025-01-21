@@ -47,7 +47,7 @@ string(TIMESTAMP BUILD_DATE UTC)
 target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
 
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-target_compile_options(ueberzugpp PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
 option(ENABLE_X11 "Enable X11 support" ON)
@@ -97,7 +97,7 @@ if (ENABLE_X11)
         FILE_SET HEADERS
         BASE_DIRS include/
         FILES
-            include/x11/x11.hpp
+            include/x11/canvas.hpp
             include/x11/context.hpp
             include/x11/types.hpp
     )

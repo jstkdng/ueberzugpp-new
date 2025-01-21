@@ -25,6 +25,10 @@
 #include "x11/context.hpp"
 #endif
 
+#ifdef ENABLE_WAYLAND
+#include "wayland/socket/socket.hpp"
+#endif
+
 namespace upp
 {
 
@@ -36,9 +40,13 @@ class ApplicationContext
 #ifdef ENABLE_X11
     X11Context x11;
 #endif
+#ifdef ENABLE_WAYLAND
+    WaylandSocketPtr wl_socket;
+#endif
 
   private:
     auto x11_init() -> Result<void>;
+    auto wayland_init() -> Result<void>;
 };
 
 } // namespace upp
