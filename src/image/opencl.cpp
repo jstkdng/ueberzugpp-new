@@ -20,14 +20,25 @@
 #include "base/image.hpp"
 #include "util/result.hpp"
 
+#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <spdlog/spdlog.h>
+
+#include <string>
 
 namespace upp
 {
 
 auto OpenclImage::init(ImageProps props) -> Result<void>
 {
-    SPDLOG_INFO(props.file_path);
+    try {
+        image = cv::imread(std::string{props.file_path}, cv::IMREAD_UNCHANGED).getUMat(cv::ACCESS_RW | cv::ACCESS_FAST);
+        SPDLOG_DEBUG("loaded image {}", props.file_path);
+    } catch (const cv::Exception &exc) {
+        return Err("opencv", exc);
+    }
     return {};
 }
 

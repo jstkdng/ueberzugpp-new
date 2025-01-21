@@ -42,6 +42,9 @@ auto X11Canvas::init() -> Result<void>
 
 void X11Canvas::execute(const Command &cmd)
 {
+    if (cmd.action != "add") {
+        return;
+    }
     auto image_result = Image::create();
     if (!image_result) {
         SPDLOG_WARN(image_result.error().message());
