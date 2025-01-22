@@ -39,7 +39,7 @@ set_target_properties(
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
-    target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
+    target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined -Wno-unknown-warning-option)
 endif ()
 
 # reproducible builds
@@ -52,7 +52,7 @@ target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
 option(ENABLE_X11 "Enable X11 support" ON)
 option(ENABLE_WAYLAND "Enable wayland support" ON)
-option(ENABLE_OPENCV "Enable OpenCV image processing" ON)
+option(ENABLE_OPENCV "Enable OpenCV image processing" OFF)
 option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
 add_subdirectory(libraries/)
@@ -132,22 +132,24 @@ if (ENABLE_WAYLAND)
     )
 endif ()
 
-if (ENABLE_OPENCV)
-    find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
-    target_link_libraries(ueberzugpp PRIVATE ${OpenCV_LIBS})
+# if (ENABLE_OPENCV)
+#     find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
+#     target_link_libraries(ueberzugpp PRIVATE ${OpenCV_LIBS})
+# 
+#     target_sources(
+#         ueberzugpp
+#         PRIVATE
+#             src/image/opencl.cpp
+# 
+#         PRIVATE
+#         FILE_SET HEADERS
+#         BASE_DIRS include/
+#         FILES
+#             include/image/opencl.hpp
+#     )
+# endif ()
 
-    target_sources(
-        ueberzugpp
-        PRIVATE
-            src/image/opencl.cpp
-
-        PRIVATE
-        FILE_SET HEADERS
-        BASE_DIRS include/
-        FILES
-            include/image/opencl.hpp
-    )
-endif ()
+pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
@@ -169,6 +171,7 @@ target_sources(
         src/util/util.cpp
         src/canvas.cpp
         src/image.cpp
+        src/image/vips.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -189,6 +192,7 @@ target_sources(
         include/os/os.hpp
         include/base/canvas.hpp
         include/base/image.hpp
+        include/image/vips.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
     CLI11::CLI11
@@ -196,6 +200,7 @@ target_link_libraries(ueberzugpp PRIVATE
     glaze::glaze
     TBB::tbb
     Threads::Threads
+    PkgConfig::VIPS
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)

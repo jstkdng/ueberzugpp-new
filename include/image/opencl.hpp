@@ -24,16 +24,24 @@
 #include <opencv2/core.hpp>
 #include <opencv2/core/mat.hpp>
 
+#include <string>
+
 namespace upp
 {
 
 class OpenclImage : public Image
 {
   public:
-    auto init(ImageProps props) -> Result<void> override;
+    explicit OpenclImage(ImageProps props);
+    auto load() -> Result<void> override;
+    static auto can_load(const std::string &file_path) -> bool;
 
   private:
+    ImageProps props;
     cv::UMat image;
+
+    auto read_image() -> Result<void>;
+    auto process_image() -> Result<void>;
 };
 
 } // namespace upp

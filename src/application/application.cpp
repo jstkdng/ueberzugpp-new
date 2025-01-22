@@ -31,6 +31,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+#include <vips/vips8>
 
 #include <algorithm>
 #include <array>
@@ -60,7 +61,8 @@ auto Application::handle_cli_commands() -> Result<void>
     if (cli->layer_command->parsed()) {
         print_header();
         setup_signal_handler();
-        return ctx.init()
+        return setup_vips()
+            .and_then([this] { return ctx.init(); })
             .and_then([this] { return terminal.init(); })
             .and_then([this] { return Canvas::create(cli->layer.output, &ctx, &terminal); })
             .and_then([this](CanvasPtr new_canvas) {
@@ -124,14 +126,24 @@ auto Application::setup_logging() -> Result<void>
             sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
         }
 
-        logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
+        auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
         logger->set_pattern("[%Y-%m-%d %T.%F] %^[%8l]%$ [%@] %v");
         logger->set_level(level);
         logger->flush_on(level);
+        spdlog::register_logger(logger);
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return Err("spdlog", ex);
     }
+    return {};
+}
+
+auto Application::setup_vips() -> Result<void>
+{
+    if (VIPS_INIT("ueberzugpp")) {
+        return Err("can't startup vips");
+    }
+    vips_cache_set_max(1);
     return {};
 }
 

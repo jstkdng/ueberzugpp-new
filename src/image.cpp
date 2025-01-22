@@ -17,24 +17,31 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "base/image.hpp"
-#include "buildconfig.hpp"
+#include "buildconfig.hpp" // IWYU pragma: keep
+#include "image/vips.hpp"
 #include "util/result.hpp"
 #ifdef ENABLE_OPENCV
 #include "image/opencl.hpp"
 #endif
 
 #include <memory>
+#include <utility>
 
 namespace upp
 {
 
-auto Image::create() -> Result<ImagePtr>
+auto Image::create(ImageProps props) -> Result<ImagePtr>
 {
 #ifdef ENABLE_OPENCV
-    return std::make_unique<OpenclImage>();
-#else
-    return Err("could not create image loader");
+    if (OpenclImage::can_load(props.file_path)) {
+        return std::make_unique<OpenclImage>(std::move(props));
+    }
 #endif
+    if (VipsImage::can_load(props.file_path)) {
+        return std::make_unique<VipsImage>(std::move(props));
+    }
+
+    return Err("could not create image loader");
 }
 
 } // namespace upp

@@ -22,8 +22,6 @@
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
-#include <moodycamel/blockingconcurrentqueue.h>
-
 #include <filesystem>
 #include <format>
 #include <string>

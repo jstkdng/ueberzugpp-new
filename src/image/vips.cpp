@@ -16,34 +16,41 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
+#include "image/vips.hpp"
+#include "base/image.hpp"
 #include "util/result.hpp"
 
-#include <memory>
-#include <string>
+#include <vips/vips8>
+
+#include <utility>
 
 namespace upp
 {
 
-class Image;
-
-using ImagePtr = std::unique_ptr<Image>;
-
-struct ImageProps {
-    std::string file_path;
-    int width = -1;
-    int height = -1;
-    std::string output;
-};
-
-class Image
+VipsImage::VipsImage(ImageProps props) :
+    props(std::move(props))
 {
-  public:
-    virtual ~Image() = default;
+}
 
-    static auto create(ImageProps props) -> Result<ImagePtr>;
-    virtual auto load() -> Result<void> = 0;
-};
+auto VipsImage::can_load(const std::string &file_path) -> bool
+{
+    return vips_foreign_find_load(file_path.c_str()) != nullptr;
+}
+
+auto VipsImage::load() -> Result<void>
+{
+    return {};
+}
+
+auto VipsImage::read_image() -> Result<void>
+{
+    try {
+        image = vips::VImage::new_from_file(props.file_path.c_str()).colourspace(VIPS_INTERPRETATION_sRGB);
+    } catch (const vips::VError &err) {
+        return Err("failed to load image");
+    }
+
+    return {};
+}
 
 } // namespace upp

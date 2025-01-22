@@ -18,32 +18,28 @@
 
 #pragma once
 
+#include "base/image.hpp"
 #include "util/result.hpp"
 
-#include <memory>
+#include <vips/vips8>
+
 #include <string>
 
 namespace upp
 {
 
-class Image;
-
-using ImagePtr = std::unique_ptr<Image>;
-
-struct ImageProps {
-    std::string file_path;
-    int width = -1;
-    int height = -1;
-    std::string output;
-};
-
-class Image
+class VipsImage : public Image
 {
   public:
-    virtual ~Image() = default;
+    explicit VipsImage(ImageProps props);
+    auto load() -> Result<void> override;
+    static auto can_load(const std::string& file_path) -> bool;
 
-    static auto create(ImageProps props) -> Result<ImagePtr>;
-    virtual auto load() -> Result<void> = 0;
+  private:
+    ImageProps props;
+    vips::VImage image;
+
+    auto read_image() -> Result<void>;
 };
 
 } // namespace upp

@@ -19,8 +19,8 @@
 #include "os/os.hpp"
 #include "util/result.hpp"
 
+#include <poll.h>
 #include <sys/socket.h>
-#include <sys/poll.h>
 #include <unistd.h>
 
 #include <cerrno>

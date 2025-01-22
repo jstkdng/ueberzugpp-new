@@ -28,9 +28,6 @@
 
 #include <CLI/CLI.hpp>
 #include <atomic>
-#include <spdlog/logger.h>
-
-#include <memory>
 
 namespace upp
 {
@@ -58,12 +55,12 @@ class Application
     CanvasPtr canvas;
 
     std::jthread command_thread;
-    std::shared_ptr<spdlog::logger> logger;
 
-    void execute_layer_commands(const std::stop_token &token);
     auto setup_logging() -> Result<void>;
+    static auto setup_vips() -> Result<void>;
     auto handle_cli_commands() -> Result<void>;
     auto wait_for_layer_commands() -> Result<void>;
+    void execute_layer_commands(const std::stop_token &token);
 };
 
 } // namespace upp

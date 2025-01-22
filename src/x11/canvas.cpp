@@ -45,13 +45,13 @@ void X11Canvas::execute(const Command &cmd)
     if (cmd.action != "add") {
         return;
     }
-    auto image_result = Image::create();
+    auto image_result = Image::create({.file_path = cmd.image_path.string(), .output = "x11"});
     if (!image_result) {
         SPDLOG_WARN(image_result.error().message());
         return;
     }
     auto &image = *image_result;
-    auto load_result = image->init({.file_path = cmd.image_path.string(), .output = "x11"});
+    auto load_result = image->load();
     if (!load_result) {
         SPDLOG_WARN(load_result.error().message());
         return;
