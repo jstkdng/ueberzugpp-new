@@ -20,6 +20,7 @@
 #include "base/image.hpp"
 #include "util/result.hpp"
 
+#include <spdlog/spdlog.h>
 #include <vips/vips8>
 
 #include <utility>
@@ -39,13 +40,14 @@ auto VipsImage::can_load(const std::string &file_path) -> bool
 
 auto VipsImage::load() -> Result<void>
 {
-    return {};
+    return read_image();
 }
 
 auto VipsImage::read_image() -> Result<void>
 {
     try {
         image = vips::VImage::new_from_file(props.file_path.c_str()).colourspace(VIPS_INTERPRETATION_sRGB);
+        SPDLOG_INFO("loaded image {}", props.file_path);
     } catch (const vips::VError &err) {
         return Err("failed to load image");
     }

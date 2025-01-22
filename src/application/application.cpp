@@ -80,6 +80,7 @@ auto Application::wait_for_layer_commands() -> Result<void>
 {
     command_thread = std::jthread([this](const auto &token) { execute_layer_commands(token); });
     stop_flag.wait(false);
+    vips_shutdown();
     return {};
 }
 
@@ -144,6 +145,7 @@ auto Application::setup_vips() -> Result<void>
         return Err("can't startup vips");
     }
     vips_cache_set_max(1);
+    SPDLOG_DEBUG("libvips initialized");
     return {};
 }
 
