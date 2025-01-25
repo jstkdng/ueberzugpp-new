@@ -21,8 +21,7 @@
 namespace upp
 {
 
-X11Window::X11Window(Terminal *terminal, ApplicationContext *ctx, WindowMap *window_map) :
-    terminal(terminal),
+X11Window::X11Window(ApplicationContext *ctx, WindowMap *window_map) :
     ctx(ctx),
     window_map(window_map)
 {

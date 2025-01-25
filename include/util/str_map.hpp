@@ -1,4 +1,4 @@
-// Display images in the terminal
+// Display images inside a terminal
 // Copyright (C) 2024  JustKidding
 //
 // This file is part of ueberzugpp.
@@ -18,28 +18,24 @@
 
 #pragma once
 
-#include "application/context.hpp"
-#include "x11/types.hpp"
-
-#include <memory>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace upp
 {
 
-class X11Window;
+struct StringHash {
+    using is_transparent = void; // Enables heterogeneous operations.
 
-using WindowPtr = std::shared_ptr<X11Window>;
-using WindowMap = std::unordered_map<xcb::window_id, X11Window>;
-
-class X11Window : std::enable_shared_from_this<X11Window>
-{
-  public:
-    X11Window(ApplicationContext *ctx, WindowMap *window_map);
-
-  private:
-    ApplicationContext *ctx;
-    WindowMap *window_map;
+    auto operator()(const std::string_view view) const noexcept -> std::size_t
+    {
+        constexpr std::hash<std::string_view> hasher;
+        return hasher(view);
+    }
 };
+
+template <class T>
+using string_map = std::unordered_map<std::string, T, StringHash, std::equal_to<>>;
 
 } // namespace upp

@@ -23,6 +23,7 @@
 #include "command.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
+#include "util/str_map.hpp"
 #include "util/thread.hpp"
 #include "x11/window.hpp"
 
@@ -30,6 +31,8 @@
 
 namespace upp
 {
+
+using WindowIdMap = string_map<X11Window>;
 
 class X11Canvas final : public Canvas
 {
@@ -45,7 +48,7 @@ class X11Canvas final : public Canvas
     WindowMap window_map;
     WindowIdMap window_id_map;
 
-    void handle_events(const std::stop_token& token);
+    void handle_events(const std::stop_token &token);
     void dispatch_events();
 };
 

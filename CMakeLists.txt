@@ -92,6 +92,7 @@ if (ENABLE_X11)
         PRIVATE
             src/x11/canvas.cpp
             src/x11/context.cpp
+            src/x11/window.cpp
 
         PRIVATE
         FILE_SET HEADERS
@@ -100,6 +101,7 @@ if (ENABLE_X11)
             include/x11/canvas.hpp
             include/x11/context.hpp
             include/x11/types.hpp
+            include/x11/window.hpp
     )
 endif ()
 
@@ -170,6 +172,7 @@ target_sources(
         include/util/concurrent_deque.hpp
         include/util/ptr.hpp
         include/util/util.hpp
+        include/util/str_map.hpp
         include/unix/fd.hpp
         include/unix/socket.hpp
         include/os/os.hpp
