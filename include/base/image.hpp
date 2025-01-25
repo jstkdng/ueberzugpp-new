@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "util/result.hpp"
 #include "application/context.hpp"
+#include "util/result.hpp"
 
 #include <memory>
 #include <string>
@@ -33,8 +33,21 @@ using ImagePtr = std::unique_ptr<Image>;
 
 struct ImageProps {
     std::string file_path;
+    std::string scaler;
     int width = -1;
     int height = -1;
+};
+
+struct current_image_sizes {
+    int width;
+    int height;
+    int image_width;
+    int image_height;
+};
+
+struct target_image_sizes {
+    int width;
+    int height;
 };
 
 class Image
@@ -43,6 +56,8 @@ class Image
     virtual ~Image() = default;
 
     static auto create(ApplicationContext *ctx, ImageProps props) -> Result<ImagePtr>;
+    static auto fit_contain_sizes(current_image_sizes sizes) -> target_image_sizes;
+    static auto contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     virtual auto load() -> Result<void> = 0;
     auto num_channels() -> int;
 };

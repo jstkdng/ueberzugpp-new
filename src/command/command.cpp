@@ -87,6 +87,9 @@ auto Command::from_json(std::string line) -> Result<Command>
     if (auto err = glz::read_json(cmd, line); err) {
         return Err(glz::format_error(err, line));
     }
+    if (cmd.image_scaler.empty()) {
+        cmd.image_scaler = "contain";
+    }
     return cmd;
 }
 

@@ -49,6 +49,8 @@ class VipsImage : public Image
     auto read_image() -> Result<void>;
     void resize_image();
     void process_image();
+
+    void contain_scaler();
 };
 
 } // namespace upp

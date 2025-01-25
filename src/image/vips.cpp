@@ -86,11 +86,26 @@ void VipsImage::process_image()
 
 void VipsImage::resize_image()
 {
+    if (props.scaler == "contain") {
+        contain_scaler();
+    }
 }
 
 auto VipsImage::num_channels() -> int
 {
     return image.bands();
+}
+
+void VipsImage::contain_scaler()
+{
+    int img_width = image.width();
+    int img_height = image.height();
+    auto [new_width, new_height] = contain_sizes(
+        {.width = props.width, .height = props.height, .image_width = img_width, .image_height = img_height});
+
+    SPDLOG_DEBUG("resizing image to {}x{}", new_width, new_height);
+    auto *opts = vips::VImage::option()->set("height", new_height)->set("size", VIPS_SIZE_FORCE);
+    image = image.thumbnail_image(new_width, opts);
 }
 
 } // namespace upp

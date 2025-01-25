@@ -46,6 +46,7 @@ void X11Canvas::execute(const Command &cmd)
         return;
     }
     auto image_result = Image::create(ctx, {.file_path = cmd.image_path.string(),
+                                            .scaler = cmd.image_scaler,
                                             .width = terminal->font.width * cmd.width,
                                             .height = terminal->font.height * cmd.height});
     if (!image_result) {

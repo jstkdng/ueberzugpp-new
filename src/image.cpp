@@ -44,4 +44,22 @@ auto Image::create(ApplicationContext *ctx, ImageProps props) -> Result<ImagePtr
     return Err("could not create image loader");
 }
 
+auto Image::fit_contain_sizes(const current_image_sizes sizes) -> target_image_sizes
+{
+    const auto factor = std::min(static_cast<float>(sizes.width) / static_cast<float>(sizes.image_width),
+                                 static_cast<float>(sizes.height) / static_cast<float>(sizes.image_height));
+    return {.width = static_cast<int>(static_cast<float>(sizes.image_width) * factor),
+            .height = static_cast<int>(static_cast<float>(sizes.image_height) * factor)};
+}
+
+auto Image::contain_sizes(const current_image_sizes sizes) -> target_image_sizes
+{
+    return fit_contain_sizes({
+        .width = std::min(sizes.image_width, sizes.width),
+        .height = std::min(sizes.image_height, sizes.height),
+        .image_width = sizes.image_width,
+        .image_height = sizes.image_height,
+    });
+}
+
 } // namespace upp
