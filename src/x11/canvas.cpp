@@ -31,9 +31,8 @@
 namespace upp
 {
 
-X11Canvas::X11Canvas(ApplicationContext *ctx, Terminal *terminal) :
-    ctx(ctx),
-    terminal(terminal)
+X11Canvas::X11Canvas(ApplicationContext *ctx) :
+    ctx(ctx)
 {
 }
 
@@ -51,8 +50,8 @@ void X11Canvas::execute(const Command &cmd)
     }
     auto image_result = Image::create(ctx, {.file_path = cmd.image_path.string(),
                                             .scaler = cmd.image_scaler,
-                                            .width = terminal->font.width * cmd.width,
-                                            .height = terminal->font.height * cmd.height});
+                                            .width = ctx->terminal.font.width * cmd.width,
+                                            .height = ctx->terminal.font.height * cmd.height});
     if (!image_result) {
         SPDLOG_WARN(image_result.error().message());
         return;

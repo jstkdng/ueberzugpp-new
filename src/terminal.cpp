@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "terminal.hpp"
 #include "application/context.hpp"
 #include "buildconfig.hpp"
 #include "os/os.hpp"
-#include "terminal.hpp"
 #include "util/result.hpp"
 
 #include <fcntl.h>

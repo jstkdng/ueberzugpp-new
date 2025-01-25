@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "application/context.hpp"
 #include "unix/fd.hpp"
 #include "util/result.hpp"
 
@@ -26,6 +25,8 @@
 
 namespace upp
 {
+
+class ApplicationContext;
 
 struct TerminalSize {
     int width = -1;

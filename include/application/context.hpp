@@ -22,6 +22,7 @@
 #include "cli.hpp"
 #include "os/os.hpp"
 #include "util/result.hpp"
+#include "terminal.hpp"
 
 #ifdef ENABLE_X11
 #include "x11/context.hpp"
@@ -43,6 +44,7 @@ class ApplicationContext
     auto init() -> Result<void>;
 
     Cli *cli;
+    Terminal terminal;
     std::string term{os::getenv("TERM").value_or("xterm-256color")};
     std::string term_program{os::getenv("TERM_PROGRAM").value_or("")};
     std::string output;

@@ -16,40 +16,33 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "base/canvas.hpp"
+#pragma once
+
 #include "application/context.hpp"
-#include "buildconfig.hpp"
 #include "terminal.hpp"
-#include "util/result.hpp"
-
-#ifdef ENABLE_WAYLAND
-#include "wayland/canvas.hpp"
-#endif
-
-#ifdef ENABLE_X11
-#include "x11/canvas.hpp"
-#endif
+#include "x11/types.hpp"
 
 #include <memory>
+#include <unordered_map>
 
 namespace upp
 {
 
-auto Canvas::create(ApplicationContext *ctx) -> Result<CanvasPtr>
+class X11Window;
+
+using WindowPtr = std::shared_ptr<X11Window>;
+using WindowMap = std::unordered_map<xcb::window_id, X11Window>;
+using WindowIdMap = std::unordered_map<std::string, X11Window>;
+
+class X11Window : std::enable_shared_from_this<X11Window>
 {
-#ifdef ENABLE_WAYLAND
-    if (ctx->output == "wayland") {
-        return std::make_unique<WaylandCanvas>(ctx);
-    }
-#endif
+  public:
+    X11Window(Terminal *terminal, ApplicationContext *ctx, WindowMap* window_map);
 
-#ifdef ENABLE_X11
-    if (ctx->output == "x11") {
-        return std::make_unique<X11Canvas>(ctx);
-    }
-#endif
-
-    return Err("could not create canvas");
-}
+  private:
+    Terminal *terminal;
+    ApplicationContext *ctx;
+    WindowMap *window_map;
+};
 
 } // namespace upp

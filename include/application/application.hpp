@@ -22,7 +22,6 @@
 #include "base/canvas.hpp"
 #include "cli.hpp"
 #include "command.hpp"
-#include "terminal.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
@@ -51,7 +50,6 @@ class Application
     CommandQueue queue;
     CommandListener listener{&queue};
     ApplicationContext ctx;
-    Terminal terminal{&ctx};
     CanvasPtr canvas;
 
     std::jthread command_thread;

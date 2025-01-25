@@ -63,8 +63,7 @@ auto Application::handle_cli_commands() -> Result<void>
         setup_signal_handler();
         return setup_vips()
             .and_then([this] { return ctx.init(); })
-            .and_then([this] { return terminal.init(); })
-            .and_then([this] { return Canvas::create(&ctx, &terminal); })
+            .and_then([this] { return Canvas::create(&ctx); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
                 return canvas->init();

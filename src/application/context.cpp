@@ -32,7 +32,8 @@ namespace upp
 {
 
 ApplicationContext::ApplicationContext(Cli *cli) :
-    cli(cli)
+    cli(cli),
+    terminal(this)
 {
 }
 
@@ -42,10 +43,13 @@ auto ApplicationContext::init() -> Result<void>
     if (!term_program.empty()) {
         SPDLOG_INFO("TERM_PROGRAM = {}", term_program);
     }
-    return x11_init().and_then([this] { return wayland_init(); }).and_then([this]() -> Result<void> {
-        set_detected_output();
-        return {};
-    });
+    return x11_init()
+        .and_then([this] { return wayland_init(); })
+        .and_then([this] { return terminal.init(); })
+        .and_then([this]() -> Result<void> {
+            set_detected_output();
+            return {};
+        });
 }
 
 auto ApplicationContext::x11_init() -> Result<void>

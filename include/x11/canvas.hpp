@@ -24,6 +24,7 @@
 #include "terminal.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
+#include "x11/window.hpp"
 
 #include <expected>
 
@@ -33,15 +34,16 @@ namespace upp
 class X11Canvas final : public Canvas
 {
   public:
-    explicit X11Canvas(ApplicationContext *ctx, Terminal *terminal);
+    explicit X11Canvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
 
   private:
     ApplicationContext *ctx;
-    Terminal *terminal;
 
     std::jthread event_handler;
+    WindowMap window_map;
+    WindowIdMap window_id_map;
 
     void handle_events(const std::stop_token& token);
     void dispatch_events();
