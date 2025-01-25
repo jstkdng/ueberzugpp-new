@@ -68,8 +68,9 @@ void X11Canvas::execute(const Command &cmd)
 void X11Canvas::handle_events(const std::stop_token &token)
 {
     SPDLOG_DEBUG("started event handler");
+    const int filde = ctx->x11.connection_fd;
     while (!token.stop_requested()) {
-        auto in_event = os::wait_for_data_on_fd(ctx->x11.connection_fd);
+        auto in_event = os::wait_for_data_on_fd(filde);
         if (!in_event) {
             Application::terminate();
             return;
