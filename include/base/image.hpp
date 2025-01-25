@@ -59,7 +59,7 @@ class Image
     static auto fit_contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     static auto contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     virtual auto load() -> Result<void> = 0;
-    auto num_channels() -> int;
+    virtual auto num_channels() -> int = 0;
 };
 
 } // namespace upp
