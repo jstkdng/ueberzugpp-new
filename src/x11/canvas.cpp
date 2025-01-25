@@ -96,6 +96,7 @@ void X11Canvas::dispatch_events()
                 break;
             }
             case XCB_EXPOSE: {
+                // TODO: handle expose event
             }
             default: {
                 SPDLOG_DEBUG("received unknown event {}", real_event);
