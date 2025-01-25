@@ -18,7 +18,6 @@
 
 #include "application/context.hpp"
 #include "cli.hpp"
-#include "os/os.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_WAYLAND
@@ -33,9 +32,7 @@ namespace upp
 {
 
 ApplicationContext::ApplicationContext(Cli *cli) :
-    cli(cli),
-    term(os::getenv("TERM").value_or("xterm-256color")),
-    term_program(os::getenv("TERM_PROGRAM").value_or(""))
+    cli(cli)
 {
 }
 

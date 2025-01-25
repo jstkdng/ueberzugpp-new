@@ -132,23 +132,6 @@ if (ENABLE_WAYLAND)
     )
 endif ()
 
-# if (ENABLE_OPENCV)
-#     find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
-#     target_link_libraries(ueberzugpp PRIVATE ${OpenCV_LIBS})
-# 
-#     target_sources(
-#         ueberzugpp
-#         PRIVATE
-#             src/image/opencl.cpp
-# 
-#         PRIVATE
-#         FILE_SET HEADERS
-#         BASE_DIRS include/
-#         FILES
-#             include/image/opencl.hpp
-#     )
-# endif ()
-
 pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)

@@ -20,6 +20,7 @@
 
 #include "buildconfig.hpp"
 #include "cli.hpp"
+#include "os/os.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_X11
@@ -42,8 +43,8 @@ class ApplicationContext
     auto init() -> Result<void>;
 
     Cli *cli;
-    std::string term;
-    std::string term_program;
+    std::string term{os::getenv("TERM").value_or("xterm-256color")};
+    std::string term_program{os::getenv("TERM_PROGRAM").value_or("")};
     std::string output;
 #ifdef ENABLE_X11
     X11Context x11;
