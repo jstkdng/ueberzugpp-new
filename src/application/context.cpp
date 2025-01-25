@@ -17,6 +17,8 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application/context.hpp"
+#include "cli.hpp"
+#include "os/os.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_WAYLAND
@@ -30,9 +32,23 @@
 namespace upp
 {
 
+ApplicationContext::ApplicationContext(Cli *cli) :
+    cli(cli),
+    term(os::getenv("TERM").value_or("xterm-256color")),
+    term_program(os::getenv("TERM_PROGRAM").value_or(""))
+{
+}
+
 auto ApplicationContext::init() -> Result<void>
 {
-    return x11_init().and_then([this] { return wayland_init(); });
+    SPDLOG_INFO("TERM = {}", term);
+    if (!term_program.empty()) {
+        SPDLOG_INFO("TERM_PROGRAM = {}", term_program);
+    }
+    return x11_init().and_then([this] { return wayland_init(); }).and_then([this]() -> Result<void> {
+        set_detected_output();
+        return {};
+    });
 }
 
 auto ApplicationContext::x11_init() -> Result<void>
@@ -58,6 +74,25 @@ auto ApplicationContext::wayland_init() -> Result<void>
     }
 #endif
     return {};
+}
+
+void ApplicationContext::set_detected_output()
+{
+    if (!cli->layer.output.empty()) {
+        output = cli->layer.output;
+        return;
+    }
+#ifdef ENABLE_X11
+    if (x11.is_valid) {
+        output = "x11";
+    }
+#endif
+#ifdef ENABLE_WAYLAND
+    if (wl_socket) {
+        output = "wayland";
+    }
+#endif
+    // TODO: detect other stdout outputs
 }
 
 } // namespace upp

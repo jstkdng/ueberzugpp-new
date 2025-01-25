@@ -30,7 +30,7 @@
 namespace upp
 {
 
-auto Image::create(ImageProps props) -> Result<ImagePtr>
+auto Image::create(ApplicationContext *ctx, ImageProps props) -> Result<ImagePtr>
 {
 #ifdef ENABLE_OPENCV
     if (OpenclImage::can_load(props.file_path)) {
@@ -38,7 +38,7 @@ auto Image::create(ImageProps props) -> Result<ImagePtr>
     }
 #endif
     if (VipsImage::can_load(props.file_path)) {
-        return std::make_unique<VipsImage>(std::move(props));
+        return std::make_unique<VipsImage>(ctx, std::move(props));
     }
 
     return Err("could not create image loader");

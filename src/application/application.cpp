@@ -37,7 +37,6 @@
 #include <array>
 #include <csignal>
 #include <memory>
-#include <signal.h> // NOLINT
 #include <string>
 #include <string_view>
 #include <utility>
@@ -47,7 +46,8 @@ namespace upp
 {
 
 Application::Application(Cli *cli) :
-    cli(cli)
+    cli(cli),
+    ctx(cli)
 {
 }
 
@@ -64,7 +64,7 @@ auto Application::handle_cli_commands() -> Result<void>
         return setup_vips()
             .and_then([this] { return ctx.init(); })
             .and_then([this] { return terminal.init(); })
-            .and_then([this] { return Canvas::create(cli->layer.output, &ctx, &terminal); })
+            .and_then([this] { return Canvas::create(&ctx, &terminal); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
                 return canvas->init();

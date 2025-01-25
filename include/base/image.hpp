@@ -19,6 +19,7 @@
 #pragma once
 
 #include "util/result.hpp"
+#include "application/context.hpp"
 
 #include <memory>
 #include <string>
@@ -34,7 +35,6 @@ struct ImageProps {
     std::string file_path;
     int width = -1;
     int height = -1;
-    std::string output;
 };
 
 class Image
@@ -42,8 +42,9 @@ class Image
   public:
     virtual ~Image() = default;
 
-    static auto create(ImageProps props) -> Result<ImagePtr>;
+    static auto create(ApplicationContext *ctx, ImageProps props) -> Result<ImagePtr>;
     virtual auto load() -> Result<void> = 0;
+    auto num_channels() -> int;
 };
 
 } // namespace upp

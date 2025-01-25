@@ -26,6 +26,11 @@
 #cmakedefine HAVE_STD_EXECUTION
 #cmakedefine HAVE_STD_JTHREAD
 
+namespace upp
+{
+
 constexpr auto build_date = "@BUILD_DATE@";
 constexpr auto version_str = "@CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
 constexpr auto full_version_str = "ueberzugpp-new @CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
+
+} // namespace upp

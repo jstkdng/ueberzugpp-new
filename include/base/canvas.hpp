@@ -24,7 +24,6 @@
 #include "util/result.hpp"
 
 #include <memory>
-#include <string_view>
 
 namespace upp
 {
@@ -38,7 +37,7 @@ class Canvas
   public:
     virtual ~Canvas() = default;
 
-    static auto create(std::string_view output, ApplicationContext *ctx, Terminal *terminal) -> Result<CanvasPtr>;
+    static auto create(ApplicationContext *ctx, Terminal *terminal) -> Result<CanvasPtr>;
     virtual auto init() -> Result<void> = 0;
     virtual void execute(const Command &cmd) = 0;
 };

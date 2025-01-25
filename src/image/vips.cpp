@@ -23,12 +23,14 @@
 #include <spdlog/spdlog.h>
 #include <vips/vips8>
 
+#include <unordered_set>
 #include <utility>
 
 namespace upp
 {
 
-VipsImage::VipsImage(ImageProps props) :
+VipsImage::VipsImage(ApplicationContext *ctx, ImageProps props) :
+    ctx(ctx),
     props(std::move(props))
 {
 }
@@ -40,7 +42,11 @@ auto VipsImage::can_load(const std::string &file_path) -> bool
 
 auto VipsImage::load() -> Result<void>
 {
-    return read_image();
+    return read_image().and_then([this]() -> Result<void> {
+        resize_image();
+        process_image();
+        return {};
+    });
 }
 
 auto VipsImage::read_image() -> Result<void>
@@ -53,6 +59,38 @@ auto VipsImage::read_image() -> Result<void>
     }
 
     return {};
+}
+
+void VipsImage::process_image()
+{
+    const std::unordered_set<std::string_view> bgra_trifecta = {"x11", "chafa", "wayland"};
+    if (bgra_trifecta.contains(ctx->output)) {
+        // alpha channel required
+        if (!image.has_alpha()) {
+            const int alpha_value = 255;
+            image = image.bandjoin(alpha_value);
+        }
+        // convert from RGB to BGR
+        auto bands = image.bandsplit();
+        std::swap(bands[0], bands[2]);
+        image = vips::VImage::bandjoin(bands);
+    } else if (ctx->output == "sixel") {
+        // sixel expects RGB888
+        if (image.has_alpha()) {
+            image = image.flatten();
+        }
+    }
+    image_size = VIPS_IMAGE_SIZEOF_IMAGE(image.get_image());
+    image_buffer.reset(static_cast<unsigned char *>(image.write_to_memory(&image_size)));
+}
+
+void VipsImage::resize_image()
+{
+}
+
+auto VipsImage::num_channels() -> int
+{
+    return image.bands();
 }
 
 } // namespace upp

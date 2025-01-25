@@ -45,7 +45,9 @@ void X11Canvas::execute(const Command &cmd)
     if (cmd.action != "add") {
         return;
     }
-    auto image_result = Image::create({.file_path = cmd.image_path.string(), .output = "x11"});
+    auto image_result = Image::create(ctx, {.file_path = cmd.image_path.string(),
+                                            .width = terminal->font.width * cmd.width,
+                                            .height = terminal->font.height * cmd.height});
     if (!image_result) {
         SPDLOG_WARN(image_result.error().message());
         return;

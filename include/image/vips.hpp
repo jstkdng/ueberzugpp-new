@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include "application/context.hpp"
 #include "base/image.hpp"
+#include "util/ptr.hpp"
 #include "util/result.hpp"
 
 #include <vips/vips8>
@@ -31,15 +33,22 @@ namespace upp
 class VipsImage : public Image
 {
   public:
-    explicit VipsImage(ImageProps props);
+    explicit VipsImage(ApplicationContext *ctx, ImageProps props);
     auto load() -> Result<void> override;
-    static auto can_load(const std::string& file_path) -> bool;
+    static auto can_load(const std::string &file_path) -> bool;
+    auto num_channels() -> int;
 
   private:
+    ApplicationContext *ctx;
     ImageProps props;
     vips::VImage image;
 
+    size_t image_size;
+    c_unique_ptr<unsigned char, g_free> image_buffer;
+
     auto read_image() -> Result<void>;
+    void resize_image();
+    void process_image();
 };
 
 } // namespace upp

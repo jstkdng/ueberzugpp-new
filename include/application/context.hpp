@@ -19,6 +19,7 @@
 #pragma once
 
 #include "buildconfig.hpp"
+#include "cli.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_X11
@@ -29,14 +30,21 @@
 #include "wayland/socket/socket.hpp"
 #endif
 
+#include <string>
+
 namespace upp
 {
 
 class ApplicationContext
 {
   public:
+    explicit ApplicationContext(Cli *cli);
     auto init() -> Result<void>;
 
+    Cli *cli;
+    std::string term;
+    std::string term_program;
+    std::string output;
 #ifdef ENABLE_X11
     X11Context x11;
 #endif
@@ -47,6 +55,7 @@ class ApplicationContext
   private:
     auto x11_init() -> Result<void>;
     auto wayland_init() -> Result<void>;
+    void set_detected_output();
 };
 
 } // namespace upp

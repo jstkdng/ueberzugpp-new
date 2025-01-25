@@ -31,21 +31,20 @@
 #endif
 
 #include <memory>
-#include <string_view>
 
 namespace upp
 {
 
-auto Canvas::create(std::string_view output, ApplicationContext *ctx, Terminal *terminal) -> Result<CanvasPtr>
+auto Canvas::create(ApplicationContext *ctx, Terminal *terminal) -> Result<CanvasPtr>
 {
 #ifdef ENABLE_WAYLAND
-    if (output == "wayland") {
+    if (ctx->output == "wayland") {
         return std::make_unique<WaylandCanvas>(ctx);
     }
 #endif
 
 #ifdef ENABLE_X11
-    if (output == "x11") {
+    if (ctx->output == "x11") {
         return std::make_unique<X11Canvas>(ctx, terminal);
     }
 #endif
