@@ -61,7 +61,6 @@ void X11Canvas::execute(const Command &cmd)
     auto load_result = image->load();
     if (!load_result) {
         SPDLOG_WARN(load_result.error().message());
-        return;
     }
 }
 
@@ -86,13 +85,11 @@ void X11Canvas::handle_events(const std::stop_token &token)
 
 void X11Canvas::dispatch_events()
 {
-    constexpr int event_mask = 0x80;
-
     auto *conn = ctx->x11.connection.get();
     auto event = unique_C_ptr<xcb_generic_event_t>{xcb_poll_for_event(conn)};
     while (event) {
-        const int real_event = event->response_type & ~event_mask;
-        switch (real_event) {
+        constexpr int event_mask = 0x80;
+        switch (const int real_event = event->response_type & ~event_mask; real_event) {
             case 0: {
                 auto *err = reinterpret_cast<xcb::error_ptr>(event.get());
                 ctx->x11.handle_xcb_error(err);
