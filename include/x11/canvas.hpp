@@ -23,6 +23,7 @@
 #include "command.hpp"
 #include "terminal.hpp"
 #include "util/result.hpp"
+#include "util/thread.hpp"
 
 #include <expected>
 
@@ -39,6 +40,11 @@ class X11Canvas final : public Canvas
   private:
     ApplicationContext *ctx;
     Terminal *terminal;
+
+    std::jthread event_handler;
+
+    void handle_events(const std::stop_token& token);
+    void dispatch_events();
 };
 
 } // namespace upp

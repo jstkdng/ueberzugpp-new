@@ -37,6 +37,8 @@ class X11Context
   public:
     auto init() -> Result<void>;
     auto load_state(int pid) -> Result<void>;
+    void handle_xcb_error(xcb::error_ptr err) const;
+    void handle_xcb_error(xcb::error& err) const;
     static constexpr int num_clients = 256;
 
     xcb::connection connection;
@@ -54,8 +56,6 @@ class X11Context
     void set_pid_window_map();
     auto set_parent_window(int pid) -> Result<void>;
     auto set_parent_window_geometry() -> Result<void>;
-
-    void handle_xcb_error(xcb::error &err) const;
 
     [[nodiscard]] auto get_window_ids() const -> std::vector<xcb::window_id>;
     [[nodiscard]] auto get_complete_window_ids() const -> std::vector<xcb::window_id>;

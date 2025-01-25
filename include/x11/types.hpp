@@ -35,18 +35,19 @@
 namespace upp::xcb
 {
 
-using connection_ptr = xcb_connection_t*;
+using connection_ptr = xcb_connection_t *;
 using connection = c_unique_ptr<xcb_connection_t, &xcb_disconnect>;
 using screen = xcb_screen_t *;
 using window_id = xcb_window_t;
 
-using error = unique_C_ptr<xcb_generic_error_t>;
+using error_ptr = xcb_generic_error_t *;
+using error = unique_C_ptr<std::remove_pointer_t<error_ptr>>;
 using errors_context = c_unique_ptr<xcb_errors_context_t, &xcb_errors_context_free>;
 
 template <class Fn, class... Args>
 auto get_result(Fn func, Args &&...args)
 {
-    xcb_generic_error_t *err = nullptr;
+    error_ptr err = nullptr;
     auto *result = func(std::forward<Args>(args)..., &err);
     using XCBFunc = unique_C_ptr<std::remove_pointer_t<decltype(result)>>;
     using XCBResult = std::expected<XCBFunc, error>;

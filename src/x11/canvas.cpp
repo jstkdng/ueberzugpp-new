@@ -17,10 +17,13 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "x11/canvas.hpp"
+#include "application/application.hpp"
 #include "application/context.hpp"
 #include "base/image.hpp"
 #include "command.hpp"
+#include "os/os.hpp"
 #include "terminal.hpp"
+#include "util/ptr.hpp"
 #include "util/result.hpp"
 
 #include <spdlog/spdlog.h>
@@ -37,6 +40,7 @@ X11Canvas::X11Canvas(ApplicationContext *ctx, Terminal *terminal) :
 auto X11Canvas::init() -> Result<void>
 {
     SPDLOG_INFO("canvas created");
+    event_handler = std::jthread([this](const std::stop_token &token) { handle_events(token); });
     return {};
 }
 
@@ -58,6 +62,49 @@ void X11Canvas::execute(const Command &cmd)
     if (!load_result) {
         SPDLOG_WARN(load_result.error().message());
         return;
+    }
+}
+
+void X11Canvas::handle_events(const std::stop_token &token)
+{
+    SPDLOG_DEBUG("started event handler");
+    while (!token.stop_requested()) {
+        auto in_event = os::wait_for_data_on_fd(ctx->x11.connection_fd);
+        if (!in_event) {
+            Application::terminate();
+            return;
+        }
+
+        if (!*in_event) {
+            continue;
+        }
+
+        dispatch_events();
+    }
+}
+
+void X11Canvas::dispatch_events()
+{
+    constexpr int event_mask = 0x80;
+
+    auto *conn = ctx->x11.connection.get();
+    auto event = unique_C_ptr<xcb_generic_event_t>{xcb_poll_for_event(conn)};
+    while (event) {
+        const int real_event = event->response_type & ~event_mask;
+        switch (real_event) {
+            case 0: {
+                auto *err = reinterpret_cast<xcb::error_ptr>(event.get());
+                ctx->x11.handle_xcb_error(err);
+                break;
+            }
+            case XCB_EXPOSE: {
+            }
+            default: {
+                SPDLOG_DEBUG("received unknown event {}", real_event);
+                break;
+            }
+        }
+        event.reset(xcb_poll_for_event(conn));
     }
 }
 

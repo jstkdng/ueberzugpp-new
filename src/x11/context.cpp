@@ -209,6 +209,11 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
 
 void X11Context::handle_xcb_error(xcb::error &err) const
 {
+    handle_xcb_error(err.get());
+}
+
+void X11Context::handle_xcb_error(xcb::error_ptr err) const
+{
     const char *extension = nullptr;
     const char *major = xcb_errors_get_name_for_major_code(err_ctx.get(), err->major_code);
     const char *minor = xcb_errors_get_name_for_minor_code(err_ctx.get(), err->major_code, err->minor_code);
