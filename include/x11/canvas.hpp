@@ -28,11 +28,12 @@
 #include "x11/window.hpp"
 
 #include <expected>
+#include <memory>
 
 namespace upp
 {
 
-using WindowIdMap = string_map<X11Window>;
+using WindowIdMap = string_map<std::shared_ptr<X11Window>>;
 
 class X11Canvas final : public Canvas
 {

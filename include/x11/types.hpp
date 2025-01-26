@@ -37,8 +37,10 @@ namespace upp::xcb
 
 using connection_ptr = xcb_connection_t *;
 using connection = c_unique_ptr<xcb_connection_t, &xcb_disconnect>;
-using screen = xcb_screen_t *;
+using image = c_unique_ptr<xcb_image_t, &xcb_image_destroy>;
+using screen_ptr = xcb_screen_t *;
 using window_id = xcb_window_t;
+using gcontext = xcb_gcontext_t;
 
 using error_ptr = xcb_generic_error_t *;
 using error = unique_C_ptr<std::remove_pointer_t<error_ptr>>;
@@ -56,5 +58,21 @@ auto get_result(Fn func, Args &&...args)
     }
     return XCBResult{result};
 }
+
+class window
+{
+  public:
+    window(connection_ptr connection, screen_ptr screen, window_id parent_id, gcontext gctx);
+    void configure(int xcoord, int ycoord, int width, int height);
+    void draw();
+    ~window();
+
+  private:
+    connection_ptr connection;
+    screen_ptr screen;
+    window_id parent_id;
+    gcontext gctx;
+    window_id _id;
+};
 
 } // namespace upp::xcb

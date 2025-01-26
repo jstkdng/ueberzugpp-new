@@ -93,6 +93,7 @@ if (ENABLE_X11)
             src/x11/canvas.cpp
             src/x11/context.cpp
             src/x11/window.cpp
+            src/x11/types/window.cpp
 
         PRIVATE
         FILE_SET HEADERS

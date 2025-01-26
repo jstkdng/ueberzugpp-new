@@ -29,8 +29,8 @@ namespace upp
 
 class X11Window;
 
-using WindowPtr = std::shared_ptr<X11Window>;
-using WindowMap = std::unordered_map<xcb::window_id, X11Window>;
+using WindowPtr = std::weak_ptr<X11Window>;
+using WindowMap = std::unordered_map<xcb::window_id, WindowPtr>;
 
 class X11Window : std::enable_shared_from_this<X11Window>
 {
@@ -40,6 +40,8 @@ class X11Window : std::enable_shared_from_this<X11Window>
   private:
     ApplicationContext *ctx;
     WindowMap *window_map;
+
+    xcb::image xcb_image;
 };
 
 } // namespace upp

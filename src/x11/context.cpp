@@ -39,12 +39,18 @@
 namespace upp
 {
 
+X11Context::~X11Context()
+{
+    xcb_free_gc(connection.get(), gcontext);
+}
+
 auto X11Context::init() -> Result<void>
 {
     connection.reset(xcb_connect(nullptr, nullptr));
     if (xcb_connection_has_error(connection.get()) > 0) {
-        return Err("can't connect to x11");
+        return Err("can't connect to X11");
     }
+    SPDLOG_INFO("connected to X11 server");
     screen = xcb_setup_roots_iterator(xcb_get_setup(connection.get())).data;
     connection_fd = xcb_get_file_descriptor(connection.get());
 
@@ -53,6 +59,7 @@ auto X11Context::init() -> Result<void>
     err_ctx.reset(tmp);
 
     pid_window_map.reserve(num_clients);
+    create_gcontext();
 
     return os::get_pid_from_socket(connection_fd).and_then([this](int pid) -> Result<void> {
         auto proc_name = os::get_pid_process_name(pid);
@@ -205,6 +212,17 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
     parent_geometry.width = reply->width;
     parent_geometry.height = reply->height;
     return {};
+}
+
+void X11Context::create_gcontext()
+{
+    gcontext = xcb_generate_id(connection.get());
+    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND;
+    xcb_create_gc_value_list_t value_list;
+    value_list.foreground = screen->black_pixel;
+    value_list.background = screen->black_pixel;
+    xcb_create_gc(connection.get(), gcontext, screen->root, mask, &value_list);
+    SPDLOG_DEBUG("created gc with id {}", gcontext);
 }
 
 void X11Context::handle_xcb_error(xcb::error &err) const

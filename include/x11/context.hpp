@@ -35,15 +35,17 @@ struct X11Geometry {
 class X11Context
 {
   public:
+    ~X11Context();
     auto init() -> Result<void>;
     auto load_state(int pid) -> Result<void>;
     void handle_xcb_error(xcb::error_ptr err) const;
-    void handle_xcb_error(xcb::error& err) const;
+    void handle_xcb_error(xcb::error &err) const;
     static constexpr int num_clients = 256;
 
     xcb::connection connection;
-    xcb::screen screen = nullptr;
+    xcb::screen_ptr screen = nullptr;
     xcb::window_id parent = -1;
+    xcb::gcontext gcontext;
     X11Geometry parent_geometry;
     int connection_fd = -1;
     bool is_xwayland = false;
@@ -54,6 +56,7 @@ class X11Context
     std::unordered_multimap<int, xcb::window_id> pid_window_map;
 
     void set_pid_window_map();
+    void create_gcontext();
     auto set_parent_window(int pid) -> Result<void>;
     auto set_parent_window_geometry() -> Result<void>;
 
