@@ -56,6 +56,7 @@ option(ENABLE_OPENCV "Enable OpenCV image processing" OFF)
 option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
 add_subdirectory(libraries/)
+message(INFO ${URMOM})
 add_subdirectory(third_party/)
 target_compile_definitions(ueberzugpp PRIVATE
     $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
