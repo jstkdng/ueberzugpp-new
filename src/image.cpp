@@ -18,10 +18,9 @@
 
 #include "base/image.hpp"
 #include "buildconfig.hpp" // IWYU pragma: keep
-#include "image/vips.hpp"
 #include "util/result.hpp"
-#ifdef ENABLE_OPENCV
-#include "image/opencl.hpp"
+#ifdef ENABLE_LIBVIPS
+#include "image/vips.hpp"
 #endif
 
 #include <memory>
@@ -30,16 +29,13 @@
 namespace upp
 {
 
-auto Image::create(ApplicationContext *ctx, ImageProps props) -> Result<ImagePtr>
+auto Image::create([[maybe_unused]] ApplicationContext *ctx, [[maybe_unused]] ImageProps props) -> Result<ImagePtr>
 {
-#ifdef ENABLE_OPENCV
-    if (OpenclImage::can_load(props.file_path)) {
-        return std::make_unique<OpenclImage>(std::move(props));
-    }
-#endif
+#ifdef ENABLE_LIBVIPS
     if (VipsImage::can_load(props.file_path)) {
         return std::make_unique<VipsImage>(ctx, std::move(props));
     }
+#endif
 
     return Err("could not create image loader");
 }

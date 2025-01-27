@@ -31,7 +31,10 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+
+#ifdef ENABLE_LIBVIPS
 #include <vips/vips8>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -79,7 +82,9 @@ auto Application::wait_for_layer_commands() -> Result<void>
 {
     command_thread = std::jthread([this](const auto &token) { execute_layer_commands(token); });
     stop_flag.wait(false);
+#ifdef ENABLE_LIBVIPS
     vips_shutdown();
+#endif
     return {};
 }
 
@@ -140,11 +145,13 @@ auto Application::setup_logging() -> Result<void>
 
 auto Application::setup_vips() -> Result<void>
 {
+#ifdef ENABLE_LIBVIPS
     if (VIPS_INIT("ueberzugpp")) {
         return Err("can't startup vips");
     }
     vips_cache_set_max(1);
     SPDLOG_DEBUG("libvips initialized");
+#endif
     return {};
 }
 

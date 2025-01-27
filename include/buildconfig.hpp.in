@@ -19,9 +19,8 @@
 #pragma once
 
 #cmakedefine ENABLE_X11
-#cmakedefine ENABLE_OPENCV
+#cmakedefine ENABLE_LIBVIPS
 #cmakedefine ENABLE_WAYLAND
-#cmakedefine ENABLE_OPENGL
 
 #cmakedefine HAVE_STD_EXECUTION
 #cmakedefine HAVE_STD_JTHREAD

@@ -39,6 +39,7 @@ set_target_properties(
 
 option(ENABLE_X11 "Enable X11 support" ON)
 option(ENABLE_WAYLAND "Enable wayland support" ON)
+option(ENABLE_LIBVIPS "Enable image loading through libvips" ON)
 option(USE_BUNDLED_LIBRARIES "Use bundled libraries" ON)
 option(USE_LIBCXX "Link against libc++" OFF)
 
@@ -68,8 +69,6 @@ find_package(Threads REQUIRED)
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
-pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
-
 # check if <execution> is available
 set(CMAKE_REQUIRED_LIBRARIES TBB::tbb Threads::Threads)
 set(CMAKE_REQUIRED_FLAGS -std=c++23)
@@ -80,6 +79,23 @@ check_source_compiles(CXX "
 #include <thread>
 int main(void) {auto t = std::jthread([] {}); return 0;}
 " HAVE_STD_JTHREAD)
+
+if (ENABLE_LIBVIPS)
+    pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
+    target_link_libraries(ueberzugpp PRIVATE PkgConfig::VIPS)
+
+    target_sources(
+        ueberzugpp
+        PRIVATE
+            src/image/vips.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            include/image/vips.hpp
+    )
+endif ()
 
 if (ENABLE_X11)
     pkg_check_modules(XCBERRORS REQUIRED IMPORTED_TARGET xcb-errors)
@@ -162,7 +178,6 @@ target_sources(
         src/util/util.cpp
         src/canvas.cpp
         src/image.cpp
-        src/image/vips.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -184,12 +199,10 @@ target_sources(
         include/os/os.hpp
         include/base/canvas.hpp
         include/base/image.hpp
-        include/image/vips.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
     TBB::tbb
     Threads::Threads
-    PkgConfig::VIPS
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
