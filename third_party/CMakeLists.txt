@@ -26,7 +26,9 @@ add_subdirectory(spdlog/)
 set(CLI11_PRECOMPILED ON)
 add_subdirectory(CLI11/)
 
-target_link_libraries(ueberzugpp PRIVATE spdlog::spdlog CLI11::CLI11)
+add_subdirectory(glaze/)
+
 target_include_directories(ueberzugpp SYSTEM PRIVATE include/)
+target_link_libraries(ueberzugpp PRIVATE spdlog::spdlog CLI11::CLI11 glaze::glaze)
 
 # cmake-format: on

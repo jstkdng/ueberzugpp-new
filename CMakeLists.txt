@@ -55,9 +55,7 @@ option(ENABLE_WAYLAND "Enable wayland support" ON)
 option(ENABLE_OPENCV "Enable OpenCV image processing" OFF)
 option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
-add_subdirectory(libraries/)
-message(INFO ${URMOM})
-add_subdirectory(third_party/)
+add_subdirectory(third_party/ EXCLUDE_FROM_ALL)
 target_compile_definitions(ueberzugpp PRIVATE
     $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
     $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
@@ -191,4 +189,6 @@ target_link_libraries(ueberzugpp PRIVATE
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
 
+install(TARGETS ueberzugpp RUNTIME)
+install(FILES "${PROJECT_BINARY_DIR}/ueberzug" TYPE BIN)
 # cmake-format: on
