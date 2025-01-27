@@ -56,6 +56,7 @@ option(ENABLE_OPENCV "Enable OpenCV image processing" OFF)
 option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
 
 add_subdirectory(libraries/)
+add_subdirectory(third_party/)
 target_compile_definitions(ueberzugpp PRIVATE
     $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
     $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
@@ -138,7 +139,6 @@ endif ()
 pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
-target_include_directories(ueberzugpp SYSTEM PRIVATE third_party/)
 
 target_sources(
     ueberzugpp
@@ -182,8 +182,6 @@ target_sources(
         include/image/vips.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
-    CLI11::CLI11
-    spdlog::spdlog
     glaze::glaze
     TBB::tbb
     Threads::Threads

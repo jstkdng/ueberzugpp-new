@@ -42,7 +42,7 @@ target_include_directories(
     INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
 )
 
-if(NOT CMAKE_SKIP_INSTALL_RULES)
+if(glaze_INSTALL)
   include(cmake/install-rules.cmake)
 endif()
 
