@@ -29,7 +29,6 @@ if (USE_BUNDLED_LIBRARIES)
 
     add_subdirectory(glaze/)
 else ()
-    set(SPDLOG_USE_STD_FORMAT ON)
     find_package(spdlog REQUIRED)
     find_package(CLI11 REQUIRED)
     find_package(glaze REQUIRED)
