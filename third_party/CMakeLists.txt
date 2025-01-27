@@ -24,7 +24,7 @@ set(SPDLOG_ENABLE_PCH ON)
 add_subdirectory(spdlog/)
 
 set(CLI11_PRECOMPILED ON)
-add_subdirectory(CLI11-2.4.2/)
+add_subdirectory(CLI11/)
 
 target_link_libraries(ueberzugpp PRIVATE spdlog::spdlog CLI11::CLI11)
 target_include_directories(ueberzugpp SYSTEM PRIVATE include/)
