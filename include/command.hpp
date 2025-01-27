@@ -23,7 +23,6 @@
 #include "util/thread.hpp"
 
 #include <filesystem>
-#include <format>
 #include <string>
 #include <string_view>
 
@@ -66,20 +65,3 @@ class CommandListener
 };
 
 } // namespace upp
-
-template <>
-struct std::formatter<upp::Command> : std::formatter<std::string> {
-    static auto format(const upp::Command &cmd, format_context &ctx)
-    {
-        if (cmd.action == "exit" || cmd.action == "flush") {
-            return std::format_to(ctx.out(), "Command[action={}]", cmd.action);
-        }
-
-        if (cmd.action == "remove") {
-            return std::format_to(ctx.out(), "Command[action={} identifier={}]", cmd.action, cmd.preview_id);
-        }
-
-        return std::format_to(ctx.out(), "Command[action={} identifier={} path={}]", cmd.action, cmd.preview_id,
-                              cmd.image_path.string());
-    }
-};

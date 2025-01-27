@@ -96,7 +96,7 @@ void Application::execute_layer_commands(const std::stop_token &token)
 
 void Application::print_header()
 {
-    const auto *art = R"(starting
+    constexpr auto *art = R"(starting
  _   _      _
 | | | |    | |                                _     _
 | | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_

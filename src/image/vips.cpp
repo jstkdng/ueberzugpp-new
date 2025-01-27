@@ -63,8 +63,8 @@ auto VipsImage::read_image() -> Result<void>
 
 void VipsImage::process_image()
 {
-    const std::unordered_set<std::string_view> bgra_trifecta = {"x11", "chafa", "wayland"};
-    if (bgra_trifecta.contains(ctx->output)) {
+    const std::unordered_set<std::string_view> bgra_outputs = {"x11", "chafa", "wayland"};
+    if (bgra_outputs.contains(ctx->output)) {
         // alpha channel required
         if (!image.has_alpha()) {
             const int alpha_value = 255;

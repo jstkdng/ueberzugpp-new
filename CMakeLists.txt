@@ -37,23 +37,20 @@ set_target_properties(
         EXPORT_COMPILE_COMMANDS ON
 )
 
+option(ENABLE_X11 "Enable X11 support" ON)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
+option(USE_BUNDLED_LIBRARIES "Use bundled libraries" ON)
+option(USE_LIBCXX "Link against libc++" OFF)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
     target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined -Wno-unknown-warning-option)
 endif ()
 
-# reproducible builds
-string(TIMESTAMP BUILD_DATE UTC)
-target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
-
-target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
-target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
-
-option(ENABLE_X11 "Enable X11 support" ON)
-option(ENABLE_WAYLAND "Enable wayland support" ON)
-option(ENABLE_OPENCV "Enable OpenCV image processing" OFF)
-option(ENABLE_OPENGL "Enable OpenGL image rendering" OFF)
+if (USE_LIBCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fexperimental-library")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+endif ()
 
 add_subdirectory(third_party/ EXCLUDE_FROM_ALL)
 target_compile_definitions(ueberzugpp PRIVATE
@@ -70,6 +67,8 @@ find_package(TBB REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
 
 # check if <execution> is available
 set(CMAKE_REQUIRED_LIBRARIES TBB::tbb Threads::Threads)
@@ -135,9 +134,16 @@ if (ENABLE_WAYLAND)
     )
 endif ()
 
-pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
+target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
+
+# reproducible builds
+string(TIMESTAMP BUILD_DATE UTC)
+target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
 
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
+target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+
 
 target_sources(
     ueberzugpp
@@ -181,7 +187,6 @@ target_sources(
         include/image/vips.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
-    glaze::glaze
     TBB::tbb
     Threads::Threads
     PkgConfig::VIPS

@@ -18,15 +18,22 @@
 # You should have received a copy of the GNU General Public License
 # along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-set(SPDLOG_USE_STD_FORMAT ON)
-set(SPDLOG_SYSTEM_INCLUDES ON)
-set(SPDLOG_ENABLE_PCH ON)
-add_subdirectory(spdlog/)
+if (USE_BUNDLED_LIBRARIES)
+    set(SPDLOG_USE_STD_FORMAT ON)
+    set(SPDLOG_SYSTEM_INCLUDES ON)
+    set(SPDLOG_ENABLE_PCH ON)
+    add_subdirectory(spdlog/)
 
-set(CLI11_PRECOMPILED ON)
-add_subdirectory(CLI11/)
+    set(CLI11_PRECOMPILED ON)
+    add_subdirectory(CLI11/)
 
-add_subdirectory(glaze/)
+    add_subdirectory(glaze/)
+else ()
+    set(SPDLOG_USE_STD_FORMAT ON)
+    find_package(spdlog REQUIRED)
+    find_package(CLI11 REQUIRED)
+    find_package(glaze REQUIRED)
+endif ()
 
 target_include_directories(ueberzugpp SYSTEM PRIVATE include/)
 target_link_libraries(ueberzugpp PRIVATE spdlog::spdlog CLI11::CLI11 glaze::glaze)
