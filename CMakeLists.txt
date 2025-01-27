@@ -40,6 +40,7 @@ set_target_properties(
 option(ENABLE_X11 "Enable X11 support" ON)
 option(ENABLE_WAYLAND "Enable wayland support" ON)
 option(ENABLE_LIBVIPS "Enable image loading through libvips" ON)
+option(ENABLE_OPENCL "Enable OpenCL image processing" OFF)
 option(USE_BUNDLED_LIBRARIES "Use bundled libraries" ON)
 option(USE_LIBCXX "Link against libc++" OFF)
 
@@ -148,6 +149,13 @@ if (ENABLE_WAYLAND)
             include/wayland/canvas.hpp
             include/wayland/types.hpp
     )
+endif ()
+
+if (ENABLE_OPENCL)
+    find_package(OpenCL REQUIRED)
+    find_package(OpenCLHeaders REQUIRED)
+    find_package(OpenCLHeadersCpp REQUIRED)
+    target_link_libraries(ueberzugpp PRIVATE OpenCL::Headers OpenCL::OpenCL OpenCL::HeadersCpp)
 endif ()
 
 target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
