@@ -19,12 +19,12 @@
 #include "x11/canvas.hpp"
 #include "application/application.hpp"
 #include "application/context.hpp"
-#include "base/image.hpp"
 #include "command.hpp"
 #include "os/os.hpp"
 #include "terminal.hpp"
 #include "util/ptr.hpp"
 #include "util/result.hpp"
+#include "x11/window.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -43,23 +43,19 @@ auto X11Canvas::init() -> Result<void>
     return {};
 }
 
-void X11Canvas::execute(const Command &cmd)
+void X11Canvas::execute(Command cmd)
 {
-    if (cmd.action != "add") {
-        return;
-    }
-    auto image_result = Image::create(ctx, {.file_path = cmd.image_path.string(),
-                                            .scaler = cmd.image_scaler,
-                                            .width = ctx->terminal.font.width * cmd.width,
-                                            .height = ctx->terminal.font.height * cmd.height});
-    if (!image_result) {
-        SPDLOG_WARN(image_result.error().message());
-        return;
-    }
-    auto &image = *image_result;
-    auto load_result = image->load();
-    if (!load_result) {
-        SPDLOG_WARN(load_result.error().message());
+    std::string identifier = cmd.preview_id;
+    if (cmd.action == "add") {
+        auto window = std::make_shared<X11Window>(ctx, &window_map);
+        auto result = window->init(std::move(cmd));
+        if (!result) {
+            SPDLOG_WARN(result.error().message());
+            return;
+        }
+        window_id_map.emplace(identifier, window);
+    } else if (cmd.action == "remove") {
+        window_id_map.erase(identifier);
     }
 }
 
@@ -95,7 +91,15 @@ void X11Canvas::dispatch_events()
                 break;
             }
             case XCB_EXPOSE: {
-                // TODO: handle expose event
+                auto *expose = reinterpret_cast<xcb_expose_event_t *>(event.get());
+                auto window_id = expose->window;
+                auto window_ptr = window_map.find(window_id);
+                if (window_ptr != window_map.end()) {
+                    if (auto window = window_ptr->second.lock()) {
+                        window->draw(window_id);
+                    }
+                }
+                break;
             }
             default: {
                 SPDLOG_DEBUG("received unknown event {}", real_event);

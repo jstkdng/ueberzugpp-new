@@ -23,8 +23,38 @@ namespace upp
 
 X11Window::X11Window(ApplicationContext *ctx, WindowMap *window_map) :
     ctx(ctx),
-    window_map(window_map)
+    window_map(window_map),
+    xcb_window(ctx->x11.connection.get(), ctx->x11.screen, ctx->x11.parent)
 {
+}
+
+auto X11Window::init(Command new_command) -> Result<void>
+{
+    auto &font = ctx->terminal.font;
+    auto &x11 = ctx->x11;
+    command = std::move(new_command);
+    return Image::create(ctx, {.file_path = command.image_path.string(),
+                               .scaler = command.image_scaler,
+                               .width = font.width * command.width,
+                               .height = font.height * command.height})
+        .and_then([this](ImagePtr new_image) {
+            image = std::move(new_image);
+            return image->load();
+        })
+        .and_then([this, &font, &x11]() -> Result<void> {
+            window_map->emplace(xcb_window.id(), weak_from_this());
+            xcb_image.reset(xcb_image_create_native(x11.connection.get(), image->width(), image->height(),
+                                                    XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, nullptr, 0,
+                                                    nullptr));
+            xcb_image->data = image->data();
+            xcb_window.configure(font.width * command.x, font.height * command.y, image->width(), image->height());
+            return {};
+        });
+}
+
+void X11Window::draw(xcb::window_id window)
+{
+    xcb_image_put(ctx->x11.connection.get(), window, ctx->x11.gcontext, xcb_image.get(), 0, 0, 0);
 }
 
 } // namespace upp

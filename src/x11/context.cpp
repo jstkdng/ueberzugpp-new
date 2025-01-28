@@ -217,11 +217,7 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
 void X11Context::create_gcontext()
 {
     gcontext = xcb_generate_id(connection.get());
-    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND;
-    xcb_create_gc_value_list_t value_list;
-    value_list.foreground = screen->black_pixel;
-    value_list.background = screen->black_pixel;
-    xcb_create_gc(connection.get(), gcontext, screen->root, mask, &value_list);
+    xcb_create_gc(connection.get(), gcontext, screen->root, 0, nullptr);
     SPDLOG_DEBUG("created gc with id {}", gcontext);
 }
 

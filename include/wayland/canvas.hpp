@@ -34,7 +34,7 @@ class WaylandCanvas : public Canvas
   public:
     explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
-    void execute(const Command &cmd) override;
+    void execute(Command cmd) override;
 
     static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
                                    uint32_t version);

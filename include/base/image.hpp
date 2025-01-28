@@ -60,6 +60,9 @@ class Image
     static auto contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     virtual auto load() -> Result<void> = 0;
     virtual auto num_channels() -> int = 0;
+    virtual auto data() -> unsigned char* = 0;
+    virtual auto width() -> int = 0;
+    virtual auto height() -> int = 0;
 };
 
 } // namespace upp

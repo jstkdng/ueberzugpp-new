@@ -21,21 +21,12 @@
 namespace upp::xcb
 {
 
-window::window(connection_ptr connection, screen_ptr screen, window_id parent_id, gcontext gctx) :
+window::window(connection_ptr connection, screen_ptr screen, window_id parent_id) :
     connection(connection),
     screen(screen),
     parent_id(parent_id),
-    gctx(gctx),
     _id(xcb_generate_id(connection))
 {
-    const uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
-    struct xcb_create_window_value_list_t value_list;
-    value_list.background_pixel = screen->black_pixel;
-    value_list.border_pixel = screen->black_pixel;
-    value_list.event_mask = XCB_EVENT_MASK_EXPOSURE;
-    value_list.colormap = screen->default_colormap;
-    xcb_create_window_aux(connection, screen->root_depth, _id, parent_id, 0, 0, 0, 0, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                          screen->root_visual, value_mask, &value_list);
 }
 
 window::~window()
@@ -46,14 +37,22 @@ window::~window()
 
 void window::configure(int xcoord, int ycoord, int width, int height)
 {
-    const uint32_t mask =
-        XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-    xcb_configure_window_value_list_t values;
-    values.x = xcoord;
-    values.y = ycoord;
-    values.width = width;
-    values.height = height;
-    xcb_configure_window_aux(connection, _id, mask, &values);
+    const uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
+    struct xcb_create_window_value_list_t value_list;
+    value_list.background_pixel = screen->black_pixel;
+    value_list.border_pixel = screen->black_pixel;
+    value_list.event_mask = XCB_EVENT_MASK_EXPOSURE;
+    value_list.colormap = screen->default_colormap;
+    xcb_create_window_aux(connection, screen->root_depth, _id, parent_id, static_cast<int16_t>(xcoord),
+                          static_cast<int16_t>(ycoord), width, height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                          screen->root_visual, value_mask, &value_list);
+    xcb_map_window(connection, _id);
+    xcb_flush(connection);
+}
+
+auto window::id() const -> window_id
+{
+    return _id;
 }
 
 } // namespace upp::xcb

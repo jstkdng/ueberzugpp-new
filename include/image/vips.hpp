@@ -37,6 +37,9 @@ class VipsImage : public Image
     auto load() -> Result<void> override;
     static auto can_load(const std::string &file_path) -> bool;
     auto num_channels() -> int override;
+    auto data() -> unsigned char * override;
+    auto width() -> int override;
+    auto height() -> int override;
 
   private:
     ApplicationContext *ctx;

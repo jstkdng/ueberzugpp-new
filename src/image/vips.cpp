@@ -108,4 +108,19 @@ void VipsImage::contain_scaler()
     image = image.thumbnail_image(new_width, opts);
 }
 
+auto VipsImage::data() -> unsigned char *
+{
+    return image_buffer.get();
+}
+
+auto VipsImage::width() -> int
+{
+    return image.width();
+}
+
+auto VipsImage::height() -> int
+{
+    return image.height();
+}
+
 } // namespace upp

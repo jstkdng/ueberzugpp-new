@@ -84,7 +84,7 @@ auto WaylandCanvas::init() -> Result<void>
     return {};
 }
 
-void WaylandCanvas::execute([[maybe_unused]] const Command &cmd)
+void WaylandCanvas::execute([[maybe_unused]] Command cmd)
 {
     // do nothing for now
 }
