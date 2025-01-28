@@ -65,15 +65,18 @@ include(CheckCXXSymbolExists)
 include(CheckSourceCompiles)
 
 find_package(PkgConfig REQUIRED)
-find_package(TBB REQUIRED)
+# find_package(TBB REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 # check if <execution> is available
-set(CMAKE_REQUIRED_LIBRARIES TBB::tbb Threads::Threads)
+set(CMAKE_REQUIRED_LIBRARIES
+    # TBB::tbb
+    Threads::Threads
+)
 set(CMAKE_REQUIRED_FLAGS -std=c++23)
-check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION)
+# check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION)
 
 # check if <jthread> is available
 check_source_compiles(CXX "
@@ -209,7 +212,7 @@ target_sources(
         include/base/image.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
-    TBB::tbb
+    # TBB::tbb
     Threads::Threads
 )
 
