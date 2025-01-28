@@ -18,28 +18,46 @@
 
 #pragma once
 
-#include "util/ptr.hpp"
-
-// IWYU pragma: begin_exports
-#include <wayland-client-core.h>
-#include <wayland-client-protocol.h>
 #include <wayland-client.h>
 #include <wayland-xdg-shell-client-protocol.h>
-// IWYU pragma: end_exports
+
+#include <memory>
 
 namespace upp::wl
 {
-using display = c_unique_ptr<wl_display, &wl_display_disconnect>;
-using registry = c_unique_ptr<wl_registry, &wl_registry_destroy>;
-using compositor = c_unique_ptr<wl_compositor, &wl_compositor_destroy>;
-using shm = c_unique_ptr<wl_shm, &wl_shm_destroy>;
+
+struct display_deleter {
+    void operator()(wl_display *ptr) const { wl_display_disconnect(ptr); }
+};
+
+struct registry_deleter {
+    void operator()(wl_registry *ptr) const { wl_registry_destroy(ptr); }
+};
+
+struct compositor_deleter {
+    void operator()(wl_compositor *ptr) const { wl_compositor_destroy(ptr); }
+};
+
+struct shm_deleter {
+    void operator()(wl_shm *ptr) const { wl_shm_destroy(ptr); }
+};
+
+using display = std::unique_ptr<wl_display, display_deleter>;
+using registry = std::unique_ptr<wl_registry, registry_deleter>;
+using compositor = std::unique_ptr<wl_compositor, compositor_deleter>;
+using shm = std::unique_ptr<wl_shm, shm_deleter>;
 
 template <typename... Args>
 void ignore([[maybe_unused]] Args... args) { /* ignore wayland callback */ };
 
 namespace xdg
 {
-using wm_base = c_unique_ptr<xdg_wm_base, &xdg_wm_base_destroy>;
-}
+
+struct xdg_deleter {
+    void operator()(xdg_wm_base *ptr) const { xdg_wm_base_destroy(ptr); }
+};
+
+using wm_base = std::unique_ptr<xdg_wm_base, xdg_deleter>;
+} // namespace xdg
 
 } // namespace upp::wl

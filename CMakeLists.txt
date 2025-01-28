@@ -23,6 +23,7 @@ cmake_policy(SET CMP0146 OLD)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set(CMAKE_COLOR_DIAGNOSTICS ON)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG TRUE)
 
 project(ueberzugpp LANGUAGES CXX C VERSION 0.0.1)
 
@@ -46,7 +47,7 @@ option(USE_LIBCXX "Link against libc++" OFF)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_definitions(ueberzugpp PRIVATE __cpp_concepts=202002L)
-    target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined -Wno-unknown-warning-option)
+    target_compile_options(ueberzugpp PRIVATE -Wno-builtin-macro-redefined)
 endif ()
 
 if (USE_LIBCXX)
@@ -136,7 +137,6 @@ if (ENABLE_WAYLAND)
         PROTOCOL "${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml"
         BASENAME "xdg-shell")
 
-    target_compile_options(ueberzugpp PRIVATE -Wno-subobject-linkage)
     target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
     target_sources(
         ueberzugpp

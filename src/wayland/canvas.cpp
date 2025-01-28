@@ -71,8 +71,8 @@ auto WaylandCanvas::init() -> Result<void>
 {
     display.reset(wl_display_connect(nullptr));
     if (display) {
-        _registry.reset(wl_display_get_registry(display.get()));
-        wl_registry_add_listener(_registry.get(), &registry_listener, this);
+        registry.reset(wl_display_get_registry(display.get()));
+        wl_registry_add_listener(registry.get(), &registry_listener, this);
         wl_display_roundtrip(display.get());
 
         display_fd = wl_display_get_fd(display.get());

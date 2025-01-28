@@ -29,7 +29,7 @@
 namespace upp
 {
 
-class WaylandCanvas : public Canvas
+class WaylandCanvas final : public Canvas
 {
   public:
     explicit WaylandCanvas(ApplicationContext *ctx);
@@ -43,7 +43,7 @@ class WaylandCanvas : public Canvas
   private:
     ApplicationContext *ctx;
     wl::display display;
-    wl::registry _registry;
+    wl::registry registry;
     wl::compositor compositor;
     wl::shm shm;
     wl::xdg::wm_base wm_base;
