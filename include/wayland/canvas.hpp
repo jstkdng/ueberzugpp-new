@@ -43,7 +43,7 @@ class WaylandCanvas : public Canvas
   private:
     ApplicationContext *ctx;
     wl::display display;
-    wl::registry registry;
+    wl::registry _registry;
     wl::compositor compositor;
     wl::shm shm;
     wl::xdg::wm_base wm_base;
