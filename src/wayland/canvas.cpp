@@ -80,7 +80,7 @@ auto WaylandCanvas::init() -> Result<void>
         return Err("could not connect to wayland display");
     }
 
-    SPDLOG_INFO("canvas created");
+    logger->info("canvas created");
     return {};
 }
 

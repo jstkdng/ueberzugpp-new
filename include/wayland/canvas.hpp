@@ -23,6 +23,7 @@
 #include "command.hpp"
 #include "util/result.hpp"
 #include "wayland/types.hpp"
+#include "log.hpp"
 
 #include <cstdint>
 
@@ -42,6 +43,7 @@ class WaylandCanvas final : public Canvas
 
   private:
     ApplicationContext *ctx;
+    Logger logger{spdlog::get("wayland")};
     wl::display display;
     wl::registry registry;
     wl::compositor compositor;

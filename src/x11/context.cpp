@@ -46,7 +46,7 @@ X11Context::~X11Context()
 
 auto X11Context::init() -> Result<void>
 {
-    logger = spdlog::get("x11");
+    logger = spdlog::get("X11");
     connection.reset(xcb_connect(nullptr, nullptr));
     if (xcb_connection_has_error(connection.get()) > 0) {
         return Err("can't connect to X11");

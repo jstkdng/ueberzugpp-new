@@ -28,7 +28,7 @@ namespace upp
 
 auto WaylandSocket::create() -> Result<WaylandSocketPtr>
 {
-    if (auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE"); hyprland_signature) {
+    if (auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE")) {
         return std::make_unique<HyprlandSocket>(*hyprland_signature);
     }
 

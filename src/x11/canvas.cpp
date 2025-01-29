@@ -36,7 +36,6 @@ X11Canvas::X11Canvas(ApplicationContext *ctx) :
 
 auto X11Canvas::init() -> Result<void>
 {
-    logger = spdlog::get("x11");
     logger->info("canvas created");
     event_handler = std::jthread([this](const std::stop_token &token) { handle_events(token); });
     return {};

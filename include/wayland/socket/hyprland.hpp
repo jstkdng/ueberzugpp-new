@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "log.hpp"
 #include "wayland/socket/socket.hpp"
 
 #include <string>
@@ -32,6 +33,7 @@ class HyprlandSocket : public WaylandSocket
     explicit HyprlandSocket(std::string instance_signature);
 
   private:
+    Logger logger{spdlog::get("hyprland")};
     std::string signature;
     std::string socket_path;
 
