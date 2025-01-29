@@ -1,3 +1,4 @@
+
 // Display images in the terminal
 // Copyright (C) 2024  JustKidding
 //
@@ -18,37 +19,34 @@
 
 #pragma once
 
-#include "application/context.hpp"
-#include "command/command.hpp"
-#include "x11/types.hpp"
-#include "base/image.hpp"
+#include "util/concurrent_deque.hpp"
+#include "util/result.hpp"
 
-#include <memory>
-#include <unordered_map>
+#include <filesystem>
+#include <string>
+#include <string_view>
 
 namespace upp
 {
 
-class X11Window;
+struct Command {
+    static auto create(std::string_view parser, std::string line) -> Result<Command>;
+    static auto from_json(std::string line) -> Result<Command>;
 
-using WindowPtr = std::weak_ptr<X11Window>;
-using WindowMap = std::unordered_map<xcb::window_id, WindowPtr>;
+    std::string action;
+    std::string preview_id;
+    std::string image_scaler = "contain";
+    std::filesystem::path image_path;
 
-class X11Window : public std::enable_shared_from_this<X11Window>
-{
-  public:
-    X11Window(ApplicationContext *ctx, WindowMap *window_map);
-    auto init(Command new_command) -> Result<void>;
-    void draw(xcb::window_id window);
+    int x;
+    int y;
+    int width;
+    int height;
 
-  private:
-    ApplicationContext *ctx;
-    WindowMap *window_map;
-    Command command;
-
-    ImagePtr image;
-    xcb::image xcb_image;
-    xcb::window xcb_window;
+    float scaling_position_x;
+    float scaling_position_y;
 };
+
+using CommandQueue = ConcurrentDeque<Command>;
 
 } // namespace upp

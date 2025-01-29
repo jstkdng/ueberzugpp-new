@@ -19,7 +19,7 @@
 #include "x11/canvas.hpp"
 #include "application/application.hpp"
 #include "application/context.hpp"
-#include "command.hpp"
+#include "command/command.hpp"
 #include "os/os.hpp"
 #include "terminal.hpp"
 #include "util/ptr.hpp"

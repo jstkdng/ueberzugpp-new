@@ -198,8 +198,9 @@ target_sources(
         include/application/context.hpp
         include/cli.hpp
         include/log.hpp
-        include/command.hpp
         include/terminal.hpp
+        include/command/command.hpp
+        include/command/listener.hpp
         include/util/result.hpp
         include/util/thread.hpp
         include/util/concurrent_deque.hpp

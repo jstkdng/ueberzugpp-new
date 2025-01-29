@@ -18,17 +18,16 @@
 
 #pragma once
 
+#include "command/command.hpp"
+#include "log.hpp"
 #include "unix/fd.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
-#include "log.hpp"
-#include "util/concurrent_deque.hpp"
 
 #include <cstddef>
 #include <span>
 #include <string>
 #include <string_view>
-#include <optional>
 
 namespace upp::unix::socket
 {
@@ -48,16 +47,16 @@ class Client
 class Server
 {
   public:
+    explicit Server(CommandQueue *queue);
     auto start() -> Result<void>;
-    auto dequeue_message() -> std::optional<std::string>;
 
   private:
     Logger logger{spdlog::get("socket")};
+    CommandQueue *queue;
     fd sockfd;
     std::string endpoint;
 
     std::jthread accept_thread;
-    ConcurrentDeque<std::string> messages;
 
     void accept_connections(const std::stop_token &token);
     void read_data();

@@ -45,7 +45,7 @@ auto temp_directory_path() -> std::filesystem::path
 auto get_socket_path(int pid) -> std::string
 {
     const auto sockname = std::format("ueberzugpp-{}.socket", pid);
-    const auto tmp = fs::temp_directory_path();
+    const auto tmp = temp_directory_path();
     return tmp / sockname;
 }
 

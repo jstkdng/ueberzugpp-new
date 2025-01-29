@@ -17,7 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application/application.hpp"
-#include "command.hpp"
+#include "command/command.hpp"
 #include "os/os.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
@@ -30,7 +30,8 @@ namespace upp
 {
 
 CommandListener::CommandListener(CommandQueue *queue) :
-    queue(queue)
+    queue(queue),
+    socket_server(queue)
 {
 }
 
@@ -40,7 +41,7 @@ auto CommandListener::start(std::string_view new_parser) -> Result<void>
     parser = new_parser;
     logger->info("using {} parser", parser);
     stdin_thread = std::jthread([this](const auto &token) { wait_for_input_on_stdin(token); });
-    return {};
+    return socket_server.start();
 }
 
 void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)

@@ -19,7 +19,7 @@
 #pragma once
 
 #include "application/context.hpp"
-#include "command.hpp"
+#include "command/command.hpp"
 #include "util/result.hpp"
 
 #include <memory>

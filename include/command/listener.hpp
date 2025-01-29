@@ -18,38 +18,16 @@
 
 #pragma once
 
+#include "command/command.hpp"
 #include "log.hpp"
-#include "util/concurrent_deque.hpp"
-#include "util/result.hpp"
-#include "util/thread.hpp"
 #include "unix/socket.hpp"
+#include "util/thread.hpp"
 
-#include <filesystem>
 #include <string>
 #include <string_view>
 
 namespace upp
 {
-
-struct Command {
-    static auto create(std::string_view parser, std::string line) -> Result<Command>;
-    static auto from_json(std::string line) -> Result<Command>;
-
-    std::string action;
-    std::string preview_id;
-    std::string image_scaler = "contain";
-    std::filesystem::path image_path;
-
-    int x;
-    int y;
-    int width;
-    int height;
-
-    float scaling_position_x;
-    float scaling_position_y;
-};
-
-using CommandQueue = ConcurrentDeque<Command>;
 
 class CommandListener
 {

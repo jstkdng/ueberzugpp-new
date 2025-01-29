@@ -29,6 +29,11 @@
 namespace upp::unix::socket
 {
 
+Server::Server(CommandQueue *queue) :
+    queue(queue)
+{
+}
+
 auto Server::start() -> Result<void>
 {
     endpoint = util::get_socket_path();
@@ -76,15 +81,9 @@ void Server::read_data()
 {
     fd connfd{accept(sockfd.get(), nullptr, nullptr)};
     if (auto data = os::read_data_from_fd(connfd.get())) {
-        messages.enqueue(*data);
     } else {
         logger->warn("received no data on fd {}: {}", connfd.get(), data.error().message());
     }
-}
-
-auto Server::dequeue_message() -> std::optional<std::string>
-{
-    return messages.try_dequeue(os::waitms);
 }
 
 } // namespace upp::unix::socket
