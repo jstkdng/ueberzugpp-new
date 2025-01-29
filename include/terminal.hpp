@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "log.hpp"
 #include "unix/fd.hpp"
 #include "util/result.hpp"
 
@@ -53,6 +54,7 @@ class Terminal
     TerminalFont font;
 
   private:
+    Logger logger;
     ApplicationContext *ctx;
     std::string pty_path;
     unix::fd pty_fd;

@@ -197,6 +197,7 @@ target_sources(
         include/application/application.hpp
         include/application/context.hpp
         include/cli.hpp
+        include/log.hpp
         include/command.hpp
         include/terminal.hpp
         include/util/result.hpp

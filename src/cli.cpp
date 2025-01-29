@@ -48,8 +48,6 @@ void Cli::setup_layer_subcommand()
         ->default_val(false)
         ->needs("--pid-file");
     layer_command->add_flag("--no-cache", layer.no_cache, "Disable caching of resized images")->default_val(false);
-    layer_command->add_flag("--no-opencv", layer.no_opencv, "Do not use OpenCV, use Libvips instead")
-        ->default_val(false);
     layer_command->add_option("-o,--output", layer.output, "Image output method")
         ->check(CLI::IsMember({"x11", "wayland", "sixel", "kitty", "iterm2", "chafa"}));
     layer_command->add_flag("--origin-center", layer.origin_center, "Location of the origin wrt the image")

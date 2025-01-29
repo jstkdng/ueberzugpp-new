@@ -20,9 +20,10 @@
 
 #include "buildconfig.hpp"
 #include "cli.hpp"
+#include "log.hpp"
 #include "os/os.hpp"
-#include "util/result.hpp"
 #include "terminal.hpp"
+#include "util/result.hpp"
 
 #ifdef ENABLE_X11
 #include "x11/context.hpp"
@@ -56,6 +57,8 @@ class ApplicationContext
 #endif
 
   private:
+    Logger logger;
+
     auto x11_init() -> Result<void>;
     auto wayland_init() -> Result<void>;
     void set_detected_output();

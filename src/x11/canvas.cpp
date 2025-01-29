@@ -26,8 +26,6 @@
 #include "util/result.hpp"
 #include "x11/window.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace upp
 {
 
@@ -38,7 +36,8 @@ X11Canvas::X11Canvas(ApplicationContext *ctx) :
 
 auto X11Canvas::init() -> Result<void>
 {
-    SPDLOG_INFO("canvas created");
+    logger = spdlog::get("x11");
+    logger->info("canvas created");
     event_handler = std::jthread([this](const std::stop_token &token) { handle_events(token); });
     return {};
 }
@@ -50,7 +49,7 @@ void X11Canvas::execute(Command cmd)
         auto window = std::make_shared<X11Window>(ctx, &window_map);
         auto result = window->init(std::move(cmd));
         if (!result) {
-            SPDLOG_WARN(result.error().message());
+            logger->warn(result.error().message());
             return;
         }
         window_id_map.emplace(identifier, window);
@@ -61,7 +60,7 @@ void X11Canvas::execute(Command cmd)
 
 void X11Canvas::handle_events(const std::stop_token &token)
 {
-    SPDLOG_DEBUG("started event handler");
+    logger->debug("started event handler");
     const int filde = ctx->x11.connection_fd;
     while (!token.stop_requested()) {
         auto in_event = os::wait_for_data_on_fd(filde);
@@ -102,7 +101,7 @@ void X11Canvas::dispatch_events()
                 break;
             }
             default: {
-                SPDLOG_DEBUG("received unknown event {}", real_event);
+                logger->debug("received unknown event {}", real_event);
                 break;
             }
         }

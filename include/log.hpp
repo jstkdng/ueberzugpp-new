@@ -18,41 +18,13 @@
 
 #pragma once
 
-#include "application/context.hpp"
-#include "base/canvas.hpp"
-#include "command.hpp"
-#include "log.hpp"
-#include "terminal.hpp"
-#include "util/result.hpp"
-#include "util/str_map.hpp"
-#include "util/thread.hpp"
-#include "x11/window.hpp"
+#include <spdlog/spdlog.h>
 
-#include <expected>
 #include <memory>
 
 namespace upp
 {
 
-using WindowIdMap = string_map<std::shared_ptr<X11Window>>;
+using Logger = std::shared_ptr<spdlog::logger>;
 
-class X11Canvas final : public Canvas
-{
-  public:
-    explicit X11Canvas(ApplicationContext *ctx);
-    auto init() -> Result<void> override;
-    void execute(Command cmd) override;
-
-  private:
-    ApplicationContext *ctx;
-    Logger logger;
-
-    std::jthread event_handler;
-    WindowMap window_map;
-    WindowIdMap window_id_map;
-
-    void handle_events(const std::stop_token &token);
-    void dispatch_events();
-};
-
-} // namespace upp
+}

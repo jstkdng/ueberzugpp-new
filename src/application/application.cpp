@@ -26,11 +26,11 @@
 #include "util/util.hpp"
 
 #include <CLI/CLI.hpp>
-#include <spdlog/common.h>
-#include <spdlog/logger.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/cfg/env.h>
 
 #ifdef ENABLE_LIBVIPS
 #include <vips/vips8>
@@ -43,7 +43,6 @@
 #include <string>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 namespace upp
 {
@@ -110,7 +109,7 @@ void Application::print_header()
  \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
                                        __/ |    new
                                       |___/)";
-    SPDLOG_INFO(art, version_str, build_date);
+    logger->info(art, version_str, build_date);
 }
 
 auto Application::setup_logging() -> Result<void>
@@ -121,21 +120,31 @@ auto Application::setup_logging() -> Result<void>
     auto level = spdlog::level::info;
 #endif
 
+    spdlog::cfg::load_env_levels();
     auto log_file = util::get_log_filename();
     auto log_path = util::temp_directory_path() / log_file;
 
     try {
+        spdlog::set_pattern("[%Y-%m-%d %T.%F] [%12n] %^[%8l]%$ %v");
+        spdlog::set_level(level);
+        spdlog::flush_on(level);
+
+        auto dist_sink = std::make_shared<spdlog::sinks::dist_sink_mt>();
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
-        std::vector<spdlog::sink_ptr> sinks{file_sink};
+        dist_sink->add_sink(file_sink);
         if (!cli->layer.silent) {
-            sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+            auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            dist_sink->add_sink(stdout_sink);
         }
 
-        auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
-        logger->set_pattern("[%Y-%m-%d %T.%F] %^[%8l]%$ [%@] %v");
-        logger->set_level(level);
-        logger->flush_on(level);
-        spdlog::register_logger(logger);
+        logger = std::make_shared<spdlog::logger>("application", dist_sink);
+        auto term = std::make_shared<spdlog::logger>("terminal", dist_sink);
+        auto x11 = std::make_shared<spdlog::logger>("x11", dist_sink);
+
+        spdlog::initialize_logger(logger);
+        spdlog::initialize_logger(term);
+        spdlog::initialize_logger(x11);
+
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         return Err("spdlog", ex);
@@ -150,7 +159,7 @@ auto Application::setup_vips() -> Result<void>
         return Err("can't startup vips");
     }
     vips_cache_set_max(1);
-    SPDLOG_DEBUG("libvips initialized");
+    logger->debug("libvips initialized");
 #endif
     return {};
 }
@@ -163,7 +172,7 @@ void Application::terminate()
 
 void Application::setup_signal_handler()
 {
-    SPDLOG_DEBUG("setting up signal handler");
+    logger->info("setting up signal handler");
     struct sigaction sga{};
     sga.sa_handler = signal_handler;
     sigemptyset(&sga.sa_mask);
@@ -185,10 +194,11 @@ void Application::signal_handler(int signal)
     });
 
     const auto *found = std::ranges::find_if(signal_map, [signal](const pair_t &pair) { return pair.first == signal; });
+    auto logger = spdlog::get("application");
     if (found == signal_map.end()) {
-        SPDLOG_WARN("received unknown signal, terminating");
+        logger->warn("received unknown signal, terminating");
     } else {
-        SPDLOG_WARN("received {}, terminating", found->second);
+        logger->warn("received {}, terminating", found->second);
     }
 
     terminate();

@@ -39,9 +39,10 @@ ApplicationContext::ApplicationContext(Cli *cli) :
 
 auto ApplicationContext::init() -> Result<void>
 {
-    SPDLOG_INFO("TERM = {}", term);
+    logger = spdlog::get("application");
+    logger->info("TERM = {}", term);
     if (!term_program.empty()) {
-        SPDLOG_INFO("TERM_PROGRAM = {}", term_program);
+        logger->info("TERM_PROGRAM = {}", term_program);
     }
     return x11_init()
         .and_then([this] { return wayland_init(); })
@@ -57,7 +58,7 @@ auto ApplicationContext::x11_init() -> Result<void>
 #ifdef ENABLE_X11
     auto result = x11.init();
     if (!result) {
-        SPDLOG_DEBUG(result.error().message());
+        logger->debug(result.error().message());
     }
 #endif
     return {};
@@ -71,7 +72,7 @@ auto ApplicationContext::wayland_init() -> Result<void>
         return {};
     });
     if (!result) {
-        SPDLOG_DEBUG(result.error().message());
+        logger->debug(result.error().message());
     }
 #endif
     return {};

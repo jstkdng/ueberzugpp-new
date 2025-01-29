@@ -26,15 +26,14 @@ namespace upp::subcommands
 {
 
 struct layer {
-    bool silent;
-    bool use_escape_codes;
-    bool no_stdin;
-    bool no_cache;
-    bool no_opencv;
-    bool origin_center;
+    bool silent = false;
+    bool use_escape_codes = false;
+    bool no_stdin = false;
+    bool no_cache = false;
+    bool origin_center = false;
 
     std::string pid_file;
-    std::string parser;
+    std::string parser = "json";
     std::string output;
 };
 

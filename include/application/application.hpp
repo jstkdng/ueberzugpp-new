@@ -22,6 +22,7 @@
 #include "base/canvas.hpp"
 #include "cli.hpp"
 #include "command.hpp"
+#include "log.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
@@ -39,9 +40,7 @@ class Application
     auto run() -> Result<void>;
 
     static void terminate();
-    static void setup_signal_handler();
     static void signal_handler(int signal);
-    static void print_header();
 
     inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 
@@ -51,11 +50,14 @@ class Application
     CommandListener listener{&queue};
     ApplicationContext ctx;
     CanvasPtr canvas;
+    Logger logger;
 
     std::jthread command_thread;
 
+    void print_header();
+    void setup_signal_handler();
+    auto setup_vips() -> Result<void>;
     auto setup_logging() -> Result<void>;
-    static auto setup_vips() -> Result<void>;
     auto handle_cli_commands() -> Result<void>;
     auto wait_for_layer_commands() -> Result<void>;
     void execute_layer_commands(const std::stop_token &token);

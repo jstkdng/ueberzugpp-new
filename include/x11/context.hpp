@@ -20,6 +20,7 @@
 
 #include "util/result.hpp"
 #include "x11/types.hpp"
+#include "log.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -52,6 +53,7 @@ class X11Context
     bool is_valid = false;
 
   private:
+    Logger logger;
     xcb::errors_context err_ctx;
     std::unordered_multimap<int, xcb::window_id> pid_window_map;
 
