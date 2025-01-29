@@ -44,6 +44,7 @@ class Error
     {
     }
 
+    // pass 0 to prevent creating an error condition
     explicit Error(std::string prefix, int code = errno) :
         prefix(std::move(prefix)),
         condition(code, std::generic_category())

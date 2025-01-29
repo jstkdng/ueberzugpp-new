@@ -37,7 +37,7 @@ auto Image::create([[maybe_unused]] ApplicationContext *ctx, [[maybe_unused]] Im
     }
 #endif
 
-    return Err("could not create image loader");
+    return Err("could not create image loader", 0);
 }
 
 auto Image::fit_contain_sizes(const current_image_sizes sizes) -> target_image_sizes

@@ -49,7 +49,7 @@ auto Canvas::create(ApplicationContext *ctx) -> Result<CanvasPtr>
     }
 #endif
 
-    return Err("could not create canvas");
+    return Err("could not create canvas", 0);
 }
 
 } // namespace upp

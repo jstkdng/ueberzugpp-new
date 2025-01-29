@@ -32,7 +32,7 @@ auto WaylandSocket::create() -> Result<WaylandSocketPtr>
         return std::make_unique<HyprlandSocket>(*hyprland_signature);
     }
 
-    return Err("no wayland socket available");
+    return Err("no wayland socket available", 0);
 }
 
 } // namespace upp
