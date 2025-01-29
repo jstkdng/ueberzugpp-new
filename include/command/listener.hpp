@@ -37,6 +37,7 @@ class CommandListener
 
   private:
     void wait_for_input_on_stdin(const std::stop_token &token);
+    void wait_for_input_on_socket(const std::stop_token &token);
     void extract_commands(std::string &line);
     void flush_command_queue() const;
     void enqueue_or_discard(const Command &cmd);
@@ -44,6 +45,7 @@ class CommandListener
     CommandQueue *queue;
     std::string parser;
     std::jthread stdin_thread;
+    std::jthread socket_thread;
     std::string stdin_buffer;
     unix::socket::Server socket_server;
     Logger logger;

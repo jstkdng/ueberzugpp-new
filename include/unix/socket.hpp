@@ -18,11 +18,8 @@
 
 #pragma once
 
-#include "command/command.hpp"
-#include "log.hpp"
 #include "unix/fd.hpp"
 #include "util/result.hpp"
-#include "util/thread.hpp"
 
 #include <cstddef>
 #include <span>
@@ -47,19 +44,19 @@ class Client
 class Server
 {
   public:
-    explicit Server(CommandQueue *queue);
+    ~Server();
     auto start() -> Result<void>;
+    [[nodiscard]] auto get_fd() const -> int;
+    [[nodiscard]] auto get_endpoint() const -> std::string;
+    [[nodiscard]] auto read_data_from_connection() const -> Result<std::string>;
 
   private:
-    Logger logger{spdlog::get("socket")};
-    CommandQueue *queue;
     fd sockfd;
     std::string endpoint;
 
-    std::jthread accept_thread;
-
-    void accept_connections(const std::stop_token &token);
-    void read_data();
+    auto create_socket() -> Result<void>;
+    [[nodiscard]] auto bind_to_endpoint() const -> Result<void>;
+    [[nodiscard]] auto listen_for_connections() const -> Result<void>;
 };
 
 } // namespace upp::unix::socket

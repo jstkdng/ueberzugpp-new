@@ -22,7 +22,6 @@
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
-#include <format>
 #include <string>
 #include <string_view>
 
@@ -30,8 +29,7 @@ namespace upp
 {
 
 CommandListener::CommandListener(CommandQueue *queue) :
-    queue(queue),
-    socket_server(queue)
+    queue(queue)
 {
 }
 
@@ -40,31 +38,58 @@ auto CommandListener::start(std::string_view new_parser) -> Result<void>
     logger = spdlog::get("listener");
     parser = new_parser;
     logger->info("using {} parser", parser);
-    stdin_thread = std::jthread([this](const auto &token) { wait_for_input_on_stdin(token); });
-    return socket_server.start();
+    stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
+    return socket_server.start().and_then([this]() -> Result<void> {
+        socket_thread = std::jthread([this](auto token) { wait_for_input_on_socket(token); });
+        return {};
+    });
 }
 
 void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
 {
     logger->info("listening for commands on stdin");
+    // failing to wait or read data from stdin is fatal
     while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_stdin()) {
             if (!*in_event) {
                 continue;
             }
         } else {
-            logger->warn(std::format("stdin thread terminated: {}", in_event.error().message()));
+            logger->warn("could not wait for data from stdin: {}", in_event.error().message());
+            Application::terminate();
+            return;
+        };
+        if (auto data = os::read_data_from_stdin()) {
+            // append new data to old data and search
+            stdin_buffer.append(*data);
+            extract_commands(stdin_buffer);
+        } else {
+            logger->warn("could not read data from stdin: {}", data.error().message());
+            Application::terminate();
+            return;
+        };
+    }
+}
+
+void CommandListener::wait_for_input_on_socket(const std::stop_token &token)
+{
+    logger->info("listening for commands on socket {}", socket_server.get_endpoint());
+    // it is only fatal to wait for data from socket
+    while (!token.stop_requested()) {
+        if (auto in_event = os::wait_for_data_on_fd(socket_server.get_fd())) {
+            if (!*in_event) {
+                continue;
+            }
+        } else {
+            logger->warn("could not wait for data from socket: {}", in_event.error().message());
             Application::terminate(); // stop this program if this thread dies
             return;
         };
-        auto data = os::read_data_from_stdin();
-        if (!data) {
-            logger->debug(data.error().message());
-            return;
+        if (auto data = socket_server.read_data_from_connection()) {
+            extract_commands(*data);
+        } else {
+            logger->debug("could not read data from connection: {}", data.error().message());
         }
-        // append new data to old data and search
-        stdin_buffer.append(data.value());
-        extract_commands(data.value());
     }
 }
 

@@ -16,8 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application/application.hpp"
-#include "os/os.hpp"
 #include "unix/socket.hpp"
 #include "util/util.hpp"
 
@@ -26,23 +24,53 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 namespace upp::unix::socket
 {
 
-Server::Server(CommandQueue *queue) :
-    queue(queue)
+Server::~Server()
 {
+    fs::remove(endpoint);
 }
 
 auto Server::start() -> Result<void>
 {
     endpoint = util::get_socket_path();
+    return create_socket().and_then([this] { return bind_to_endpoint(); }).and_then([this] {
+        return listen_for_connections();
+    });
+}
 
+auto Server::get_fd() const -> int
+{
+    return sockfd.get();
+}
+
+auto Server::get_endpoint() const -> std::string
+{
+    return endpoint;
+}
+
+auto Server::read_data_from_connection() const -> Result<std::string>
+{
+    fd connfd{accept(sockfd.get(), nullptr, nullptr)};
+    return os::read_data_from_fd(connfd.get());
+}
+
+auto Server::create_socket() -> Result<void>
+{
     sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
     if (!sockfd) {
         return Err("could not create socket");
     }
+    return {};
+}
 
+auto Server::bind_to_endpoint() const -> Result<void>
+{
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
     endpoint.copy(addr.sun_path, endpoint.length());
@@ -51,39 +79,16 @@ auto Server::start() -> Result<void>
     if (result == -1) {
         return Err("could not bind to endpoint " + endpoint);
     }
-
-    result = listen(sockfd.get(), SOMAXCONN);
-    if (result == -1) {
-        return Err("could not listen to endpoint " + endpoint);
-    }
-
-    accept_thread = std::jthread([this](auto token) { accept_connections(token); });
     return {};
 }
 
-void Server::accept_connections(const std::stop_token &token)
+auto Server::listen_for_connections() const -> Result<void>
 {
-    while (!token.stop_requested()) {
-        if (auto in_event = os::wait_for_data_on_fd(sockfd.get())) {
-            if (!*in_event) {
-                continue;
-            }
-        } else {
-            Application::terminate();
-            return;
-        }
-
-        read_data();
+    int result = listen(sockfd.get(), SOMAXCONN);
+    if (result == -1) {
+        return Err("could not listen to endpoint " + endpoint);
     }
-}
-
-void Server::read_data()
-{
-    fd connfd{accept(sockfd.get(), nullptr, nullptr)};
-    if (auto data = os::read_data_from_fd(connfd.get())) {
-    } else {
-        logger->warn("received no data on fd {}: {}", connfd.get(), data.error().message());
-    }
+    return {};
 }
 
 } // namespace upp::unix::socket
