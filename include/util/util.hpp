@@ -19,6 +19,7 @@
 #pragma once
 
 #include "util/result.hpp"
+#include "os/os.hpp"
 
 #include <charconv>
 #include <chrono>
@@ -46,6 +47,7 @@ constexpr auto view_to_numeral(const std::string_view view) -> Result<T>
 }
 
 auto get_log_filename() -> std::string;
+auto get_socket_path(int pid = os::getpid()) -> std::string;
 auto temp_directory_path() -> std::filesystem::path;
 
 template <typename Func>

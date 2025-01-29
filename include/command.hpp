@@ -22,6 +22,7 @@
 #include "util/concurrent_deque.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
+#include "unix/socket.hpp"
 
 #include <filesystem>
 #include <string>
@@ -66,6 +67,7 @@ class CommandListener
     std::string parser;
     std::jthread stdin_thread;
     std::string stdin_buffer;
+    unix::socket::Server socket_server;
     Logger logger;
 };
 

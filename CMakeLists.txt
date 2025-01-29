@@ -180,6 +180,7 @@ target_sources(
         src/cli.cpp
         src/unix/fd.cpp
         src/unix/socket/client.cpp
+        src/unix/socket/server.cpp
         src/os/os.cpp
         src/os/process.cpp
         src/terminal.cpp

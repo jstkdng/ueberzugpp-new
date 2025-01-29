@@ -20,11 +20,15 @@
 
 #include "unix/fd.hpp"
 #include "util/result.hpp"
+#include "util/thread.hpp"
+#include "log.hpp"
+#include "util/concurrent_deque.hpp"
 
 #include <cstddef>
 #include <span>
 #include <string>
 #include <string_view>
+#include <optional>
 
 namespace upp::unix::socket
 {
@@ -39,6 +43,24 @@ class Client
 
   private:
     fd sockfd;
+};
+
+class Server
+{
+  public:
+    auto start() -> Result<void>;
+    auto dequeue_message() -> std::optional<std::string>;
+
+  private:
+    Logger logger{spdlog::get("socket")};
+    fd sockfd;
+    std::string endpoint;
+
+    std::jthread accept_thread;
+    ConcurrentDeque<std::string> messages;
+
+    void accept_connections(const std::stop_token &token);
+    void read_data();
 };
 
 } // namespace upp::unix::socket

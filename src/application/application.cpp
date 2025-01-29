@@ -143,6 +143,7 @@ auto Application::setup_logging() -> Result<void>
         auto listener = std::make_shared<spdlog::logger>("listener", dist_sink);
         auto wayland = std::make_shared<spdlog::logger>("wayland", dist_sink);
         auto hyprland = std::make_shared<spdlog::logger>("hyprland", dist_sink);
+        auto socket = std::make_shared<spdlog::logger>("socket", dist_sink);
 
         spdlog::initialize_logger(logger);
         spdlog::initialize_logger(term);
