@@ -60,6 +60,7 @@ class Application
     auto setup_vips() -> Result<void>;
     auto setup_logging() -> Result<void>;
     auto handle_cli_commands() -> Result<void>;
+    auto handle_cmd_subcommand() -> Result<void>;
     auto wait_for_layer_commands() -> Result<void>;
     void execute_layer_commands(const std::stop_token &token);
 };

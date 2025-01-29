@@ -37,6 +37,18 @@ struct layer {
     std::string output;
 };
 
+struct cmd {
+    std::string socket;
+    std::string identifier;
+    std::string action;
+    std::string file_path;
+    std::string scaler = "contain";
+    int x;
+    int y;
+    int width;
+    int height;
+};
+
 } // namespace upp::subcommands
 
 namespace upp
@@ -53,9 +65,11 @@ class Cli
     CLI::App *tmux_command{program.add_subcommand("tmux", "Handle tmux hooks. Used internaly")};
 
     subcommands::layer layer;
+    subcommands::cmd cmd;
 
   private:
     void setup_layer_subcommand();
+    void setup_cmd_subcommand();
 };
 
 } // namespace upp

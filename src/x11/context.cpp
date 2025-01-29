@@ -41,7 +41,9 @@ namespace upp
 
 X11Context::~X11Context()
 {
-    xcb_free_gc(connection.get(), gcontext);
+    if (is_valid) {
+        xcb_free_gc(connection.get(), gcontext);
+    }
 }
 
 auto X11Context::init() -> Result<void>

@@ -21,6 +21,7 @@
 #include "buildconfig.hpp"
 #include "cli.hpp"
 #include "os/os.hpp"
+#include "unix/socket.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
 #include "util/util.hpp"
@@ -39,6 +40,7 @@
 #include <algorithm>
 #include <array>
 #include <csignal>
+#include <format>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -73,7 +75,48 @@ auto Application::handle_cli_commands() -> Result<void>
             .and_then([this] { return listener.start(cli->layer.parser); })
             .and_then([this] { return wait_for_layer_commands(); });
     }
+    if (cli->cmd_command->parsed()) {
+        return handle_cmd_subcommand();
+    }
 
+    return {};
+}
+
+auto Application::handle_cmd_subcommand() -> Result<void>
+{
+    auto &cmd = cli->cmd;
+    std::string payload;
+    if (cmd.action == "exit" || cmd.action == "flush") {
+        payload = std::format(R"({{"action":"{}"}})", cmd.action);
+    }
+    if (cmd.action == "remove") {
+        payload = std::format(R"({{"action":"remove","identifier":"{}"}})", cmd.identifier);
+    }
+    if (cmd.action == "add") {
+        payload = std::format(
+            R"({{
+"action": "add",
+"identifier": "{}",
+"width": {},
+"height": {},
+"x": {},
+"y": {},
+"path": "{}",
+"scaler": "{}"
+}})",
+            cmd.identifier, cmd.width, cmd.height, cmd.x, cmd.y, cmd.file_path, cmd.scaler);
+    }
+    if (payload.empty()) {
+        return {};
+    }
+    logger->debug("command payload is: {}", payload);
+    unix::socket::Client client;
+    auto result = client.connect(cmd.socket).and_then([&client, payload] {
+        return client.write(std::as_bytes(std::span{payload.data(), payload.size()}));
+    });
+    if (!result) {
+        logger->debug("could not send command: {}", result.error().message());
+    }
     return {};
 }
 

@@ -31,6 +31,7 @@ Cli::Cli()
     program.require_subcommand(1);
 
     setup_layer_subcommand();
+    setup_cmd_subcommand();
 
     auto *query_win_command =
         program.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility");
@@ -54,8 +55,21 @@ void Cli::setup_layer_subcommand()
         ->default_val(false);
     layer_command->add_option("-p,--parser", layer.parser, "Command parser to use")
         ->check(CLI::IsMember({"json", "bash", "simple"}))
-        ->default_val("json");
+        ->default_str("json");
     layer_command->add_option("-l,--loader", nullptr, "**UNUSED**, only present for backwards compatibility");
+}
+
+void Cli::setup_cmd_subcommand()
+{
+    cmd_command->add_option("-s,--socket", cmd.socket, "unix socket of running instance")->required();
+    cmd_command->add_option("-a,--action", cmd.action, "action to send")->required();
+    cmd_command->add_option("-i,--identifier", cmd.identifier, "preview identifier");
+    cmd_command->add_option("-f,--file", cmd.file_path, "path of image file");
+    cmd_command->add_option("-x,--xpos", cmd.x, "x position of preview");
+    cmd_command->add_option("-y,--ypos", cmd.y, "y position of preview");
+    cmd_command->add_option("--max-width", cmd.width, "max width of preview");
+    cmd_command->add_option("--max-height", cmd.height, "max height of preview");
+    cmd_command->add_option("--scaler", cmd.scaler, "scaler to use")->default_str("contain");
 }
 
 } // namespace upp
