@@ -52,6 +52,7 @@ class X11Canvas final : public Canvas
     WindowIdMap window_id_map;
 
     void handle_events(const std::stop_token &token);
+    void handle_expose_event(xcb_generic_event_t *event);
     void dispatch_events();
 };
 

@@ -82,21 +82,14 @@ void X11Canvas::dispatch_events()
     auto event = unique_C_ptr<xcb_generic_event_t>{xcb_poll_for_event(conn)};
     while (event) {
         constexpr int event_mask = 0x80;
-        switch (const int real_event = event->response_type & ~event_mask; real_event) {
+        switch (int real_event = event->response_type & ~event_mask) {
             case 0: {
                 auto *err = reinterpret_cast<xcb::error_ptr>(event.get());
                 ctx->x11.handle_xcb_error(err);
                 break;
             }
             case XCB_EXPOSE: {
-                auto *expose = reinterpret_cast<xcb_expose_event_t *>(event.get());
-                auto window_id = expose->window;
-                auto window_ptr = window_map.find(window_id);
-                if (window_ptr != window_map.end()) {
-                    if (auto window = window_ptr->second.lock()) {
-                        window->draw(window_id);
-                    }
-                }
+                handle_expose_event(event.get());
                 break;
             }
             default: {
@@ -105,6 +98,19 @@ void X11Canvas::dispatch_events()
             }
         }
         event.reset(xcb_poll_for_event(conn));
+    }
+}
+
+void X11Canvas::handle_expose_event(xcb_generic_event_t *event)
+{
+    auto *expose = reinterpret_cast<xcb_expose_event_t *>(event);
+    auto window_id = expose->window;
+    auto window_ptr = window_map.find(window_id);
+    if (window_ptr == window_map.end()) {
+        return;
+    }
+    if (auto window = window_ptr->second.lock()) {
+        window->draw(window_id);
     }
 }
 
