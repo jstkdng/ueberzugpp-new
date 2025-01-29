@@ -43,6 +43,9 @@ struct Command {
     int y;
     int width;
     int height;
+
+    float scaling_position_x;
+    float scaling_position_y;
 };
 
 using CommandQueue = ConcurrentDeque<Command>;

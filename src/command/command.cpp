@@ -20,14 +20,7 @@
 #include "util/result.hpp"
 
 #include <glaze/glaze.hpp>
-// a bunch of includes to shutup clang-tidy
-#include <glaze/core/common.hpp>
-#include <glaze/core/meta.hpp>
-#include <glaze/core/opts.hpp>
-#include <glaze/core/reflect.hpp>
-#include <glaze/json/read.hpp>
 
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -43,9 +36,6 @@ struct glz::meta<upp::Command> {
         if (err) {
             // if we error then attempt parsing as a quoted number
             err = glz::read<glz::opts{.quoted_num = true}>(self.*MemberPointer, json.str);
-        }
-        if (err) {
-            throw std::runtime_error("maybe_quoted_int_read failure");
         }
     };
 
@@ -64,7 +54,9 @@ struct glz::meta<upp::Command> {
         "width", custom_int<&T::width>,
         "height", custom_int<&T::height>,
         "max_width", custom_int<&T::width>,
-        "max_height", custom_int<&T::height>
+        "max_height", custom_int<&T::height>,
+        &T::scaling_position_x,
+        &T::scaling_position_y
         // clang-format on
     );
 };
@@ -84,7 +76,7 @@ auto Command::create(std::string_view parser, std::string line) -> Result<Comman
 auto Command::from_json(std::string line) -> Result<Command>
 {
     Command cmd;
-    if (auto err = glz::read_json(cmd, line); err) {
+    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(cmd, line)) {
         return Err(glz::format_error(err, line));
     }
     if (cmd.image_scaler.empty()) {
