@@ -101,7 +101,9 @@ void CommandListener::extract_commands(std::string &line)
             break;
         }
 
-        auto cmd = Command::create(parser, line.substr(0, find_result));
+        auto cmd_str = line.substr(0, find_result);
+        logger->debug("Received command: {}", cmd_str);
+        auto cmd = Command::create(parser, cmd_str);
         if (cmd) {
             if (cmd->action == "exit") {
                 Application::terminate();

@@ -110,6 +110,7 @@ auto Application::handle_cmd_subcommand() -> Result<void>
         return {};
     }
     logger->debug("command payload is: {}", payload);
+    payload.push_back('\n');
     unix::socket::Client client;
     auto result = client.connect(cmd.socket).and_then([&client, payload] {
         return client.write(std::as_bytes(std::span{payload.data(), payload.size()}));
