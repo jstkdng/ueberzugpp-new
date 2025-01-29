@@ -49,7 +49,7 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
     while (!token.stop_requested()) {
         auto in_event = os::wait_for_data_on_stdin();
         if (!in_event) {
-            logger->warn(std::format("stdin thread terminated: {}", in_event.error().lmessage()));
+            logger->warn(std::format("stdin thread terminated: {}", in_event.error().message()));
             Application::terminate(); // stop this program if this thread dies
             return;
         }
@@ -58,7 +58,7 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
         }
         auto data = os::read_data_from_stdin();
         if (!data) {
-            logger->debug(data.error().lmessage());
+            logger->debug(data.error().message());
             return;
         }
         // append new data to old data and search

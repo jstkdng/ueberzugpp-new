@@ -22,7 +22,6 @@
 #include <exception>
 #include <expected>
 #include <format>
-#include <source_location>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -34,23 +33,20 @@ namespace upp
 class Error
 {
   public:
-    Error(std::source_location location, std::string prefix, std::errc errc) :
+    Error(std::string prefix, std::errc errc) :
         prefix(std::move(prefix)),
-        condition(errc),
-        location(location)
+        condition(errc)
     {
     }
 
-    Error(std::source_location location, std::string_view prefix, const std::exception &exc) :
-        prefix(std::format("{}: {}", prefix, exc.what())),
-        location(location)
+    Error(std::string_view prefix, const std::exception &exc) :
+        prefix(std::format("{}: {}", prefix, exc.what()))
     {
     }
 
-    Error(std::source_location location, std::string prefix, int code = errno) :
+    explicit Error(std::string prefix, int code = errno) :
         prefix(std::move(prefix)),
-        condition(code, std::generic_category()),
-        location(location)
+        condition(code, std::generic_category())
     {
     }
 
@@ -62,21 +58,18 @@ class Error
         return std::format("{}: {}", prefix, condition.message());
     }
 
-    [[nodiscard]] auto lmessage() const -> std::string
-    {
-        return std::format("[{}:{}] {}", location.file_name(), location.line(), message());
-    }
-
   private:
     std::string prefix;
     std::error_condition condition;
-    std::source_location location;
 };
 
 template <class T>
 using Result = std::expected<T, Error>;
 
-} // namespace upp
+template <class... Args>
+auto Err(Args &&...args) -> std::unexpected<Error> // NOLINT
+{
+    return std::unexpected<Error>(std::in_place, std::forward<Args>(args)...);
+}
 
-// NOLINTNEXTLINE
-#define Err(...) std::unexpected<upp::Error>(std::in_place, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)
+} // namespace upp

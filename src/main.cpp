@@ -35,7 +35,7 @@ auto main(int argc, char *argv[]) -> int
     upp::Application application(&cli);
     auto result = application.run();
     if (!result) {
-        auto msg = result.error().lmessage();
+        auto msg = result.error().message();
         if (msg.back() == '\n') {
             msg.pop_back();
         }
