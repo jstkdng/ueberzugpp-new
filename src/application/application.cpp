@@ -26,11 +26,11 @@
 #include "util/util.hpp"
 
 #include <CLI/CLI.hpp>
+#include <spdlog/cfg/env.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
-#include <spdlog/cfg/env.h>
 
 #ifdef ENABLE_LIBVIPS
 #include <vips/vips8>
@@ -120,7 +120,6 @@ auto Application::setup_logging() -> Result<void>
     auto level = spdlog::level::info;
 #endif
 
-    spdlog::cfg::load_env_levels();
     auto log_file = util::get_log_filename();
     auto log_path = util::temp_directory_path() / log_file;
 
@@ -153,6 +152,8 @@ auto Application::setup_logging() -> Result<void>
     } catch (const spdlog::spdlog_ex &ex) {
         return Err("spdlog", ex);
     }
+
+    spdlog::cfg::load_env_levels();
     return {};
 }
 
