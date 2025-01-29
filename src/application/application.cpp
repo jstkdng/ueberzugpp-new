@@ -125,7 +125,7 @@ auto Application::setup_logging() -> Result<void>
     auto log_path = util::temp_directory_path() / log_file;
 
     try {
-        spdlog::set_pattern("[%Y-%m-%d %T.%F] [%12n] %^[%8l]%$ %v");
+        spdlog::set_pattern("[%Y-%m-%d %T.%F] %^[%L]%$ [%n] %v");
         spdlog::set_level(level);
         spdlog::flush_on(level);
 
@@ -140,10 +140,14 @@ auto Application::setup_logging() -> Result<void>
         logger = std::make_shared<spdlog::logger>("application", dist_sink);
         auto term = std::make_shared<spdlog::logger>("terminal", dist_sink);
         auto x11 = std::make_shared<spdlog::logger>("x11", dist_sink);
+        auto vips = std::make_shared<spdlog::logger>("vips", dist_sink);
+        auto listener = std::make_shared<spdlog::logger>("listener", dist_sink);
 
         spdlog::initialize_logger(logger);
         spdlog::initialize_logger(term);
         spdlog::initialize_logger(x11);
+        spdlog::initialize_logger(vips);
+        spdlog::initialize_logger(listener);
 
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {

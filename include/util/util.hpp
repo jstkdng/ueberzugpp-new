@@ -29,7 +29,6 @@
 #include <ratio>
 #include <string>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 namespace upp::util
@@ -46,7 +45,6 @@ constexpr auto view_to_numeral(const std::string_view view) -> Result<T>
     return Err("parse_num", err);
 }
 
-auto variant_to_int(const std::variant<int, std::string> &var) -> int;
 auto get_log_filename() -> std::string;
 auto temp_directory_path() -> std::filesystem::path;
 

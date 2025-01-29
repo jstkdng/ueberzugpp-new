@@ -64,12 +64,12 @@ auto X11Context::init() -> Result<void>
 
     return os::get_pid_from_socket(connection_fd).and_then([this](int pid) -> Result<void> {
         auto proc_name = os::get_pid_process_name(pid);
-        logger->debug("X11 vendor: {}", proc_name);
+        logger->debug("vendor: {}", proc_name);
         if (proc_name != "Xorg") {
             is_xwayland = true;
         }
         is_valid = true;
-        logger->debug("X11 context initialized");
+        logger->debug("context initialized");
         return {};
     });
 }

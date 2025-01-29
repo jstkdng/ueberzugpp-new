@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "log.hpp"
 #include "util/concurrent_deque.hpp"
 #include "util/result.hpp"
 #include "util/thread.hpp"
@@ -62,6 +63,7 @@ class CommandListener
     std::string parser;
     std::jthread stdin_thread;
     std::string stdin_buffer;
+    Logger logger;
 };
 
 } // namespace upp

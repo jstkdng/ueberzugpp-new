@@ -20,6 +20,7 @@
 
 #include "application/context.hpp"
 #include "base/image.hpp"
+#include "log.hpp"
 #include "util/ptr.hpp"
 #include "util/result.hpp"
 
@@ -42,6 +43,7 @@ class VipsImage : public Image
     auto height() -> int override;
 
   private:
+    Logger logger{spdlog::get("vips")};
     ApplicationContext *ctx;
     ImageProps props;
     vips::VImage image;

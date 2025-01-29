@@ -19,30 +19,14 @@
 #include "util/util.hpp"
 #include "os/os.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <filesystem>
 #include <string>
-#include <variant>
 #include <format>
 
 namespace upp::util
 {
 
 namespace fs = std::filesystem;
-
-auto variant_to_int(const std::variant<int, std::string> &var) -> int
-{
-    try {
-        return std::get<int>(var);
-    } catch (const std::bad_variant_access &) {
-        auto result = util::view_to_numeral<int>(std::get<std::string>(var));
-        if (!result) {
-            SPDLOG_DEBUG(result.error().message());
-        }
-        return result.value_or(0);
-    }
-}
 
 auto get_log_filename() -> std::string
 {

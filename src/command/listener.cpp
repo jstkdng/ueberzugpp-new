@@ -22,8 +22,6 @@
 #include "util/result.hpp"
 #include "util/thread.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <format>
 #include <string>
 #include <string_view>
@@ -38,18 +36,20 @@ CommandListener::CommandListener(CommandQueue *queue) :
 
 auto CommandListener::start(std::string_view new_parser) -> Result<void>
 {
+    logger = spdlog::get("listener");
     parser = new_parser;
+    logger->info("using {} parser", parser);
     stdin_thread = std::jthread([this](const auto &token) { wait_for_input_on_stdin(token); });
     return {};
 }
 
 void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
 {
-    SPDLOG_INFO("listening for commands on stdin");
+    logger->info("listening for commands on stdin");
     while (!token.stop_requested()) {
         auto in_event = os::wait_for_data_on_stdin();
         if (!in_event) {
-            SPDLOG_TRACE(std::format("stdin thread terminated: {}", in_event.error().lmessage()));
+            logger->warn(std::format("stdin thread terminated: {}", in_event.error().lmessage()));
             Application::terminate(); // stop this program if this thread dies
             return;
         }
@@ -58,7 +58,7 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
         }
         auto data = os::read_data_from_stdin();
         if (!data) {
-            SPDLOG_DEBUG(data.error().lmessage());
+            logger->debug(data.error().lmessage());
             return;
         }
         // append new data to old data and search
@@ -85,7 +85,7 @@ void CommandListener::extract_commands(std::string &line)
                 enqueue_or_discard(*cmd);
             }
         } else {
-            SPDLOG_ERROR(cmd.error().message());
+            logger->error(cmd.error().message());
         }
 
         line.erase(0, find_result + 1);
@@ -94,18 +94,18 @@ void CommandListener::extract_commands(std::string &line)
 
 void CommandListener::flush_command_queue() const
 {
-    SPDLOG_DEBUG("flushing command queue");
+    logger->debug("flushing command queue");
     queue->clear();
 }
 
 void CommandListener::enqueue_or_discard(const Command &cmd)
 {
-    queue->enqueue(cmd, [&cmd](auto &deque) {
+    queue->enqueue(cmd, [this, &cmd](auto &deque) {
         if (deque.size() <= 2 || cmd.action != "remove") {
             return true;
         }
         if (auto last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
-            SPDLOG_DEBUG("discarding add/remove command pair");
+            logger->debug("discarding add/remove command pair");
             deque.pop_back();
             return false;
         }

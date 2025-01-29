@@ -53,7 +53,7 @@ auto VipsImage::read_image() -> Result<void>
 {
     try {
         image = vips::VImage::new_from_file(props.file_path.c_str()).colourspace(VIPS_INTERPRETATION_sRGB);
-        SPDLOG_INFO("loaded image {}", props.file_path);
+        logger->info("loaded image {}", props.file_path);
     } catch (const vips::VError &err) {
         return Err("failed to load image");
     }
@@ -103,7 +103,7 @@ void VipsImage::contain_scaler()
     auto [new_width, new_height] = contain_sizes(
         {.width = props.width, .height = props.height, .image_width = img_width, .image_height = img_height});
 
-    SPDLOG_DEBUG("resizing image to {}x{}", new_width, new_height);
+    logger->debug("resizing image to {}x{}", new_width, new_height);
     auto *opts = vips::VImage::option()->set("height", new_height)->set("size", VIPS_SIZE_FORCE);
     image = image.thumbnail_image(new_width, opts);
 }
