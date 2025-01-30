@@ -40,7 +40,7 @@ HyprlandSocket::HyprlandSocket(std::string instance_signature) :
     auto socket_base_dir = os::getenv("XDG_RUNTIME_DIR").value_or("/tmp");
     auto socket_rel_path = std::format("hypr/{}/.socket.sock", signature);
     socket_path = std::format("{}/{}", socket_base_dir, socket_rel_path);
-    logger->info("Using socket {}", socket_path);
+    logger->info("using socket {}", socket_path);
     get_version();
 }
 
@@ -50,9 +50,9 @@ void HyprlandSocket::get_version()
     glz::json_t json;
     auto res = glz::read_json(json, ver_str);
     if (!res) {
-        logger->info("Hyprland version: {}", json["version"].get_string());
+        logger->info("version: {}", json["version"].get_string());
     } else {
-        logger->info("Could not find hyprland version");
+        logger->info("could not find hyprland version");
     }
 }
 

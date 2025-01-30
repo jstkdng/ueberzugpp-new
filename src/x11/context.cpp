@@ -53,7 +53,6 @@ auto X11Context::init() -> Result<void>
     if (xcb_connection_has_error(connection.get()) > 0) {
         return Err("can't connect to X11");
     }
-    logger->info("connected to X11 server");
     screen = xcb_setup_roots_iterator(xcb_get_setup(connection.get())).data;
     connection_fd = xcb_get_file_descriptor(connection.get());
 
@@ -68,7 +67,10 @@ auto X11Context::init() -> Result<void>
         auto proc_name = os::get_pid_process_name(pid);
         logger->debug("vendor: {}", proc_name);
         if (proc_name != "Xorg") {
+            logger->info("connected to Xwayland");
             is_xwayland = true;
+        } else {
+            logger->info("connected to X11 server");
         }
         is_valid = true;
         logger->debug("context initialized");
@@ -135,7 +137,7 @@ auto X11Context::set_parent_window(int pid) -> Result<void>
             return {};
         }
     }
-    return Err(std::format("parent not found for pid {}", pid));
+    return Err(std::format("parent not found for pid {}", pid), 0);
 }
 
 void X11Context::set_pid_window_map()
