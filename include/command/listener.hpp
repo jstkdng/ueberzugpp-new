@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "application/context.hpp"
 #include "command/command.hpp"
 #include "log.hpp"
 #include "unix/socket.hpp"
@@ -33,8 +32,8 @@ namespace upp
 class CommandListener
 {
   public:
-    CommandListener(CommandQueue *queue, ApplicationContext *ctx);
-    auto start(std::string_view new_parser) -> Result<void>;
+    explicit CommandListener(CommandQueue *queue);
+    auto start(std::string_view new_parser, bool no_stdin) -> Result<void>;
 
   private:
     void wait_for_input_on_stdin(const std::stop_token &token);
@@ -44,7 +43,6 @@ class CommandListener
     void enqueue_or_discard(const Command &cmd);
 
     CommandQueue *queue;
-    ApplicationContext *ctx;
     std::string parser;
     std::jthread stdin_thread;
     std::jthread socket_thread;

@@ -73,7 +73,7 @@ auto Application::handle_cli_commands() -> Result<void>
                 canvas = std::move(new_canvas);
                 return canvas->init();
             })
-            .and_then([this] { return listener.start(cli->layer.parser); })
+            .and_then([this] { return command_listener.start(cli->layer.parser, cli->layer.no_stdin); })
             .and_then([this] { return wait_for_layer_commands(); });
     }
     if (cli->cmd_command->parsed()) {

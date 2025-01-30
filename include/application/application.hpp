@@ -47,9 +47,9 @@ class Application
 
   private:
     Cli *cli;
-    CommandQueue queue;
     ApplicationContext ctx;
-    CommandListener listener{&queue, &ctx};
+    CommandQueue queue;
+    CommandListener command_listener{&queue};
     CanvasPtr canvas;
     Logger logger;
 

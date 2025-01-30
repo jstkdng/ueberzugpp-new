@@ -28,18 +28,17 @@
 namespace upp
 {
 
-CommandListener::CommandListener(CommandQueue *queue, ApplicationContext *ctx) :
-    queue(queue),
-    ctx(ctx)
+CommandListener::CommandListener(CommandQueue *queue) :
+    queue(queue)
 {
 }
 
-auto CommandListener::start(std::string_view new_parser) -> Result<void>
+auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Result<void>
 {
     logger = spdlog::get("listener");
     parser = new_parser;
     logger->info("using {} parser", parser);
-    if (!ctx->cli->layer.no_stdin) {
+    if (!no_stdin) {
         stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
     }
     return socket_server.start().and_then([this]() -> Result<void> {
