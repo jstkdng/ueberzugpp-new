@@ -66,6 +66,7 @@ include(CheckSourceCompiles)
 
 find_package(PkgConfig REQUIRED)
 # find_package(TBB REQUIRED)
+find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 find_package(Threads REQUIRED)
 find_package(ECM REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
@@ -187,6 +188,7 @@ target_sources(
         src/command/command.cpp
         src/command/listener.cpp
         src/util/util.cpp
+        src/util/crypto.cpp
         src/canvas.cpp
         src/image.cpp
 
@@ -207,6 +209,7 @@ target_sources(
         include/util/ptr.hpp
         include/util/util.hpp
         include/util/str_map.hpp
+        include/util/crypto.hpp
         include/unix/fd.hpp
         include/unix/socket.hpp
         include/os/os.hpp
@@ -216,6 +219,7 @@ target_sources(
 target_link_libraries(ueberzugpp PRIVATE
     # TBB::tbb
     Threads::Threads
+    OpenSSL::Crypto
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
