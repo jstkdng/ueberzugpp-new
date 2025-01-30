@@ -19,9 +19,9 @@
 #pragma once
 
 #include "application/context.hpp"
+#include "base/image.hpp"
 #include "command/command.hpp"
 #include "x11/types.hpp"
-#include "base/image.hpp"
 
 #include <memory>
 #include <unordered_map>
@@ -38,13 +38,12 @@ class X11Window : public std::enable_shared_from_this<X11Window>
 {
   public:
     X11Window(ApplicationContext *ctx, WindowMap *window_map);
-    auto init(Command new_command) -> Result<void>;
+    auto init(const Command &command) -> Result<void>;
     void draw(xcb::window_id window);
 
   private:
     ApplicationContext *ctx;
     WindowMap *window_map;
-    Command command;
 
     ImagePtr image;
     xcb::image xcb_image;

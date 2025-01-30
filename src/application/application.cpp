@@ -112,11 +112,11 @@ auto Application::wait_for_layer_commands() -> Result<void>
 void Application::execute_layer_commands(const std::stop_token &token)
 {
     while (!token.stop_requested()) {
-        auto cmd = queue.try_dequeue(os::waitms);
-        if (!cmd) {
+        if (auto cmd = queue.try_dequeue(os::waitms)) {
+            canvas->execute(*cmd);
+        } else {
             continue;
         }
-        canvas->execute(*cmd);
     }
 }
 

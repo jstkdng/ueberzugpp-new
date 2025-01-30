@@ -38,7 +38,7 @@ class Canvas
 
     static auto create(ApplicationContext *ctx) -> Result<CanvasPtr>;
     virtual auto init() -> Result<void> = 0;
-    virtual void execute(Command cmd) = 0;
+    virtual void execute(const Command &cmd) = 0;
 };
 
 } // namespace upp

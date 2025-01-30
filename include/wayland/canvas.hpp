@@ -21,9 +21,9 @@
 #include "application/context.hpp"
 #include "base/canvas.hpp"
 #include "command/command.hpp"
+#include "log.hpp"
 #include "util/result.hpp"
 #include "wayland/types.hpp"
-#include "log.hpp"
 
 #include <cstdint>
 
@@ -35,7 +35,7 @@ class WaylandCanvas final : public Canvas
   public:
     explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
-    void execute(Command cmd) override;
+    void execute(const Command &cmd) override;
 
     static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
                                    uint32_t version);

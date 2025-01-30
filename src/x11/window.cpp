@@ -28,11 +28,10 @@ X11Window::X11Window(ApplicationContext *ctx, WindowMap *window_map) :
 {
 }
 
-auto X11Window::init(Command new_command) -> Result<void>
+auto X11Window::init(const Command &command) -> Result<void>
 {
     auto &font = ctx->terminal.font;
     auto &x11 = ctx->x11;
-    command = std::move(new_command);
     return Image::create(ctx, {.file_path = command.image_path.string(),
                                .scaler = command.image_scaler,
                                .width = font.width * command.width,
@@ -41,12 +40,11 @@ auto X11Window::init(Command new_command) -> Result<void>
             image = std::move(new_image);
             return image->load();
         })
-        .and_then([this, &font, &x11]() -> Result<void> {
+        .and_then([this, &font, &x11, &command]() -> Result<void> {
             window_map->emplace(xcb_window.id(), weak_from_this());
             xcb_image.reset(xcb_image_create_native(x11.connection.get(), image->width(), image->height(),
                                                     XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, nullptr, 0,
                                                     nullptr));
-            xcb_image->data = image->data();
             xcb_window.configure((font.width * command.x) + font.horizontal_padding,
                                  (font.height * command.y) + font.vertical_padding, image->width(), image->height());
             return {};
@@ -55,6 +53,7 @@ auto X11Window::init(Command new_command) -> Result<void>
 
 void X11Window::draw(xcb::window_id window)
 {
+    xcb_image->data = image->data();
     xcb_image_put(ctx->x11.connection.get(), window, ctx->x11.gcontext, xcb_image.get(), 0, 0, 0);
 }
 

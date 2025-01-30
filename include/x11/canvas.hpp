@@ -41,7 +41,7 @@ class X11Canvas final : public Canvas
   public:
     explicit X11Canvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
-    void execute(Command cmd) override;
+    void execute(const Command &cmd) override;
 
   private:
     ApplicationContext *ctx;
