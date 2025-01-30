@@ -45,12 +45,11 @@ void X11Canvas::execute(const Command &cmd)
 {
     if (cmd.action == "add") {
         auto window = std::make_shared<X11Window>(ctx, &window_map);
-        auto result = window->init(cmd);
-        if (!result) {
+        if (auto result = window->init(cmd)) {
+            window_id_map.try_emplace(cmd.preview_id, window);
+        } else {
             logger->warn(result.error().message());
-            return;
         }
-        window_id_map.emplace(cmd.preview_id, window);
     } else if (cmd.action == "remove") {
         window_id_map.erase(cmd.preview_id);
     }

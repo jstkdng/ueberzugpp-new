@@ -60,7 +60,7 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
             logger->warn("could not wait for data from stdin: {}", in_event.error().message());
             Application::terminate();
             return;
-        };
+        }
         if (auto data = os::read_data_from_stdin()) {
             // append new data to old data and search
             stdin_buffer.append(*data);
@@ -69,7 +69,7 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
             logger->warn("could not read data from stdin: {}", data.error().message());
             Application::terminate();
             return;
-        };
+        }
     }
 }
 
@@ -86,7 +86,7 @@ void CommandListener::wait_for_input_on_socket(const std::stop_token &token)
             logger->warn("could not wait for data from socket: {}", in_event.error().message());
             Application::terminate(); // stop this program if this thread dies
             return;
-        };
+        }
         if (auto data = socket_server.read_data_from_connection()) {
             extract_commands(*data);
         } else {
@@ -105,8 +105,7 @@ void CommandListener::extract_commands(std::string &line)
 
         auto cmd_str = line.substr(0, find_result);
         logger->debug("Received command: {}", cmd_str);
-        auto cmd = Command::create(parser, cmd_str);
-        if (cmd) {
+        if (auto cmd = Command::create(parser, cmd_str)) {
             if (cmd->action == "exit") {
                 Application::terminate();
             } else if (cmd->action == "flush") {
