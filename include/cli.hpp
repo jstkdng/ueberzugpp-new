@@ -47,6 +47,8 @@ struct cmd {
     int y;
     int width;
     int height;
+
+    [[nodiscard]] auto get_json_string() const -> std::string;
 };
 
 } // namespace upp::subcommands

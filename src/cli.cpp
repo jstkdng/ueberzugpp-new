@@ -21,6 +21,35 @@
 
 #include <CLI/CLI.hpp>
 
+namespace upp::subcommands
+{
+
+auto cmd::get_json_string() const -> std::string
+{
+    if (action == "exit" || action == "flush") {
+        return std::format(
+            R"({{"action":"{}"}}
+)",
+            action);
+    }
+    if (action == "remove") {
+        return std::format(
+            R"({{"action":"remove","identifier":"{}"}}
+)",
+            identifier);
+    }
+    if (action == "add") {
+        return std::format(
+            R"({{"action":"add","identifier":"{}","width":{},"height":{},"x":{},"y":{},"path":"{}","scaler":"{}"}}
+)",
+            identifier, width, height, x, y, file_path, scaler);
+    }
+
+    return {};
+}
+
+} // namespace upp::subcommands
+
 namespace upp
 {
 

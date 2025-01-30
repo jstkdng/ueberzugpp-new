@@ -40,7 +40,6 @@
 #include <algorithm>
 #include <array>
 #include <csignal>
-#include <format>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -86,25 +85,12 @@ auto Application::handle_cli_commands() -> Result<void>
 
 auto Application::handle_cmd_subcommand() -> Result<void>
 {
-    auto &cmd = cli->cmd;
-    std::string payload;
-    if (cmd.action == "exit" || cmd.action == "flush") {
-        payload = std::format(R"({{"action":"{}"}})", cmd.action);
-    }
-    if (cmd.action == "remove") {
-        payload = std::format(R"({{"action":"remove","identifier":"{}"}})", cmd.identifier);
-    }
-    if (cmd.action == "add") {
-        payload = std::format(
-            R"({{"action": "add","identifier": "{}","width": {},"height": {},"x": {},"y": {},"path": "{}","scaler": "{}"}})",
-            cmd.identifier, cmd.width, cmd.height, cmd.x, cmd.y, cmd.file_path, cmd.scaler);
-    }
+    auto payload = cli->cmd.get_json_string();
     if (payload.empty()) {
         return {};
     }
-    payload.push_back('\n');
     unix::socket::Client client;
-    auto result = client.connect(cmd.socket).and_then([&client, payload] {
+    auto result = client.connect(cli->cmd.socket).and_then([&client, payload] {
         return client.write(std::as_bytes(std::span{payload.data(), payload.size()}));
     });
     if (!result) {
@@ -218,7 +204,7 @@ void Application::terminate()
 
 void Application::setup_signal_handler()
 {
-    logger->info("setting up signal handler");
+    logger->debug("setting up signal handler");
     struct sigaction sga{};
     sga.sa_handler = signal_handler;
     sigemptyset(&sga.sa_mask);
