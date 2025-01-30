@@ -48,8 +48,8 @@ class Application
   private:
     Cli *cli;
     CommandQueue queue;
-    CommandListener listener{&queue};
     ApplicationContext ctx;
+    CommandListener listener{&queue, &ctx};
     CanvasPtr canvas;
     Logger logger;
 
@@ -57,6 +57,7 @@ class Application
 
     void print_header();
     void setup_signal_handler();
+    auto daemonize() -> Result<void>;
     auto setup_vips() -> Result<void>;
     auto setup_logging() -> Result<void>;
     auto handle_cli_commands() -> Result<void>;

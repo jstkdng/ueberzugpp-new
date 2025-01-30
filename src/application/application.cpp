@@ -41,6 +41,7 @@
 #include <array>
 #include <csignal>
 #include <format>
+#include <fstream>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -67,6 +68,7 @@ auto Application::handle_cli_commands() -> Result<void>
         setup_signal_handler();
         return setup_vips()
             .and_then([this] { return ctx.init(); })
+            .and_then([this] { return daemonize(); })
             .and_then([this] { return Canvas::create(&ctx); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
@@ -256,6 +258,18 @@ void Application::signal_handler(int signal)
     }
 
     terminate();
+}
+
+auto Application::daemonize() -> Result<void>
+{
+    if (!cli->layer.no_stdin) {
+        return {};
+    }
+    return os::daemonize().and_then([this]() -> Result<void> {
+        std::ofstream ofs(cli->layer.pid_file);
+        ofs << os::getpid() << std::flush;
+        return {};
+    });
 }
 
 } // namespace upp

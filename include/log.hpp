@@ -27,4 +27,4 @@ namespace upp
 
 using Logger = std::shared_ptr<spdlog::logger>;
 
-}
+} // namespace upp

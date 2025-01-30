@@ -23,6 +23,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <spdlog/spdlog.h>
+
 #include <cerrno>
 #include <cstdlib>
 #include <format>
@@ -126,6 +128,21 @@ auto get_pid_from_socket(int sockfd) -> Result<int>
         return Err("getsockopt");
     }
     return ucred.pid;
+}
+
+auto daemonize() -> Result<void>
+{
+    int pid = fork();
+    if (pid == -1) {
+        return Err("fork");
+    }
+
+    // kill parent process
+    if (pid > 0) {
+        spdlog::debug("child process {} created, terminating parent", pid);
+        std::exit(EXIT_SUCCESS); // NOLINT
+    }
+    return {};
 }
 
 } // namespace upp::os
