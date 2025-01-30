@@ -67,8 +67,8 @@ auto Application::handle_cli_commands() -> Result<void>
         print_header();
         setup_signal_handler();
         return setup_vips()
-            .and_then([this] { return ctx.init(); })
             .and_then([this] { return daemonize(); })
+            .and_then([this] { return ctx.init(); })
             .and_then([this] { return Canvas::create(&ctx); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
@@ -96,22 +96,12 @@ auto Application::handle_cmd_subcommand() -> Result<void>
     }
     if (cmd.action == "add") {
         payload = std::format(
-            R"({{
-"action": "add",
-"identifier": "{}",
-"width": {},
-"height": {},
-"x": {},
-"y": {},
-"path": "{}",
-"scaler": "{}"
-}})",
+            R"({{"action": "add","identifier": "{}","width": {},"height": {},"x": {},"y": {},"path": "{}","scaler": "{}"}})",
             cmd.identifier, cmd.width, cmd.height, cmd.x, cmd.y, cmd.file_path, cmd.scaler);
     }
     if (payload.empty()) {
         return {};
     }
-    logger->debug("command payload is: {}", payload);
     payload.push_back('\n');
     unix::socket::Client client;
     auto result = client.connect(cmd.socket).and_then([&client, payload] {
