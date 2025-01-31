@@ -29,9 +29,8 @@
 namespace upp
 {
 
-VipsImage::VipsImage(ApplicationContext *ctx, ImageProps props) :
-    ctx(ctx),
-    props(std::move(props))
+VipsImage::VipsImage(ApplicationContext *ctx) :
+    ctx(ctx)
 {
 }
 
@@ -40,8 +39,9 @@ auto VipsImage::can_load(const std::string &file_path) -> bool
     return vips_foreign_find_load(file_path.c_str()) != nullptr;
 }
 
-auto VipsImage::load() -> Result<void>
+auto VipsImage::load(ImageProps props) -> Result<void>
 {
+    this->props = std::move(props);
     return read_image().and_then([this]() -> Result<void> {
         resize_image();
         process_image();

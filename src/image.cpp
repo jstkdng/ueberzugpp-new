@@ -24,20 +24,19 @@
 #endif
 
 #include <memory>
-#include <utility>
 
 namespace upp
 {
 
-auto Image::create([[maybe_unused]] ApplicationContext *ctx, [[maybe_unused]] ImageProps props) -> Result<ImagePtr>
+auto Image::create([[maybe_unused]] ApplicationContext *ctx, const std::string &file_path) -> Result<ImagePtr>
 {
 #ifdef ENABLE_LIBVIPS
-    if (VipsImage::can_load(props.file_path)) {
-        return std::make_unique<VipsImage>(ctx, std::move(props));
+    if (VipsImage::can_load(file_path)) {
+        return std::make_unique<VipsImage>(ctx);
     }
 #endif
 
-    return Err("could not create image loader", 0);
+    return Err("can't load image " + file_path, 0);
 }
 
 auto Image::fit_contain_sizes(const current_image_sizes sizes) -> target_image_sizes

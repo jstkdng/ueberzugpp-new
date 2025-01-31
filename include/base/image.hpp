@@ -55,10 +55,10 @@ class Image
   public:
     virtual ~Image() = default;
 
-    static auto create(ApplicationContext *ctx, ImageProps props) -> Result<ImagePtr>;
+    static auto create(ApplicationContext *ctx, const std::string& file_path) -> Result<ImagePtr>;
     static auto fit_contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     static auto contain_sizes(current_image_sizes sizes) -> target_image_sizes;
-    virtual auto load() -> Result<void> = 0;
+    virtual auto load(ImageProps props) -> Result<void> = 0;
     virtual auto num_channels() -> int = 0;
     virtual auto data() -> unsigned char* = 0;
     virtual auto width() -> int = 0;

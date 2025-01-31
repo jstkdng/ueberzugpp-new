@@ -32,13 +32,13 @@ auto X11Window::init(const Command &command) -> Result<void>
 {
     auto &font = ctx->terminal.font;
     auto &x11 = ctx->x11;
-    return Image::create(ctx, {.file_path = command.image_path.string(),
-                               .scaler = command.image_scaler,
-                               .width = font.width * command.width,
-                               .height = font.height * command.height})
-        .and_then([this](ImagePtr new_image) {
+    return Image::create(ctx, command.image_path.string())
+        .and_then([this, &font, &command](ImagePtr new_image) {
             image = std::move(new_image);
-            return image->load();
+            return image->load({.file_path = command.image_path.string(),
+                                .scaler = command.image_scaler,
+                                .width = font.width * command.width,
+                                .height = font.height * command.height});
         })
         .and_then([this, &font, &x11, &command]() -> Result<void> {
             window_map->emplace(xcb_window.id(), weak_from_this());

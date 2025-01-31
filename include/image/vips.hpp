@@ -34,8 +34,8 @@ namespace upp
 class VipsImage : public Image
 {
   public:
-    explicit VipsImage(ApplicationContext *ctx, ImageProps props);
-    auto load() -> Result<void> override;
+    explicit VipsImage(ApplicationContext *ctx);
+    auto load(ImageProps props) -> Result<void> override;
     static auto can_load(const std::string &file_path) -> bool;
     auto num_channels() -> int override;
     auto data() -> unsigned char * override;

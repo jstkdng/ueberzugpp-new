@@ -20,12 +20,13 @@
 
 #include <span>
 #include <string>
+#include <string_view>
 
 namespace upp::crypto
 {
 
 auto buffer_to_hexstring(std::span<const std::byte> buffer) -> std::string;
-auto blake2b_encode(std::span<const std::byte> buffer) -> std::string;
+auto blake2b_encode(std::string_view buffer) -> std::string;
 auto base64_encode(std::span<const std::byte> buffer) -> std::string;
 auto generate_random_string(int length) -> std::string;
 
