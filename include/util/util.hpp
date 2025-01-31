@@ -73,4 +73,9 @@ auto make_vector(size_t capacity) -> std::vector<T>
     return result;
 }
 
+auto make_buffer(auto container) -> std::span<const std::byte>
+{
+    return std::as_bytes(std::span{container.data(), container.size()});
+}
+
 } // namespace upp::util

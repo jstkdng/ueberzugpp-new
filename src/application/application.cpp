@@ -90,9 +90,7 @@ auto Application::handle_cmd_subcommand() -> Result<void>
         return {};
     }
     unix::socket::Client client;
-    auto result = client.connect(cli->cmd.socket).and_then([&client, payload] {
-        return client.write(std::as_bytes(std::span{payload.data(), payload.size()}));
-    });
+    auto result = client.connect_and_write(cli->cmd.socket, util::make_buffer(payload));
     if (!result) {
         logger->debug("could not send command: {}", result.error().message());
     }
@@ -101,7 +99,7 @@ auto Application::handle_cmd_subcommand() -> Result<void>
 
 auto Application::wait_for_layer_commands() -> Result<void>
 {
-    command_thread = std::jthread([this](const auto &token) { execute_layer_commands(token); });
+    command_thread = std::jthread([this](auto token) { execute_layer_commands(token); });
     stop_flag.wait(false);
 #ifdef ENABLE_LIBVIPS
     vips_shutdown();

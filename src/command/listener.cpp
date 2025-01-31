@@ -111,7 +111,7 @@ void CommandListener::extract_commands(std::string &line)
             } else if (cmd->action == "flush") {
                 flush_command_queue();
             } else {
-                enqueue_or_discard(*cmd);
+                queue->enqueue(*cmd);
             }
         } else {
             logger->error(cmd.error().message());

@@ -33,6 +33,7 @@ class Client
 {
   public:
     auto connect(std::string_view endpoint) -> Result<void>;
+    auto connect_and_write(std::string_view endpoint, std::span<const std::byte> buffer) -> Result<void>;
     [[nodiscard]] auto write(std::span<const std::byte> buffer) const -> Result<void>;
     [[nodiscard]] auto read(std::span<std::byte> buffer) const -> Result<void>;
     [[nodiscard]] auto read_until_empty() const -> Result<std::string>;

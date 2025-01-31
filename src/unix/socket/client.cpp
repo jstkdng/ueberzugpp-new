@@ -52,6 +52,11 @@ auto Client::connect(std::string_view endpoint) -> Result<void>
     return {};
 }
 
+auto Client::connect_and_write(std::string_view endpoint, std::span<const std::byte> buffer) -> Result<void>
+{
+    return connect(endpoint).and_then([this, buffer] { return write(buffer); });
+}
+
 auto Client::read(std::span<std::byte> buffer) const -> Result<void>
 {
     auto *runner = buffer.data();
