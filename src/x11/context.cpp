@@ -103,7 +103,7 @@ auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
 
         auto reply_result = xcb::get_result(xcb_query_tree_reply, connection.get(), cookie);
         if (!reply_result) {
-            handle_xcb_error(reply_result.error());
+            handle_xcb_error(reply_result.error().get());
             continue;
         }
 
@@ -155,7 +155,7 @@ void X11Context::set_pid_window_map()
     for (auto [window, cookie] : std::views::zip(windows, cookies)) {
         auto reply_result = xcb::get_result(xcb_res_query_client_ids_reply, connection.get(), cookie);
         if (!reply_result) {
-            handle_xcb_error(reply_result.error());
+            handle_xcb_error(reply_result.error().get());
             continue;
         }
 
@@ -190,7 +190,7 @@ auto X11Context::get_complete_window_ids() const -> std::vector<xcb::window_id>
         const bool is_complete = std::ranges::any_of(cookie_prop.cookies, [this](auto &cookie) {
             auto reply = xcb::get_result(xcb_get_property_reply, connection.get(), cookie);
             if (!reply) {
-                handle_xcb_error(reply.error());
+                handle_xcb_error(reply.error().get());
                 return false;
             }
             return xcb_get_property_value_length(reply->get()) != 0;
@@ -208,7 +208,7 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
     auto cookie = xcb_get_geometry(connection.get(), parent);
     auto reply_result = xcb::get_result(xcb_get_geometry_reply, connection.get(), cookie);
     if (!reply_result) {
-        handle_xcb_error(reply_result.error());
+        handle_xcb_error(reply_result.error().get());
         return Err(std::format("failed to set geometry for window {}", parent));
     }
     const auto &reply = *reply_result;
@@ -223,11 +223,6 @@ void X11Context::create_gcontext()
     gcontext = xcb_generate_id(connection.get());
     xcb_create_gc(connection.get(), gcontext, screen->root, 0, nullptr);
     logger->debug("created gc with id {}", gcontext);
-}
-
-void X11Context::handle_xcb_error(const xcb::error &err) const
-{
-    handle_xcb_error(err.get());
 }
 
 void X11Context::handle_xcb_error(xcb::error_ptr err) const

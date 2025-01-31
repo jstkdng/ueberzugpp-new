@@ -54,30 +54,29 @@ auto blake2b_encode(std::span<const std::byte> buffer) -> std::string
     const auto *evp = EVP_blake2b512();
 #endif
 
-    std::vector<std::byte> digest(EVP_MAX_MD_SIZE);
+    std::vector<unsigned char> digest(EVP_MAX_MD_SIZE);
     EVP_DigestInit_ex(mdctx.get(), evp, nullptr);
     EVP_DigestUpdate(mdctx.get(), buffer.data(), buffer.size());
     unsigned int digest_len = 0;
-    EVP_DigestFinal_ex(mdctx.get(), reinterpret_cast<unsigned char *>(digest.data()), &digest_len);
+    EVP_DigestFinal_ex(mdctx.get(), digest.data(), &digest_len);
 
-    return buffer_to_hexstring(std::span{digest.data(), digest_len});
+    return buffer_to_hexstring(std::as_bytes(std::span{digest.data(), digest_len}));
 }
 
 auto base64_encode(std::span<const std::byte> buffer) -> std::string
 {
     const auto length = buffer.size();
     const size_t bufsize = 4 * ((length + 2) / 3);
-    std::string result(bufsize, 0);
-    EVP_EncodeBlock(reinterpret_cast<unsigned char *>(result.data()),
-                    reinterpret_cast<const unsigned char *>(buffer.data()), static_cast<int>(length));
-    return result;
+    std::vector<unsigned char> result(bufsize);
+    EVP_EncodeBlock(result.data(), reinterpret_cast<const unsigned char *>(buffer.data()), static_cast<int>(length));
+    return buffer_to_hexstring(std::as_bytes(std::span{result}));
 }
 
 auto generate_random_string(int length) -> std::string
 {
-    std::vector<std::byte> buffer(length);
-    RAND_bytes(reinterpret_cast<unsigned char*>(buffer.data()), length);
-    return buffer_to_hexstring(buffer);
+    std::vector<unsigned char> buffer(length);
+    RAND_bytes(buffer.data(), length);
+    return buffer_to_hexstring(std::as_bytes(std::span{buffer}));
 }
 
 } // namespace upp::crypto
