@@ -122,12 +122,11 @@ auto X11Context::get_window_ids() const -> std::vector<xcb::window_id>
 
 auto X11Context::set_parent_window(int pid) -> Result<void>
 {
-    auto wid = os::getenv("WINDOWID").transform([](std::string_view var) {
-        return util::view_to_numeral<int>(var).value_or(-1);
-    });
-    if (wid && *wid != -1) {
-        parent = *wid;
-        return {};
+    if (auto wid = os::getenv("WINDOWID")) {
+        if (auto wid_num = util::view_to_numeral<int>(*wid)) {
+            parent = *wid_num;
+            return {};
+        }
     }
     logger->debug("WINDOWID not set or invalid");
     for (auto spid : os::Process::get_pid_tree(pid)) {
@@ -226,7 +225,7 @@ void X11Context::create_gcontext()
     logger->debug("created gc with id {}", gcontext);
 }
 
-void X11Context::handle_xcb_error(xcb::error &err) const
+void X11Context::handle_xcb_error(const xcb::error &err) const
 {
     handle_xcb_error(err.get());
 }

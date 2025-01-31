@@ -40,7 +40,7 @@ class X11Context
     auto init() -> Result<void>;
     auto load_state(int pid) -> Result<void>;
     void handle_xcb_error(xcb::error_ptr err) const;
-    void handle_xcb_error(xcb::error &err) const;
+    void handle_xcb_error(const xcb::error &err) const;
     static constexpr int num_clients = 256;
 
     xcb::connection connection;

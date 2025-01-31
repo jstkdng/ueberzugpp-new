@@ -101,7 +101,7 @@ void X11Canvas::dispatch_events()
 
 void X11Canvas::handle_expose_event(xcb_generic_event_t *event)
 {
-    auto *expose = reinterpret_cast<xcb_expose_event_t *>(event);
+    const auto *expose = reinterpret_cast<xcb_expose_event_t *>(event);
     auto window_id = expose->window;
     auto window_ptr = window_map.find(window_id);
     if (window_ptr == window_map.end()) {

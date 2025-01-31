@@ -67,11 +67,9 @@ auto ApplicationContext::x11_init() -> Result<void>
 auto ApplicationContext::wayland_init() -> Result<void>
 {
 #ifdef ENABLE_WAYLAND
-    auto result = WaylandSocket::create().and_then([this](WaylandSocketPtr socket) -> Result<void> {
-        wl_socket = std::move(socket);
-        return {};
-    });
-    if (!result) {
+    if (auto result = WaylandSocket::create()) {
+        wl_socket = std::move(*result);
+    } else {
         logger->debug(result.error().message());
     }
 #endif
