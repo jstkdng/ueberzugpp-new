@@ -62,8 +62,9 @@ auto get_result(Fn func, Args &&...args)
 class window
 {
   public:
-    window(connection_ptr connection, screen_ptr screen, window_id parent_id);
+    void create(connection_ptr connection, screen_ptr screen, window_id parent_id);
     void configure(int xcoord, int ycoord, int width, int height);
+    void hide() const;
     [[nodiscard]] auto id() const -> window_id;
     ~window();
 

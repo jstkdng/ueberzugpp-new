@@ -23,15 +23,22 @@ namespace upp
 
 X11Window::X11Window(ApplicationContext *ctx, WindowMap *window_map) :
     ctx(ctx),
-    window_map(window_map),
-    xcb_window(ctx->x11.connection.get(), ctx->x11.screen, ctx->x11.parent)
+    window_map(window_map)
 {
+}
+
+void X11Window::create_xcb_windows()
+{
+    auto &x11 = ctx->x11;
+    xcb_window.create(x11.connection.get(), x11.screen, x11.parent);
+    window_map->emplace(xcb_window.id(), weak_from_this());
+    x11.flush();
 }
 
 auto X11Window::init(const Command &command) -> Result<void>
 {
     auto &font = ctx->terminal.font;
-    auto &x11 = ctx->x11;
+    std::scoped_lock image_lock {image_mutex};
     return Image::create(ctx->output, command.image_path.string())
         .and_then([this, &font, &command](ImagePtr new_image) {
             image = std::move(new_image);
@@ -40,21 +47,32 @@ auto X11Window::init(const Command &command) -> Result<void>
                                 .width = font.width * command.width,
                                 .height = font.height * command.height});
         })
-        .and_then([this, &font, &x11, &command]() -> Result<void> {
-            window_map->emplace(xcb_window.id(), weak_from_this());
-            xcb_image.reset(xcb_image_create_native(x11.connection.get(), image->width(), image->height(),
-                                                    XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, nullptr, 0,
-                                                    nullptr));
-            xcb_window.configure((font.width * command.x) + font.horizontal_padding,
-                                 (font.height * command.y) + font.vertical_padding, image->width(), image->height());
-            return {};
-        });
+        .and_then([this, &command]() -> Result<void> { return configure_xcb_windows(command); });
+}
+
+auto X11Window::configure_xcb_windows(const Command &command) -> Result<void>
+{
+    auto &x11 = ctx->x11;
+    auto &font = ctx->terminal.font;
+    xcb_image.reset(xcb_image_create_native(x11.connection.get(), image->width(), image->height(),
+                                            XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, nullptr, 0, nullptr));
+    xcb_image->data = image->data();
+    xcb_window.configure((font.width * command.x) + font.horizontal_padding,
+                         (font.height * command.y) + font.vertical_padding, image->width(), image->height());
+    x11.flush();
+    return {};
 }
 
 void X11Window::draw(xcb::window_id window)
 {
-    xcb_image->data = image->data();
+    std::scoped_lock image_lock {image_mutex};
     xcb_image_put(ctx->x11.connection.get(), window, ctx->x11.gcontext, xcb_image.get(), 0, 0, 0);
+}
+
+void X11Window::hide_xcb_windows()
+{
+    xcb_window.hide();
+    ctx->x11.flush();
 }
 
 } // namespace upp

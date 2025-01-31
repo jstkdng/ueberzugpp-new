@@ -78,6 +78,11 @@ auto X11Context::init() -> Result<void>
     });
 }
 
+void X11Context::flush() const
+{
+    xcb_flush(connection.get());
+}
+
 auto X11Context::load_state(int pid) -> Result<void>
 {
     if (!is_valid) {

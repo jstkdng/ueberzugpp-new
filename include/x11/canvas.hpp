@@ -53,6 +53,8 @@ class X11Canvas final : public Canvas
 
     void handle_events(const std::stop_token &token);
     void handle_expose_event(xcb_generic_event_t *event);
+    void handle_add_command(const Command& cmd);
+    void handle_remove_command(const Command& cmd);
     void dispatch_events();
 };
 

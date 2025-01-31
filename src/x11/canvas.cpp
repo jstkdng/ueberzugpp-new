@@ -44,14 +44,41 @@ auto X11Canvas::init() -> Result<void>
 void X11Canvas::execute(const Command &cmd)
 {
     if (cmd.action == "add") {
-        auto window = std::make_shared<X11Window>(ctx, &window_map);
-        if (auto result = window->init(cmd)) {
-            window_id_map.try_emplace(cmd.preview_id, window);
-        } else {
-            logger->warn(result.error().message());
-        }
+        handle_add_command(cmd);
     } else if (cmd.action == "remove") {
+        handle_remove_command(cmd);
+    }
+}
+
+void X11Canvas::handle_add_command(const Command &cmd)
+{
+    std::shared_ptr<X11Window> window_ptr;
+    auto window = window_id_map.find(cmd.preview_id);
+    if (window == window_id_map.end()) {
+        logger->debug("creating new window");
+        window_ptr = std::make_shared<X11Window>(ctx, &window_map);
+        window_ptr->create_xcb_windows();
+    } else {
+        logger->debug("reusing existing window");
+        window_ptr = window->second;
+    }
+    auto result = window_ptr->init(cmd);
+    if (!result) {
+        logger->warn(result.error().message());
+        return;
+    }
+    window_id_map.try_emplace(cmd.preview_id, window_ptr);
+}
+
+void X11Canvas::handle_remove_command(const Command &cmd)
+{
+    if (window_id_map.size() > 1) {
         window_id_map.erase(cmd.preview_id);
+        return;
+    }
+    auto window = window_id_map.find(cmd.preview_id);
+    if (window != window_id_map.end()) {
+        window->second->hide_xcb_windows();
     }
 }
 

@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <mutex>
 
 namespace upp
 {
@@ -38,6 +39,8 @@ class X11Window : public std::enable_shared_from_this<X11Window>
 {
   public:
     X11Window(ApplicationContext *ctx, WindowMap *window_map);
+    void create_xcb_windows();
+    void hide_xcb_windows();
     auto init(const Command &command) -> Result<void>;
     void draw(xcb::window_id window);
 
@@ -45,6 +48,9 @@ class X11Window : public std::enable_shared_from_this<X11Window>
     ApplicationContext *ctx;
     WindowMap *window_map;
 
+    auto configure_xcb_windows(const Command &command) -> Result<void>;
+
+    std::mutex image_mutex;
     ImagePtr image;
     xcb::image xcb_image;
     xcb::window xcb_window;

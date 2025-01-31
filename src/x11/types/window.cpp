@@ -21,31 +21,39 @@
 namespace upp::xcb
 {
 
-window::window(connection_ptr connection, screen_ptr screen, window_id parent_id) :
-    connection(connection),
-    screen(screen),
-    parent_id(parent_id),
-    _id(xcb_generate_id(connection))
-{
-}
-
 window::~window()
 {
     xcb_destroy_window(connection, _id);
     xcb_flush(connection);
 }
 
-void window::configure(int xcoord, int ycoord, int width, int height)
+void window::create(connection_ptr connection, screen_ptr screen, window_id parent_id)
 {
+    this->connection = connection;
+    this->screen = screen;
+    this->parent_id = parent_id;
+    _id = xcb_generate_id(connection);
+
     const uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
     struct xcb_create_window_value_list_t value_list;
     value_list.background_pixel = screen->black_pixel;
     value_list.border_pixel = screen->black_pixel;
     value_list.event_mask = XCB_EVENT_MASK_EXPOSURE;
     value_list.colormap = screen->default_colormap;
-    xcb_create_window_aux(connection, screen->root_depth, _id, parent_id, static_cast<int16_t>(xcoord),
-                          static_cast<int16_t>(ycoord), width, height, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+    xcb_create_window_aux(connection, screen->root_depth, _id, parent_id, 0, 0, 1, 1, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
                           screen->root_visual, value_mask, &value_list);
+}
+
+void window::configure(int xcoord, int ycoord, int width, int height)
+{
+    const uint32_t value_mask =
+        XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    xcb_configure_window_value_list_t value_list;
+    value_list.x = xcoord;
+    value_list.y = ycoord;
+    value_list.width = width;
+    value_list.height = height;
+    xcb_configure_window(connection, _id, value_mask, &value_list);
     xcb_map_window(connection, _id);
     xcb_flush(connection);
 }
@@ -53,6 +61,11 @@ void window::configure(int xcoord, int ycoord, int width, int height)
 auto window::id() const -> window_id
 {
     return _id;
+}
+
+void window::hide() const
+{
+    xcb_unmap_window(connection, _id);
 }
 
 } // namespace upp::xcb
