@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "application/context.hpp"
 #include "base/image.hpp"
 #include "log.hpp"
 #include "util/ptr.hpp"
@@ -34,7 +33,7 @@ namespace upp
 class VipsImage : public Image
 {
   public:
-    explicit VipsImage(ApplicationContext *ctx);
+    explicit VipsImage(std::string output);
     auto load(ImageProps props) -> Result<void> override;
     static auto can_load(const std::string &file_path) -> bool;
     auto num_channels() -> int override;
@@ -44,7 +43,7 @@ class VipsImage : public Image
 
   private:
     Logger logger{spdlog::get("vips")};
-    ApplicationContext *ctx;
+    std::string output;
     ImageProps props;
     vips::VImage image;
 

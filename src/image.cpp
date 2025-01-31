@@ -24,15 +24,16 @@
 #endif
 
 #include <memory>
+#include <utility>
 
 namespace upp
 {
 
-auto Image::create([[maybe_unused]] ApplicationContext *ctx, const std::string &file_path) -> Result<ImagePtr>
+auto Image::create([[maybe_unused]] std::string output, const std::string &file_path) -> Result<ImagePtr>
 {
 #ifdef ENABLE_LIBVIPS
     if (VipsImage::can_load(file_path)) {
-        return std::make_unique<VipsImage>(ctx);
+        return std::make_unique<VipsImage>(std::move(output));
     }
 #endif
 

@@ -32,7 +32,7 @@ auto X11Window::init(const Command &command) -> Result<void>
 {
     auto &font = ctx->terminal.font;
     auto &x11 = ctx->x11;
-    return Image::create(ctx, command.image_path.string())
+    return Image::create(ctx->output, command.image_path.string())
         .and_then([this, &font, &command](ImagePtr new_image) {
             image = std::move(new_image);
             return image->load({.file_path = command.image_path.string(),

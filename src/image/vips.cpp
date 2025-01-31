@@ -29,8 +29,8 @@
 namespace upp
 {
 
-VipsImage::VipsImage(ApplicationContext *ctx) :
-    ctx(ctx)
+VipsImage::VipsImage(std::string output) :
+    output(std::move(output))
 {
 }
 
@@ -64,7 +64,7 @@ auto VipsImage::read_image() -> Result<void>
 void VipsImage::process_image()
 {
     const std::unordered_set<std::string_view> bgra_outputs = {"x11", "chafa", "wayland"};
-    if (bgra_outputs.contains(ctx->output)) {
+    if (bgra_outputs.contains(output)) {
         // alpha channel required
         if (!image.has_alpha()) {
             const int alpha_value = 255;
@@ -74,7 +74,7 @@ void VipsImage::process_image()
         auto bands = image.bandsplit();
         std::swap(bands[0], bands[2]);
         image = vips::VImage::bandjoin(bands);
-    } else if (ctx->output == "sixel") {
+    } else if (output == "sixel") {
         // sixel expects RGB888
         if (image.has_alpha()) {
             image = image.flatten();

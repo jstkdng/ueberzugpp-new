@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "application/context.hpp"
 #include "util/result.hpp"
 
 #include <memory>
@@ -55,7 +54,7 @@ class Image
   public:
     virtual ~Image() = default;
 
-    static auto create(ApplicationContext *ctx, const std::string& file_path) -> Result<ImagePtr>;
+    static auto create(std::string output, const std::string& file_path) -> Result<ImagePtr>;
     static auto fit_contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     static auto contain_sizes(current_image_sizes sizes) -> target_image_sizes;
     virtual auto load(ImageProps props) -> Result<void> = 0;
