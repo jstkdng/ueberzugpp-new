@@ -188,7 +188,6 @@ auto Application::setup_vips() -> Result<void>
     if (VIPS_INIT("ueberzugpp")) {
         return Err("can't startup vips");
     }
-    vips_cache_set_max(1);
     logger->debug("libvips initialized");
 #endif
     return {};
