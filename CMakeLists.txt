@@ -86,7 +86,7 @@ int main(void) {auto t = std::jthread([] {}); return 0;}
 " HAVE_STD_JTHREAD)
 
 if (ENABLE_LIBVIPS)
-    pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips-cpp)
+    pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
     target_link_libraries(ueberzugpp PRIVATE PkgConfig::VIPS)
 
     target_sources(

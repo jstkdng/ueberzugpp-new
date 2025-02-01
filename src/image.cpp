@@ -32,8 +32,8 @@ namespace upp
 auto Image::create([[maybe_unused]] std::string output, const std::string &file_path) -> Result<ImagePtr>
 {
 #ifdef ENABLE_LIBVIPS
-    if (VipsImage::can_load(file_path)) {
-        return std::make_unique<VipsImage>(std::move(output));
+    if (LibvipsImage::can_load(file_path)) {
+        return std::make_unique<LibvipsImage>(std::move(output));
     }
 #endif
 

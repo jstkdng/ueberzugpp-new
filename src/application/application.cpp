@@ -34,7 +34,7 @@
 #include <spdlog/spdlog.h>
 
 #ifdef ENABLE_LIBVIPS
-#include <vips/vips8>
+#include <vips/vips.h>
 #endif
 
 #include <algorithm>

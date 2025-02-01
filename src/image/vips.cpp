@@ -21,111 +21,126 @@
 #include "util/result.hpp"
 
 #include <spdlog/spdlog.h>
-#include <vips/vips8>
+#include <vips/vips.h>
 
+#include <ranges>
 #include <unordered_set>
 #include <utility>
 
 namespace upp
 {
 
-VipsImage::VipsImage(std::string output) :
+LibvipsImage::LibvipsImage(std::string output) :
     output(std::move(output))
 {
 }
 
-auto VipsImage::can_load(const std::string &file_path) -> bool
+LibvipsImage::~LibvipsImage()
+{
+    g_object_unref(image);
+}
+
+auto LibvipsImage::can_load(const std::string &file_path) -> bool
 {
     return vips_foreign_find_load(file_path.c_str()) != nullptr;
 }
 
-auto VipsImage::load(ImageProps props) -> Result<void>
+auto LibvipsImage::load(ImageProps props) -> Result<void>
 {
     this->props = std::move(props);
     return read_image().and_then([this]() -> Result<void> {
         resize_image();
         process_image();
+        logger->info("loaded image {}", this->props.file_path);
         return {};
     });
 }
 
-auto VipsImage::is_cached() const -> bool
+auto LibvipsImage::read_image() -> Result<void>
 {
-    return false;
-}
-
-auto VipsImage::read_image() -> Result<void>
-{
-    try {
-        image = vips::VImage::new_from_file(props.file_path.c_str()).colourspace(VIPS_INTERPRETATION_sRGB);
-        logger->info("loaded image {}", props.file_path);
-    } catch (const vips::VError &err) {
+    image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+    if (image == nullptr) {
         return Err("failed to load image");
     }
-
     return {};
 }
 
-void VipsImage::process_image()
+void LibvipsImage::process_image()
 {
     const std::unordered_set<std::string_view> bgra_outputs = {"x11", "chafa", "wayland"};
     if (bgra_outputs.contains(output)) {
         // alpha channel required
-        if (!image.has_alpha()) {
-            const int alpha_value = 255;
-            image = image.bandjoin(alpha_value);
+        if (vips_image_hasalpha(image) == FALSE) {
+            vips_addalpha(image, &image, nullptr);
         }
         // convert from RGB to BGR
-        auto bands = image.bandsplit();
+        std::vector<VipsImage *> bands(num_channels());
+        for (auto [idx, band] : std::views::enumerate(bands)) {
+            vips_extract_band(image, &band, static_cast<int>(idx), nullptr);
+        }
         std::swap(bands[0], bands[2]);
-        image = vips::VImage::bandjoin(bands);
+
+        vips_bandjoin(bands.data(), &image_out, static_cast<int>(bands.size()), nullptr);
+        g_object_unref(image);
+        image = image_out;
+
+        for (auto *band : bands) {
+            g_object_unref(band);
+        }
+
     } else if (output == "sixel") {
         // sixel expects RGB888
-        if (image.has_alpha()) {
-            image = image.flatten();
+        if (vips_image_hasalpha(image) == TRUE) {
+            vips_flatten(image, &image_out, nullptr);
         }
+        g_object_unref(image);
+        image = image_out;
     }
-    image_size = VIPS_IMAGE_SIZEOF_IMAGE(image.get_image());
-    image_buffer.reset(static_cast<unsigned char *>(image.write_to_memory(&image_size)));
+
+    image_buffer.reset(static_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr)));
 }
 
-void VipsImage::resize_image()
+void LibvipsImage::resize_image()
 {
     if (props.scaler == "contain") {
         contain_scaler();
     }
 }
 
-auto VipsImage::num_channels() -> int
+auto LibvipsImage::num_channels() -> int
 {
-    return image.bands();
+    return vips_image_get_bands(image);
 }
 
-void VipsImage::contain_scaler()
+void LibvipsImage::contain_scaler()
 {
-    int img_width = image.width();
-    int img_height = image.height();
-    auto [new_width, new_height] = contain_sizes(
-        {.width = props.width, .height = props.height, .image_width = img_width, .image_height = img_height});
+    auto [new_width, new_height] =
+        contain_sizes({.width = props.width, .height = props.height, .image_width = width(), .image_height = height()});
 
     logger->debug("resizing image to {}x{}", new_width, new_height);
-    auto *opts = vips::VImage::option()->set("height", new_height)->set("size", VIPS_SIZE_FORCE);
-    image = image.thumbnail_image(new_width, opts);
+
+    vips_thumbnail_image(image, &image_out, new_width, "height", new_height, nullptr);
+    g_object_unref(image);
+    image = image_out;
+
+    vips_colourspace(image, &image_out, VIPS_INTERPRETATION_sRGB, nullptr);
+    g_object_unref(image);
+    image = image_out;
 }
 
-auto VipsImage::data() -> unsigned char *
+auto LibvipsImage::data() -> unsigned char *
 {
     return image_buffer.get();
 }
 
-auto VipsImage::width() -> int
+auto LibvipsImage::width() -> int
 {
-    return image.width();
+    return vips_image_get_width(image);
 }
 
-auto VipsImage::height() -> int
+auto LibvipsImage::height() -> int
 {
-    return image.height();
+    return vips_image_get_height(image);
 }
 
 } // namespace upp

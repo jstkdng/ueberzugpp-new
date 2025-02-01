@@ -23,17 +23,18 @@
 #include "util/ptr.hpp"
 #include "util/result.hpp"
 
-#include <vips/vips8>
+#include <vips/vips.h>
 
 #include <string>
 
 namespace upp
 {
 
-class VipsImage : public Image
+class LibvipsImage : public Image
 {
   public:
-    explicit VipsImage(std::string output);
+    explicit LibvipsImage(std::string output);
+    ~LibvipsImage() override;
     auto load(ImageProps props) -> Result<void> override;
     static auto can_load(const std::string &file_path) -> bool;
     auto num_channels() -> int override;
@@ -45,15 +46,14 @@ class VipsImage : public Image
     Logger logger{spdlog::get("vips")};
     std::string output;
     ImageProps props;
-    vips::VImage image;
+    VipsImage *image;
+    VipsImage *image_out;
 
-    size_t image_size;
     c_unique_ptr<unsigned char, g_free> image_buffer;
 
     auto read_image() -> Result<void>;
     void resize_image();
     void process_image();
-    [[nodiscard]] auto is_cached() const -> bool;
 
     void contain_scaler();
 };
