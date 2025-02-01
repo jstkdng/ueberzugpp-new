@@ -49,6 +49,11 @@ auto VipsImage::load(ImageProps props) -> Result<void>
     });
 }
 
+auto VipsImage::is_cached() const -> bool
+{
+    return false;
+}
+
 auto VipsImage::read_image() -> Result<void>
 {
     try {

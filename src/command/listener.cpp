@@ -62,9 +62,7 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
             return;
         }
         if (auto data = os::read_data_from_stdin()) {
-            // append new data to old data and search
-            stdin_buffer.append(*data);
-            extract_commands(stdin_buffer);
+            extract_commands(*data);
         } else {
             logger->warn("could not read data from stdin: {}", data.error().message());
             Application::terminate();
@@ -95,17 +93,17 @@ void CommandListener::wait_for_input_on_socket(const std::stop_token &token)
     }
 }
 
-void CommandListener::extract_commands(std::string &line)
+void CommandListener::extract_commands(std::string_view line)
 {
     while (true) {
         const auto find_result = line.find('\n');
-        if (find_result == std::string::npos) {
+        if (find_result == std::string_view::npos) {
             break;
         }
 
         auto cmd_str = line.substr(0, find_result);
         logger->debug("Received command: {}", cmd_str);
-        if (auto cmd = Command::create(parser, cmd_str)) {
+        if (auto cmd = Command::create(parser, std::string{cmd_str})) {
             if (cmd->action == "exit") {
                 Application::terminate();
             } else if (cmd->action == "flush") {
@@ -116,8 +114,7 @@ void CommandListener::extract_commands(std::string &line)
         } else {
             logger->error(cmd.error().message());
         }
-
-        line.erase(0, find_result + 1);
+        line.remove_prefix(find_result + 1);
     }
 };
 
@@ -133,7 +130,7 @@ void CommandListener::enqueue_or_discard(const Command &cmd)
         if (deque.size() <= 2 || cmd.action != "remove") {
             return true;
         }
-        if (auto last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
+        if (auto &last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
             logger->debug("discarding add/remove command pair for {}", last.image_path.filename().string());
             deque.pop_back();
             return false;

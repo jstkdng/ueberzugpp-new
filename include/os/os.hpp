@@ -28,7 +28,7 @@
 namespace upp::os
 {
 
-constexpr int bufsize = 4 * 1024; // 4K at a time
+constexpr int bufsize = 1024; // 1K at a time
 constexpr int waitms = 50;
 
 struct Process {

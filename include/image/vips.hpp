@@ -53,6 +53,7 @@ class VipsImage : public Image
     auto read_image() -> Result<void>;
     void resize_image();
     void process_image();
+    [[nodiscard]] auto is_cached() const -> bool;
 
     void contain_scaler();
 };

@@ -33,7 +33,6 @@
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <vector>
 
 namespace upp::os
 {
@@ -97,12 +96,12 @@ auto wait_for_data_on_stdin() -> Result<bool>
 // will block if there is no data available
 auto read_data_from_fd(int filde) -> Result<std::string>
 {
-    std::vector<char> buffer(bufsize);
-    const auto bytes_read = read(filde, buffer.data(), bufsize);
+    std::string result(bufsize, 0);
+    const auto bytes_read = read(filde, result.data(), bufsize);
     if (bytes_read == -1) {
         return Err("could not read from file descriptor");
     }
-    std::string result(buffer.data(), bytes_read);
+    result.resize(bytes_read);
     return result;
 }
 
