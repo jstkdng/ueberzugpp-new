@@ -18,7 +18,14 @@
 
 #include "os/os.hpp"
 
+#ifdef UPP_OS_LINUX
 #include <sys/sysmacros.h>
+#endif
+
+#ifdef UPP_OS_APPLE
+#include <libproc.h>
+#include <sys/types.h>
+#endif
 
 #include <format>
 #include <fstream>
@@ -33,6 +40,7 @@ namespace upp::os
 Process::Process(int pid) :
     pid(pid)
 {
+#ifdef UPP_OS_LINUX
     constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
     const auto stat_file = std::format("/proc/{}/stat", pid);
 
@@ -42,6 +50,24 @@ Process::Process(int pid) :
     ifs >> state >> ppid >> pgrp >> session >> tty_nr;
     minor_dev = minor(tty_nr);
     pty_path = std::format("/dev/pts/{}", minor_dev);
+#endif
+
+#ifdef UPP_OS_APPLE
+    struct proc_bsdshortinfo sproc;
+    struct proc_bsdinfo proc;
+
+    int status = proc_pidinfo(pid, PROC_PIDT_SHORTBSDINFO, 0, &sproc, PROC_PIDT_SHORTBSDINFO_SIZE);
+    if (status == PROC_PIDT_SHORTBSDINFO_SIZE) {
+        ppid = static_cast<int>(sproc.pbsi_ppid);
+    }
+
+    status = proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &proc, PROC_PIDTBSDINFO_SIZE);
+    if (status == PROC_PIDTBSDINFO_SIZE) {
+        tty_nr = static_cast<int>(proc.e_tdev);
+        minor_dev = minor(tty_nr);
+        pty_path = std::format("/dev/ttys{:03}", minor_dev);
+    }
+#endif
 }
 
 auto Process::get_tree(int pid) -> std::vector<Process>

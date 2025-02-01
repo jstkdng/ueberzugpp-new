@@ -171,6 +171,15 @@ target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SO
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
+if (CMAKE_HOST_SYSTEM_VERSION MATCHES "^.*microsoft.*$")
+    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_WSL)
+endif ()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_LINUX)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_APPLE)
+endif ()
 
 target_sources(
     ueberzugpp
