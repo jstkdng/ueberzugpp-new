@@ -71,8 +71,11 @@ void LibvipsImage::process_image()
     if (bgra_outputs.contains(output)) {
         // alpha channel required
         if (vips_image_hasalpha(image) == FALSE) {
-            vips_addalpha(image, &image, nullptr);
+            vips_addalpha(image, &image_out, nullptr);
+            g_object_unref(image);
+            image = image_out;
         }
+
         // convert from RGB to BGR
         std::vector<VipsImage *> bands(num_channels());
         for (auto [idx, band] : std::views::enumerate(bands)) {
