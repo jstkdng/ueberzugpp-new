@@ -50,6 +50,7 @@ auto X11Canvas::init() -> Result<void>
 
 void X11Canvas::execute(const Command &cmd)
 {
+    std::scoped_lock window_lock{window_mutex};
     if (cmd.action == "add") {
         handle_add_command(cmd);
     } else if (cmd.action == "remove") {
@@ -133,6 +134,7 @@ void X11Canvas::dispatch_events()
 
 void X11Canvas::handle_expose_event(xcb_generic_event_t *event)
 {
+    std::scoped_lock window_lock{window_mutex};
     const auto *expose = reinterpret_cast<xcb_expose_event_t *>(event);
     auto window_id = expose->window;
     auto window_ptr = window_map.find(window_id);

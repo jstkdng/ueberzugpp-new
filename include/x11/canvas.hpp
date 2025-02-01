@@ -29,6 +29,7 @@
 
 #include <expected>
 #include <memory>
+#include <mutex>
 
 namespace upp
 {
@@ -48,6 +49,7 @@ class X11Canvas final : public Canvas
     Logger logger{spdlog::get("X11")};
 
     std::thread event_handler;
+    std::mutex window_mutex;
     WindowMap window_map;
     WindowIdMap window_id_map;
 
