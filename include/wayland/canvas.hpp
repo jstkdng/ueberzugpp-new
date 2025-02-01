@@ -42,7 +42,7 @@ class WaylandCanvas final : public Canvas
     static void xdg_wm_base_ping(void *data, xdg_wm_base *xdg_wm_base, uint32_t serial);
 
   private:
-    ApplicationContext *ctx;
+    [[maybe_unused]] ApplicationContext *ctx;
     Logger logger{spdlog::get("wayland")};
     wl::display display;
     wl::registry registry;

@@ -129,7 +129,7 @@ auto get_pid_from_socket(int sockfd) -> Result<int>
     }
     return ucred.pid;
 #else
-    return -1;
+    return sockfd;
 #endif
 }
 

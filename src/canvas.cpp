@@ -35,7 +35,7 @@
 namespace upp
 {
 
-auto Canvas::create(ApplicationContext *ctx) -> Result<CanvasPtr>
+auto Canvas::create([[maybe_unused]] ApplicationContext *ctx) -> Result<CanvasPtr>
 {
 #ifdef ENABLE_WAYLAND
     if (ctx->output == "wayland") {
