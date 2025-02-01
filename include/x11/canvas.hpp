@@ -25,7 +25,6 @@
 #include "terminal.hpp"
 #include "util/result.hpp"
 #include "util/str_map.hpp"
-#include "util/thread.hpp"
 #include "x11/window.hpp"
 
 #include <expected>
@@ -47,11 +46,11 @@ class X11Canvas final : public Canvas
     ApplicationContext *ctx;
     Logger logger{spdlog::get("X11")};
 
-    std::jthread event_handler;
+    std::thread event_handler;
     WindowMap window_map;
     WindowIdMap window_id_map;
 
-    void handle_events(const std::stop_token &token);
+    void handle_events();
     void handle_expose_event(xcb_generic_event_t *event);
     void handle_add_command(const Command& cmd);
     void handle_remove_command(const Command& cmd);

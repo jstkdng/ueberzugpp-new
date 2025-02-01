@@ -20,7 +20,6 @@
 #include "command/command.hpp"
 #include "os/os.hpp"
 #include "util/result.hpp"
-#include "util/thread.hpp"
 
 #include <string>
 #include <string_view>
@@ -39,19 +38,19 @@ auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Resul
     parser = new_parser;
     logger->info("using {} parser", parser);
     if (!no_stdin) {
-        stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
+        stdin_thread = std::thread(&CommandListener::wait_for_input_on_stdin, this);
     }
     return socket_server.start().and_then([this]() -> Result<void> {
-        socket_thread = std::jthread([this](auto token) { wait_for_input_on_socket(token); });
+        socket_thread = std::thread(&CommandListener::wait_for_input_on_socket, this);
         return {};
     });
 }
 
-void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
+void CommandListener::wait_for_input_on_stdin()
 {
     logger->info("listening for commands on stdin");
     // failing to wait or read data from stdin is fatal
-    while (!token.stop_requested()) {
+    while (!Application::stop_flag.test()) {
         if (auto in_event = os::wait_for_data_on_stdin()) {
             if (!*in_event) {
                 continue;
@@ -71,11 +70,11 @@ void CommandListener::wait_for_input_on_stdin(const std::stop_token &token)
     }
 }
 
-void CommandListener::wait_for_input_on_socket(const std::stop_token &token)
+void CommandListener::wait_for_input_on_socket()
 {
     logger->info("listening for commands on socket {}", socket_server.get_endpoint());
     // it is only fatal to wait for data from socket
-    while (!token.stop_requested()) {
+    while (!Application::stop_flag.test()) {
         if (auto in_event = os::wait_for_data_on_fd(socket_server.get_fd())) {
             if (!*in_event) {
                 continue;

@@ -23,7 +23,6 @@
 #include "os/os.hpp"
 #include "unix/socket.hpp"
 #include "util/result.hpp"
-#include "util/thread.hpp"
 #include "util/util.hpp"
 
 #include <CLI/CLI.hpp>
@@ -99,7 +98,7 @@ auto Application::handle_cmd_subcommand() -> Result<void>
 
 auto Application::wait_for_layer_commands() -> Result<void>
 {
-    command_thread = std::jthread([this](auto token) { execute_layer_commands(token); });
+    command_thread = std::thread(&Application::execute_layer_commands, this);
     stop_flag.wait(false);
 #ifdef ENABLE_LIBVIPS
     vips_shutdown();
@@ -107,9 +106,9 @@ auto Application::wait_for_layer_commands() -> Result<void>
     return {};
 }
 
-void Application::execute_layer_commands(const std::stop_token &token)
+void Application::execute_layer_commands()
 {
-    while (!token.stop_requested()) {
+    while (!stop_flag.test()) {
         if (auto cmd = queue.try_dequeue(os::waitms)) {
             canvas->execute(*cmd);
         } else {

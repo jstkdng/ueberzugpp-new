@@ -79,12 +79,6 @@ set(CMAKE_REQUIRED_LIBRARIES
 set(CMAKE_REQUIRED_FLAGS -std=c++23)
 # check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION)
 
-# check if <jthread> is available
-check_source_compiles(CXX "
-#include <thread>
-int main(void) {auto t = std::jthread([] {}); return 0;}
-" HAVE_STD_JTHREAD)
-
 if (ENABLE_LIBVIPS)
     pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
     target_link_libraries(ueberzugpp PRIVATE PkgConfig::VIPS)
@@ -213,7 +207,6 @@ target_sources(
         include/command/command.hpp
         include/command/listener.hpp
         include/util/result.hpp
-        include/util/thread.hpp
         include/util/concurrent_deque.hpp
         include/util/ptr.hpp
         include/util/util.hpp

@@ -23,7 +23,7 @@
 #include <spdlog/spdlog.h>
 #include <vips/vips.h>
 
-#include <ranges>
+#include <algorithm>
 #include <unordered_set>
 #include <utility>
 
@@ -78,26 +78,25 @@ void LibvipsImage::process_image()
 
         // convert from RGB to BGR
         std::vector<VipsImage *> bands(num_channels());
-        for (auto [idx, band] : std::views::enumerate(bands)) {
-            vips_extract_band(image, &band, static_cast<int>(idx), nullptr);
+        int idx = 0;
+        for (auto *band : bands) {
+            vips_extract_band(image, &band, idx++, nullptr);
         }
         std::swap(bands[0], bands[2]);
 
-        vips_bandjoin(bands.data(), &image_out, static_cast<int>(bands.size()), nullptr);
+        vips_bandjoin(bands.data(), &image_out, idx, nullptr);
         g_object_unref(image);
         image = image_out;
 
-        for (auto *band : bands) {
-            g_object_unref(band);
-        }
+        std::ranges::for_each(bands, g_object_unref);
 
     } else if (output == "sixel") {
         // sixel expects RGB888
         if (vips_image_hasalpha(image) == TRUE) {
             vips_flatten(image, &image_out, nullptr);
+            g_object_unref(image);
+            image = image_out;
         }
-        g_object_unref(image);
-        image = image_out;
     }
 
     image_buffer.reset(static_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr)));

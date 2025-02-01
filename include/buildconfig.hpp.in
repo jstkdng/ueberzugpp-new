@@ -23,7 +23,6 @@
 #cmakedefine ENABLE_WAYLAND
 
 #cmakedefine HAVE_STD_EXECUTION
-#cmakedefine HAVE_STD_JTHREAD
 
 namespace upp
 {

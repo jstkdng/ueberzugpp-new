@@ -21,7 +21,6 @@
 #include "command/command.hpp"
 #include "log.hpp"
 #include "unix/socket.hpp"
-#include "util/thread.hpp"
 
 #include <string>
 #include <string_view>
@@ -36,16 +35,16 @@ class CommandListener
     auto start(std::string_view new_parser, bool no_stdin) -> Result<void>;
 
   private:
-    void wait_for_input_on_stdin(const std::stop_token &token);
-    void wait_for_input_on_socket(const std::stop_token &token);
+    void wait_for_input_on_stdin();
+    void wait_for_input_on_socket();
     void extract_commands(std::string_view line);
     void flush_command_queue() const;
     void enqueue_or_discard(const Command &cmd);
 
     CommandQueue *queue;
     std::string parser;
-    std::jthread stdin_thread;
-    std::jthread socket_thread;
+    std::thread stdin_thread;
+    std::thread socket_thread;
     unix::socket::Server socket_server;
     Logger logger;
 };
