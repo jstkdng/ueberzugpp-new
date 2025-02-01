@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "util/result.hpp"
 #include "os/os.hpp"
+#include "util/result.hpp"
 
 #include <charconv>
 #include <chrono>
@@ -73,9 +73,10 @@ auto make_vector(size_t capacity) -> std::vector<T>
     return result;
 }
 
-auto make_buffer(auto container) -> std::span<const std::byte>
+template <class T>
+auto make_buffer(T container) -> std::span<const std::byte>
 {
-    return std::as_bytes(std::span{container.data(), container.size()});
+    return std::as_bytes(std::span{std::data(container), std::size(container)});
 }
 
 } // namespace upp::util
