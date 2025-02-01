@@ -18,10 +18,11 @@
 
 #include "util/util.hpp"
 #include "os/os.hpp"
+#include "util/crypto.hpp"
 
 #include <filesystem>
-#include <string>
 #include <format>
+#include <string>
 
 namespace upp::util
 {
@@ -47,6 +48,24 @@ auto get_socket_path(int pid) -> std::string
     const auto sockname = std::format("ueberzugpp-{}.socket", pid);
     const auto tmp = temp_directory_path();
     return tmp / sockname;
+}
+
+auto get_cache_path() -> std::filesystem::path
+{
+    fs::path home = os::getenv("HOME").value_or(temp_directory_path());
+    fs::path cache_home = os::getenv("XDG_CACHE_HOME").value_or(home / ".cache");
+    return cache_home / "ueberzugpp";
+}
+
+auto get_cache_file_save_location(const std::filesystem::path &path) -> std::string
+{
+    auto hashed_path = crypto::blake2b_encode(make_buffer(path.string())) + path.extension().string();
+    return get_cache_path() / hashed_path;
+}
+
+auto get_filename(std::string_view path) -> std::string
+{
+    return fs::path(path).filename().string();
 }
 
 } // namespace upp::util

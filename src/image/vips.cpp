@@ -52,7 +52,6 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
     return read_image().and_then([this]() -> Result<void> {
         resize_image();
         process_image();
-        logger->info("loaded image {}", this->props.file_path);
         return {};
     });
 }
@@ -68,6 +67,10 @@ auto LibvipsImage::read_image() -> Result<void>
 
 void LibvipsImage::process_image()
 {
+    vips_colourspace(image, &image_out, VIPS_INTERPRETATION_sRGB, nullptr);
+    g_object_unref(image);
+    image = image_out;
+
     const std::unordered_set<std::string_view> bgra_outputs = {"x11", "chafa", "wayland"};
     if (bgra_outputs.contains(output)) {
         // alpha channel required
@@ -102,6 +105,29 @@ void LibvipsImage::process_image()
     }
 }
 
+auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool
+{
+    auto cached_image_path = util::get_cache_file_save_location(props.file_path);
+    VipsImage *cached_image =
+        vips_image_new_from_file(cached_image_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+    if (cached_image == nullptr) {
+        return false;
+    }
+
+    int cached_width = vips_image_get_width(cached_image);
+    int cached_height = vips_image_get_height(cached_image);
+    constexpr int delta = 10;
+    if ((new_width >= cached_width && new_height >= cached_height) &&
+        ((new_width - cached_width) <= delta || (new_height - cached_height) <= delta)) {
+        g_object_unref(image);
+        image = cached_image;
+        logger->debug("loading image {} from cache", util::get_filename(props.file_path));
+        return true;
+    }
+
+    return false;
+}
+
 void LibvipsImage::resize_image()
 {
     if (props.scaler == "contain") {
@@ -118,16 +144,25 @@ void LibvipsImage::contain_scaler()
 {
     auto [new_width, new_height] =
         contain_sizes({.width = props.width, .height = props.height, .image_width = width(), .image_height = height()});
+    if (new_width == width() && new_height == height()) {
+        return;
+    }
+    if (image_is_cached(new_width, new_height)) {
+        return;
+    }
 
-    logger->debug("resizing image to {}x{}", new_width, new_height);
+    logger->debug("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
 
     vips_thumbnail(props.file_path.c_str(), &image_out, new_width, "height", new_height, nullptr);
     g_object_unref(image);
     image = image_out;
 
-    vips_colourspace(image, &image_out, VIPS_INTERPRETATION_sRGB, nullptr);
+    auto cached_image_path = util::get_cache_file_save_location(props.file_path);
+    vips_image_write_to_file(image, cached_image_path.c_str(), nullptr);
+
+    // reread image
     g_object_unref(image);
-    image = image_out;
+    image = vips_image_new_from_file(cached_image_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
 }
 
 // needs to be freed

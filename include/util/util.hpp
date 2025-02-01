@@ -28,10 +28,10 @@
 #include <memory>
 #include <print>
 #include <ratio>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <span>
 
 namespace upp::util
 {
@@ -47,7 +47,10 @@ constexpr auto view_to_numeral(const std::string_view view) -> Result<T>
     return Err("parse_num", err);
 }
 
+auto get_filename(std::string_view path) -> std::string;
 auto get_log_filename() -> std::string;
+auto get_cache_path() -> std::filesystem::path;
+auto get_cache_file_save_location(const std::filesystem::path &path) -> std::string;
 auto get_socket_path(int pid = os::getpid()) -> std::string;
 auto temp_directory_path() -> std::filesystem::path;
 

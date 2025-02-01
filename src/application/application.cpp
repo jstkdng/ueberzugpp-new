@@ -144,7 +144,7 @@ void Application::print_header()
 auto Application::setup_logging() -> Result<void>
 {
 #ifdef DEBUG
-    auto level = spdlog::level::trace;
+    auto level = spdlog::level::debug;
 #else
     auto level = spdlog::level::info;
 #endif

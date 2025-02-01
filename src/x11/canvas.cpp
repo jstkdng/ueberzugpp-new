@@ -63,11 +63,11 @@ void X11Canvas::handle_add_command(const Command &cmd)
     std::shared_ptr<X11Window> window_ptr;
     auto window = window_id_map.find(cmd.preview_id);
     if (window == window_id_map.end()) {
-        logger->debug("creating new window");
+        logger->trace("creating new window");
         window_ptr = std::make_shared<X11Window>(ctx, &window_map);
         window_ptr->create_xcb_windows();
     } else {
-        logger->debug("reusing existing window");
+        logger->trace("reusing existing window");
         window_ptr = window->second;
     };
     if (auto result = window_ptr->init(cmd)) {

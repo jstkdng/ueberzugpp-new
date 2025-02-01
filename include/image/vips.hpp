@@ -53,6 +53,7 @@ class LibvipsImage : public Image
     void resize_image();
     void process_image();
     void contain_scaler();
+    auto image_is_cached(int new_width, int new_height) -> bool;
 };
 
 } // namespace upp

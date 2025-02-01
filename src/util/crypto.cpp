@@ -18,6 +18,7 @@
 
 #include "util/crypto.hpp"
 #include "util/ptr.hpp"
+#include "util/util.hpp"
 
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -45,7 +46,7 @@ auto buffer_to_hexstring(std::span<const std::byte> buffer) -> std::string
     return result;
 }
 
-auto blake2b_encode(std::string_view buffer) -> std::string
+auto blake2b_encode(std::span<const std::byte> buffer) -> std::string
 {
     const auto mdctx = c_unique_ptr<EVP_MD_CTX, EVP_MD_CTX_free>{EVP_MD_CTX_new()};
 #ifdef LIBRESSL_VERSION_NUMBER
@@ -56,7 +57,7 @@ auto blake2b_encode(std::string_view buffer) -> std::string
 
     std::vector<unsigned char> digest(EVP_MAX_MD_SIZE);
     EVP_DigestInit_ex(mdctx.get(), evp, nullptr);
-    EVP_DigestUpdate(mdctx.get(), buffer.data(), buffer.size());
+    EVP_DigestUpdate(mdctx.get(), reinterpret_cast<const unsigned char *>(buffer.data()), buffer.size());
     unsigned int digest_len = 0;
     EVP_DigestFinal_ex(mdctx.get(), digest.data(), &digest_len);
 
@@ -69,14 +70,14 @@ auto base64_encode(std::span<const std::byte> buffer) -> std::string
     const size_t bufsize = 4 * ((length + 2) / 3);
     std::vector<unsigned char> result(bufsize);
     EVP_EncodeBlock(result.data(), reinterpret_cast<const unsigned char *>(buffer.data()), static_cast<int>(length));
-    return buffer_to_hexstring(std::as_bytes(std::span{result}));
+    return buffer_to_hexstring(util::make_buffer(result));
 }
 
 auto generate_random_string(int length) -> std::string
 {
     std::vector<unsigned char> buffer(length);
     RAND_bytes(buffer.data(), length);
-    return buffer_to_hexstring(std::as_bytes(std::span{buffer}));
+    return buffer_to_hexstring(util::make_buffer(buffer));
 }
 
 } // namespace upp::crypto
