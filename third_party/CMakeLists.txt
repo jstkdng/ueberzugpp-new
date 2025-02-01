@@ -24,8 +24,11 @@ if (USE_BUNDLED_LIBRARIES)
     set(SPDLOG_ENABLE_PCH ON)
     add_subdirectory(spdlog/)
 
+    block()
+    set(CMAKE_CXX_STANDARD 11)
     set(CLI11_PRECOMPILED ON)
     add_subdirectory(CLI11/)
+    endblock()
 
     add_subdirectory(glaze/)
 else ()

@@ -121,12 +121,16 @@ auto get_pid_process_name(int pid) -> std::string
 
 auto get_pid_from_socket(int sockfd) -> Result<int>
 {
+#ifdef UPP_OS_LINUX
     struct ucred ucred;
     socklen_t len = sizeof(struct ucred);
     if (getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
         return Err("getsockopt");
     }
     return ucred.pid;
+#else
+    return -1;
+#endif
 }
 
 auto daemonize() -> Result<void>

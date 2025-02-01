@@ -19,6 +19,7 @@
 #include "image/vips.hpp"
 #include "base/image.hpp"
 #include "util/result.hpp"
+#include "util/util.hpp"
 
 #include <spdlog/spdlog.h>
 #include <vips/vips.h>
@@ -77,14 +78,15 @@ void LibvipsImage::process_image()
         }
 
         // convert from RGB to BGR
-        std::vector<VipsImage *> bands(num_channels());
-        int idx = 0;
-        for (auto *band : bands) {
-            vips_extract_band(image, &band, idx++, nullptr);
+        auto bands = util::make_vector<VipsImage *>(num_channels());
+        for (int i = 0; i < num_channels(); ++i) {
+            VipsImage *band = nullptr;
+            vips_extract_band(image, &band, i, nullptr);
+            bands.emplace_back(band);
         }
         std::swap(bands[0], bands[2]);
 
-        vips_bandjoin(bands.data(), &image_out, idx, nullptr);
+        vips_bandjoin(bands.data(), &image_out, num_channels(), nullptr);
         g_object_unref(image);
         image = image_out;
 
