@@ -32,6 +32,7 @@ class CommandListener
 {
   public:
     explicit CommandListener(CommandQueue *queue);
+    ~CommandListener();
     auto start(std::string_view new_parser, bool no_stdin) -> Result<void>;
 
   private:

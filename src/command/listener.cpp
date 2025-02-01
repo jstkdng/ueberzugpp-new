@@ -32,6 +32,16 @@ CommandListener::CommandListener(CommandQueue *queue) :
 {
 }
 
+CommandListener::~CommandListener()
+{
+    if (stdin_thread.joinable()) {
+        stdin_thread.join();
+    }
+    if (socket_thread.joinable()) {
+        socket_thread.join();
+    }
+}
+
 auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Result<void>
 {
     logger = spdlog::get("listener");

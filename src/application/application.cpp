@@ -54,6 +54,18 @@ Application::Application(Cli *cli) :
 {
 }
 
+Application::~Application()
+{
+    if (cli->layer_command->parsed()) {
+        if (command_thread.joinable()) {
+            command_thread.join();
+        }
+#ifdef ENABLE_LIBVIPS
+        vips_shutdown();
+#endif
+    }
+}
+
 auto Application::run() -> Result<void>
 {
     return setup_logging().and_then([this] { return handle_cli_commands(); });
@@ -100,9 +112,6 @@ auto Application::wait_for_layer_commands() -> Result<void>
 {
     command_thread = std::thread(&Application::execute_layer_commands, this);
     stop_flag.wait(false);
-#ifdef ENABLE_LIBVIPS
-    vips_shutdown();
-#endif
     return {};
 }
 

@@ -34,6 +34,13 @@ X11Canvas::X11Canvas(ApplicationContext *ctx) :
 {
 }
 
+X11Canvas::~X11Canvas()
+{
+    if (event_handler.joinable()) {
+        event_handler.join();
+    }
+}
+
 auto X11Canvas::init() -> Result<void>
 {
     logger->info("canvas created");
