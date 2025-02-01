@@ -63,6 +63,7 @@ Application::~Application()
 #ifdef ENABLE_LIBVIPS
         vips_shutdown();
 #endif
+        logger->info("ueberzugpp terminated");
     }
 }
 
@@ -196,6 +197,7 @@ auto Application::setup_vips() -> Result<void>
     if (VIPS_INIT("ueberzugpp")) {
         return Err("can't startup vips");
     }
+    vips_cache_set_max(0);
     logger->debug("libvips initialized");
 #endif
     return {};

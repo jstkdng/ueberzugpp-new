@@ -100,8 +100,6 @@ void LibvipsImage::process_image()
             image = image_out;
         }
     }
-
-    image_buffer.reset(static_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr)));
 }
 
 void LibvipsImage::resize_image()
@@ -132,9 +130,15 @@ void LibvipsImage::contain_scaler()
     image = image_out;
 }
 
+// needs to be freed
 auto LibvipsImage::data() -> unsigned char *
 {
-    return image_buffer.get();
+    return static_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr));
+}
+
+auto LibvipsImage::data_size() -> int
+{
+    return VIPS_IMAGE_SIZEOF_IMAGE(image);
 }
 
 auto LibvipsImage::width() -> int

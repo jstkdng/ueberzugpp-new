@@ -55,8 +55,8 @@ auto X11Window::configure_xcb_windows(const Command &command) -> Result<void>
     auto &x11 = ctx->x11;
     auto &font = ctx->terminal.font;
     xcb_image.reset(xcb_image_create_native(x11.connection.get(), image->width(), image->height(),
-                                            XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, nullptr, 0, nullptr));
-    xcb_image->data = image->data();
+                                            XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, image->data(),
+                                            image->data_size(), nullptr));
     xcb_window.configure((font.width * command.x) + font.horizontal_padding,
                          (font.height * command.y) + font.vertical_padding, image->width(), image->height());
     x11.flush();
