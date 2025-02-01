@@ -31,6 +31,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <span>
 
 namespace upp::util
 {
@@ -73,8 +74,7 @@ auto make_vector(size_t capacity) -> std::vector<T>
     return result;
 }
 
-template <class T>
-auto make_buffer(T container) -> std::span<const std::byte>
+auto make_buffer(auto container) -> std::span<const std::byte>
 {
     return std::as_bytes(std::span{std::data(container), std::size(container)});
 }
