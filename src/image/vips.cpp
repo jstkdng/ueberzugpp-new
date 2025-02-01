@@ -122,7 +122,7 @@ void LibvipsImage::contain_scaler()
 
     logger->debug("resizing image to {}x{}", new_width, new_height);
 
-    vips_thumbnail_image(image, &image_out, new_width, "height", new_height, nullptr);
+    vips_thumbnail(props.file_path.c_str(), &image_out, new_width, "height", new_height, nullptr);
     g_object_unref(image);
     image = image_out;
 
