@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <mutex>
 
 namespace upp
 {
@@ -50,6 +51,7 @@ class X11Window : public std::enable_shared_from_this<X11Window>
     auto configure_xcb_windows(const Command &command) -> Result<void>;
 
     ImagePtr image;
+    std::mutex image_mutex;
     xcb::image xcb_image;
     xcb::window xcb_window;
 };

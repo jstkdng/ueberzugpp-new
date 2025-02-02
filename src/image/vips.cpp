@@ -121,7 +121,7 @@ auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool
         ((new_width - cached_width) <= delta || (new_height - cached_height) <= delta)) {
         g_object_unref(image);
         image = cached_image;
-        logger->debug("loading image {} from cache", util::get_filename(props.file_path));
+        logger->info("loading image {} from cache", util::get_filename(props.file_path));
         return true;
     }
 
@@ -151,7 +151,7 @@ void LibvipsImage::contain_scaler()
         return;
     }
 
-    logger->debug("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
+    logger->info("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
 
     vips_thumbnail(props.file_path.c_str(), &image_out, new_width, "height", new_height, nullptr);
     g_object_unref(image);

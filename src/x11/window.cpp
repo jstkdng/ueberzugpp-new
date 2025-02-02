@@ -37,6 +37,7 @@ void X11Window::create_xcb_windows()
 
 auto X11Window::init(const Command &command) -> Result<void>
 {
+    std::scoped_lock image_lock{image_mutex};
     auto &font = ctx->terminal.font;
     return Image::create(ctx->output, command.image_path.string())
         .and_then([this, &font, &command](ImagePtr new_image) {
@@ -64,6 +65,8 @@ auto X11Window::configure_xcb_windows(const Command &command) -> Result<void>
 
 void X11Window::draw(xcb::window_id window)
 {
+    std::scoped_lock image_lock{image_mutex};
+    spdlog::get("X11")->info("xcb_image_put for window {}", window);
     xcb_image_put(ctx->x11.connection.get(), window, ctx->x11.gcontext, xcb_image.get(), 0, 0, 0);
 }
 

@@ -140,7 +140,7 @@ void CommandListener::enqueue_or_discard(const Command &cmd)
             return true;
         }
         if (auto &last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
-            logger->debug("discarding add/remove command pair for {}", last.image_path.filename().string());
+            logger->info("discarding add/remove command pair for {}", last.image_path.filename().string());
             deque.pop_back();
             return false;
         }
