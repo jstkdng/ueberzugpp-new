@@ -40,7 +40,6 @@ class CommandListener
     void wait_for_input_on_socket();
     void extract_commands(std::string_view line);
     void flush_command_queue() const;
-    void enqueue_or_discard(const Command &cmd);
 
     CommandQueue *queue;
     std::string parser;

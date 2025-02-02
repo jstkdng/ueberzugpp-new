@@ -66,7 +66,7 @@ void benchmark(Func func)
     func();
     const auto time2 = high_resolution_clock::now();
     const duration<double, std::milli> ms_double = time2 - time1;
-    std::print("{}ms\n", ms_double.count());
+    std::println("{}ms", ms_double.count());
 }
 
 template <class T, class Allocator = std::allocator<T>>

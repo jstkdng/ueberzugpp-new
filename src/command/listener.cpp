@@ -118,7 +118,7 @@ void CommandListener::extract_commands(std::string_view line)
             } else if (cmd->action == "flush") {
                 flush_command_queue();
             } else {
-                enqueue_or_discard(*cmd);
+                queue->enqueue(*cmd);
             }
         } else {
             logger->error(cmd.error().message());
@@ -131,21 +131,6 @@ void CommandListener::flush_command_queue() const
 {
     logger->debug("flushing command queue");
     queue->clear();
-}
-
-void CommandListener::enqueue_or_discard(const Command &cmd)
-{
-    queue->enqueue(cmd, [this, &cmd](auto &deque) {
-        if (deque.size() <= 2 || cmd.action != "remove") {
-            return true;
-        }
-        if (auto &last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
-            logger->info("discarding add/remove command pair for {}", last.image_path.filename().string());
-            deque.pop_back();
-            return false;
-        }
-        return true;
-    });
 }
 
 } // namespace upp

@@ -55,7 +55,6 @@ void window::configure(int xcoord, int ycoord, int width, int height)
     value_list.height = height;
     xcb_configure_window(connection, _id, value_mask, &value_list);
     xcb_map_window(connection, _id);
-    xcb_flush(connection);
 }
 
 auto window::id() const -> window_id

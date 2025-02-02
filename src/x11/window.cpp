@@ -32,7 +32,6 @@ void X11Window::create_xcb_windows()
     auto &x11 = ctx->x11;
     xcb_window.create(x11.connection.get(), x11.screen, x11.parent);
     window_map->emplace(xcb_window.id(), weak_from_this());
-    x11.flush();
 }
 
 auto X11Window::init(const Command &command) -> Result<void>
@@ -66,7 +65,6 @@ auto X11Window::configure_xcb_windows(const Command &command) -> Result<void>
 void X11Window::draw(xcb::window_id window)
 {
     std::scoped_lock image_lock{image_mutex};
-    spdlog::get("X11")->info("xcb_image_put for window {}", window);
     xcb_image_put(ctx->x11.connection.get(), window, ctx->x11.gcontext, xcb_image.get(), 0, 0, 0);
 }
 

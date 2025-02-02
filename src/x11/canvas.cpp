@@ -28,7 +28,6 @@
 
 namespace upp
 {
-
 X11Canvas::X11Canvas(ApplicationContext *ctx) :
     ctx(ctx)
 {
