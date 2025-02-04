@@ -94,15 +94,12 @@ void X11Canvas::handle_events()
     const int filde = ctx->x11.connection_fd;
     while (!Application::stop_flag.test()) {
         if (auto in_event = os::wait_for_data_on_fd(filde)) {
-            if (!*in_event) {
-                continue;
+            if (*in_event) {
+                dispatch_events();
             }
         } else {
             Application::terminate();
-            return;
         }
-
-        dispatch_events();
     }
 }
 

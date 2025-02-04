@@ -23,9 +23,12 @@
 #include "command/command.hpp"
 #include "log.hpp"
 #include "util/result.hpp"
+#include "util/str_map.hpp"
 #include "wayland/types.hpp"
+#include "wayland/window.hpp"
 
 #include <cstdint>
+#include <thread>
 
 namespace upp
 {
@@ -33,6 +36,7 @@ namespace upp
 class WaylandCanvas final : public Canvas
 {
   public:
+    ~WaylandCanvas() override;
     explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
@@ -49,6 +53,12 @@ class WaylandCanvas final : public Canvas
     wl::compositor compositor;
     wl::shm shm;
     wl::xdg::wm_base wm_base;
+
+    string_map<WaylandWindow> window_map;
+
+    std::thread event_handler;
+
+    void handle_events();
 
     int display_fd = -1;
 };

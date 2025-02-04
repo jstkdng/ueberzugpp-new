@@ -48,10 +48,10 @@ class X11Canvas final : public Canvas
     ApplicationContext *ctx;
     Logger logger{spdlog::get("X11")};
 
-    std::thread event_handler;
-    std::mutex window_mutex;
     WindowMap window_map;
     WindowIdMap window_id_map;
+    std::mutex window_mutex;
+    std::thread event_handler;
 
     void handle_events();
     void handle_expose_event(xcb_generic_event_t *event);

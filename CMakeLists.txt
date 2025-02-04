@@ -136,6 +136,7 @@ if (ENABLE_WAYLAND)
         ueberzugpp
         PRIVATE
             src/wayland/canvas.cpp
+            src/wayland/window.cpp
             src/wayland/socket/socket.cpp
             src/wayland/socket/hyprland.cpp
 
@@ -145,6 +146,9 @@ if (ENABLE_WAYLAND)
         FILES
             include/wayland/canvas.hpp
             include/wayland/types.hpp
+            include/wayland/window.hpp
+            include/wayland/socket/socket.hpp
+            include/wayland/socket/hyprland.hpp
     )
 endif ()
 

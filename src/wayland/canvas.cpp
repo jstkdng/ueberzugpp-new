@@ -17,6 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "wayland/canvas.hpp"
+#include "application/application.hpp"
 #include "application/context.hpp"
 #include "command/command.hpp"
 #include "util/result.hpp"
@@ -67,26 +68,61 @@ WaylandCanvas::WaylandCanvas(ApplicationContext *ctx) :
 {
 }
 
+WaylandCanvas::~WaylandCanvas()
+{
+    if (event_handler.joinable()) {
+        event_handler.join();
+    }
+}
+
 auto WaylandCanvas::init() -> Result<void>
 {
     display.reset(wl_display_connect(nullptr));
-    if (display) {
-        registry.reset(wl_display_get_registry(display.get()));
-        wl_registry_add_listener(registry.get(), &registry_listener, this);
-        wl_display_roundtrip(display.get());
-
-        display_fd = wl_display_get_fd(display.get());
-    } else {
+    if (!display) {
         return Err("could not connect to wayland display");
     }
+    registry.reset(wl_display_get_registry(display.get()));
+    wl_registry_add_listener(registry.get(), &registry_listener, this);
+    wl_display_roundtrip(display.get());
+
+    display_fd = wl_display_get_fd(display.get());
+    event_handler = std::thread(&WaylandCanvas::handle_events, this);
 
     logger->info("canvas created");
     return {};
 }
 
-void WaylandCanvas::execute([[maybe_unused]] const Command &cmd)
+void WaylandCanvas::handle_events()
 {
-    // do nothing for now
+    logger->debug("started event handler");
+    auto *display_ptr = display.get();
+    while (!Application::stop_flag.test()) {
+        while (wl_display_prepare_read(display_ptr) != 0) {
+            wl_display_dispatch_pending(display_ptr);
+        }
+        wl_display_flush(display_ptr);
+
+        if (auto in_event = os::wait_for_data_on_fd(display_fd)) {
+            if (*in_event) {
+                wl_display_read_events(display_ptr);
+                wl_display_dispatch_pending(display_ptr);
+            } else {
+                wl_display_cancel_read(display_ptr);
+            }
+        } else {
+            Application::terminate();
+        }
+    }
+}
+
+void WaylandCanvas::execute(const Command &cmd)
+{
+    if (cmd.action == "add") {
+        auto [entry, intserted] = window_map.try_emplace(cmd.preview_id, wm_base.get(), compositor.get());
+        entry->second.finish_init();
+    } else {
+        window_map.erase(cmd.preview_id);
+    }
 }
 
 } // namespace upp

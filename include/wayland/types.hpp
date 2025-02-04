@@ -31,13 +31,20 @@ struct deleter {
     void operator()(wl_registry *ptr) const { wl_registry_destroy(ptr); }
     void operator()(wl_compositor *ptr) const { wl_compositor_destroy(ptr); }
     void operator()(wl_shm *ptr) const { wl_shm_destroy(ptr); }
+    void operator()(wl_surface *ptr) const { wl_surface_destroy(ptr); }
+    void operator()(wl_buffer *ptr) const { wl_buffer_destroy(ptr); }
+
     void operator()(xdg_wm_base *ptr) const { xdg_wm_base_destroy(ptr); }
+    void operator()(xdg_surface *ptr) const { xdg_surface_destroy(ptr); }
+    void operator()(xdg_toplevel *ptr) const { xdg_toplevel_destroy(ptr); }
 };
 
 using display = std::unique_ptr<wl_display, deleter>;
 using registry = std::unique_ptr<wl_registry, deleter>;
 using compositor = std::unique_ptr<wl_compositor, deleter>;
 using shm = std::unique_ptr<wl_shm, deleter>;
+using surface = std::unique_ptr<wl_surface, deleter>;
+using buffer = std::unique_ptr<wl_buffer, deleter>;
 
 template <typename... Args>
 void ignore([[maybe_unused]] Args... args) { /* ignore wayland callback */ };
@@ -46,6 +53,8 @@ namespace xdg
 {
 
 using wm_base = std::unique_ptr<xdg_wm_base, deleter>;
+using surface = std::unique_ptr<xdg_surface, deleter>;
+using top_level = std::unique_ptr<xdg_toplevel, deleter>;
 
 } // namespace xdg
 
