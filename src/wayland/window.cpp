@@ -19,8 +19,6 @@
 #include "wayland/window.hpp"
 #include "util/crypto.hpp"
 
-#include <glib.h>
-
 #include <format>
 
 namespace upp
@@ -43,8 +41,7 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 {
     xdg_surface_ack_configure(xdg_surface, serial);
     auto *window = reinterpret_cast<WaylandWindow *>(data);
-    auto &image = window->image;
-    auto *buffer = window->shm.get_buffer(image->data(), image->data_size());
+    auto *buffer = window->shm.get_buffer();
     auto *surface = window->surface.get();
     wl_surface_attach(surface, buffer, 0, 0);
     wl_surface_set_buffer_scale(surface, window->scale_factor);
@@ -54,7 +51,13 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 void WaylandWindow::preferred_buffer_scale(void *data, wl_surface * /*surface*/, int factor)
 {
     auto *window = reinterpret_cast<WaylandWindow *>(data);
+    if (window->scale_factor == factor) {
+        return;
+    }
+    auto *surface_ptr = window->surface.get();
     window->scale_factor = factor;
+    wl_surface_attach(surface_ptr, nullptr, 0, 0);
+    wl_surface_commit(surface_ptr);
 }
 
 WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base) :
@@ -86,14 +89,14 @@ auto WaylandWindow::init(const Command &command) -> Result<void>
     return Image::create(ctx->output, command.image_path.string())
         .and_then([this, &font, &command](ImagePtr new_image) {
             image = std::move(new_image);
-            return image->load({.file_path = command.image_path.string(),
-                                .scaler = command.image_scaler,
-                                .width = font.width * command.width,
-                                .height = font.height * command.height});
+            return image->load({
+                .file_path = command.image_path.string(),
+                .scaler = command.image_scaler,
+                .width = font.width * command.width,
+                .height = font.height * command.height,
+            });
         })
-        .and_then([this]() -> Result<void> {
-            return shm.init(image->width(), image->height());
-        })
+        .and_then([this] { return shm.init(image->width(), image->height(), image->data()); })
         .and_then([this, &command] { return socket_setup(command); })
         .and_then([this]() -> Result<void> {
             wl_surface_commit(surface.get());
