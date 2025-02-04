@@ -55,7 +55,6 @@ auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> R
                                app_id,
                                xcoord,
                                ycoord);
-    logger->debug("socket setup command: {}", payload);
     unix::socket::Client client;
     return client.connect_and_write(socket_path, util::make_buffer(payload));
 }

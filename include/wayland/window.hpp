@@ -26,6 +26,7 @@
 #include "wayland/types.hpp"
 
 #include <string>
+#include <atomic>
 
 namespace upp
 {
@@ -50,6 +51,7 @@ class WaylandWindow
     wl::xdg::top_level xdg_toplevel;
     std::string app_id;
     ImagePtr image;
+    std::atomic_int scale_factor = 1;
 
     auto socket_setup(const Command &command) -> Result<void>;
 };
