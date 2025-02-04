@@ -42,7 +42,7 @@ constexpr xdg_wm_base_listener xdg_wm_base_listener = {
 };
 
 void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
-                                       uint32_t version)
+                                       uint32_t /*version*/)
 {
     const std::string_view interface_str(interface);
 
@@ -52,7 +52,6 @@ void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32
 
     auto *canvas = static_cast<WaylandCanvas *>(data);
     if (interface_str == wl_compositor_interface.name) {
-        canvas->logger->debug("compositor version wanted: {}, have: {}", compositor_ver, version);
         canvas->compositor.reset(
             static_cast<wl_compositor *>(wl_registry_bind(registry, name, &wl_compositor_interface, compositor_ver)));
     } else if (interface_str == wl_shm_interface.name) {

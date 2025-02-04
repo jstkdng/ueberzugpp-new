@@ -50,8 +50,8 @@ auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> R
                                "/keyword windowrulev2 float,title:{0};"
                                "/keyword windowrulev2 noborder,title:{0};"
                                "/keyword windowrulev2 rounding 0,title:{0};"
-                               "/dispatch movewindowpixel exact {1} {2},title:{0};",
-                               //"/keyword windowrulev2 move {1} {2},title:{0};",
+                               //"/dispatch movewindowpixel exact {1} {2},title:{0};",
+                               "/keyword windowrulev2 move {1} {2},title:{0};",
                                app_id,
                                xcoord,
                                ycoord);
@@ -70,6 +70,24 @@ void HyprlandSocket::get_version()
     } else {
         logger->info("could not find hyprland version");
     }
+}
+
+auto HyprlandSocket::active_window() -> WaylandGeometry
+{
+    auto active = request_result("j/activewindow");
+    glz::json_t json;
+    auto err = glz::read_json(json, active);
+    if (err) {
+        return {};
+    }
+    auto coords = json["at"].get_array();
+    auto sizes = json["size"].get_array();
+    return {
+        .width = sizes[0].as<int>(),
+        .height = sizes[1].as<int>(),
+        .x = coords[0].as<int>(),
+        .y = coords[1].as<int>(),
+    };
 }
 
 void HyprlandSocket::request(std::string_view payload)

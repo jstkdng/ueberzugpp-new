@@ -72,9 +72,10 @@ WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor,
 
 auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
 {
+    auto &pos = ctx->terminal.position;
     auto &font = ctx->terminal.font;
-    int xcoord = (font.width * command.x) + font.horizontal_padding;
-    int ycoord = (font.height * command.y) + font.vertical_padding;
+    int xcoord = pos.x + (font.width * command.x) + font.horizontal_padding;
+    int ycoord = pos.y + (font.height * command.y) + font.vertical_padding;
     return ctx->wl_socket->setup(app_id, xcoord, ycoord);
 }
 

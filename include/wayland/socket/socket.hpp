@@ -26,6 +26,14 @@
 namespace upp
 {
 
+struct WaylandGeometry
+{
+    int width = -1;
+    int height = -1;
+    int x = -1;
+    int y = -1;
+};
+
 class WaylandSocket;
 
 using WaylandSocketPtr = std::unique_ptr<WaylandSocket>;
@@ -36,6 +44,7 @@ class WaylandSocket
     virtual ~WaylandSocket() = default;
     static auto create() -> Result<WaylandSocketPtr>;
     virtual auto setup(std::string_view app_id, int xcoord, int ycoord) -> Result<void> = 0;
+    virtual auto active_window() -> WaylandGeometry = 0;
 };
 
 } // namespace upp

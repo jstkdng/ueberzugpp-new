@@ -29,6 +29,11 @@ namespace upp
 
 class ApplicationContext;
 
+struct TerminalPosition {
+    int x = 0;
+    int y = 0;
+};
+
 struct TerminalSize {
     int width = -1;
     int height = -1;
@@ -52,6 +57,7 @@ class Terminal
     auto init() -> Result<void>;
     TerminalSize size;
     TerminalFont font;
+    TerminalPosition position;
 
   private:
     Logger logger;
@@ -64,6 +70,7 @@ class Terminal
     auto set_terminal_size() -> Result<void>;
     auto set_font_size() -> Result<void>;
     void set_fallback_size_from_x11();
+    void set_fallback_size_from_wayland();
 };
 
 } // namespace upp

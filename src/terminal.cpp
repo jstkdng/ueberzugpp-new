@@ -75,6 +75,7 @@ auto Terminal::set_terminal_size() -> Result<void>
     logger->debug("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", size.cols, size.rows, size.width, size.height);
 
     set_fallback_size_from_x11();
+    set_fallback_size_from_wayland();
 
     if (size.width == 0 || size.height == 0) {
         size.width = size.fallback_width;
@@ -120,6 +121,19 @@ void Terminal::set_fallback_size_from_x11()
     size.fallback_width = width;
     size.fallback_height = height;
     logger->debug("x11 sizes: XPIXEL={} YPIXEL={}", width, height);
+#endif
+}
+
+void Terminal::set_fallback_size_from_wayland()
+{
+#ifdef ENABLE_WAYLAND
+    auto geometry = ctx->wl_socket->active_window();
+    position.x = geometry.x;
+    position.y = geometry.y;
+    size.fallback_width = geometry.width;
+    size.fallback_height = geometry.height;
+    logger->debug(
+        "wayland sizes: X={} Y={} XPIXEL={} YPIXEL={}", position.x, position.y, geometry.width, geometry.height);
 #endif
 }
 
