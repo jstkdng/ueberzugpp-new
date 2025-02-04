@@ -55,6 +55,7 @@ class WaylandCanvas final : public Canvas
     wl::xdg::wm_base wm_base;
 
     string_map<std::shared_ptr<WaylandWindow>> window_map;
+    WindowPtrs window_ptrs;
 
     std::thread event_handler;
 

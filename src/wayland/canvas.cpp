@@ -125,7 +125,7 @@ void WaylandCanvas::execute(const Command &cmd)
 {
     if (cmd.action == "add") {
         auto window = std::make_shared<WaylandWindow>(ctx, compositor.get(), shm.get(), wm_base.get());
-        if (auto result = window->init(cmd)) {
+        if (auto result = window->init(cmd, window_ptrs)) {
             window_map.try_emplace(cmd.preview_id, window);
         } else {
             logger->warn(result.error().message());

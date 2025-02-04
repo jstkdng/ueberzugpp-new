@@ -25,19 +25,26 @@
 #include "wayland/shm.hpp"
 #include "wayland/types.hpp"
 
-#include <string>
 #include <atomic>
+#include <memory>
+#include <string>
 
 namespace upp
 {
 
-class WaylandCanvas;
+class WaylandWindow;
 
-class WaylandWindow
+struct WeakWindow {
+    std::weak_ptr<WaylandWindow> ptr;
+};
+
+using WindowPtrs = std::vector<std::unique_ptr<WeakWindow>>;
+
+class WaylandWindow : public std::enable_shared_from_this<WaylandWindow>
 {
   public:
     WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base);
-    auto init(const Command &command) -> Result<void>;
+    auto init(const Command &command, WindowPtrs &window_ptrs) -> Result<void>;
 
     static void preferred_buffer_scale(void *data, wl_surface *surface, int factor);
     static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial);
@@ -54,6 +61,7 @@ class WaylandWindow
     std::atomic_int scale_factor = 1;
 
     auto socket_setup(const Command &command) -> Result<void>;
+    auto listeners_setup(WindowPtrs &window_ptrs) -> Result<void>;
 };
 
 } // namespace upp

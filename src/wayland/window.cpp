@@ -40,7 +40,11 @@ constexpr int id_len = 10;
 void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial)
 {
     xdg_surface_ack_configure(xdg_surface, serial);
-    auto *window = reinterpret_cast<WaylandWindow *>(data);
+    auto *weak = reinterpret_cast<WeakWindow *>(data);
+    auto window = weak->ptr.lock();
+    if (!window) {
+        return;
+    }
     auto *buffer = window->shm.get_buffer();
     auto *surface = window->surface.get();
     wl_surface_attach(surface, buffer, 0, 0);
@@ -50,7 +54,11 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 
 void WaylandWindow::preferred_buffer_scale(void *data, wl_surface * /*surface*/, int factor)
 {
-    auto *window = reinterpret_cast<WaylandWindow *>(data);
+    auto *weak = reinterpret_cast<WeakWindow *>(data);
+    auto window = weak->ptr.lock();
+    if (!window) {
+        return;
+    }
     if (window->scale_factor == factor) {
         return;
     }
@@ -70,8 +78,6 @@ WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor,
 {
     xdg_toplevel_set_app_id(xdg_toplevel.get(), app_id.c_str());
     xdg_toplevel_set_title(xdg_toplevel.get(), app_id.c_str());
-    wl_surface_add_listener(surface.get(), &surface_listener, this);
-    xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, this);
 }
 
 auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
@@ -83,7 +89,7 @@ auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
     return ctx->wl_socket->setup(app_id, xcoord, ycoord);
 }
 
-auto WaylandWindow::init(const Command &command) -> Result<void>
+auto WaylandWindow::init(const Command &command, WindowPtrs &window_ptrs) -> Result<void>
 {
     auto &font = ctx->terminal.font;
     return Image::create(ctx->output, command.image_path.string())
@@ -98,10 +104,18 @@ auto WaylandWindow::init(const Command &command) -> Result<void>
         })
         .and_then([this] { return shm.init(image->width(), image->height(), image->data()); })
         .and_then([this, &command] { return socket_setup(command); })
-        .and_then([this]() -> Result<void> {
-            wl_surface_commit(surface.get());
-            return {};
-        });
+        .and_then([this, &window_ptrs] { return listeners_setup(window_ptrs); });
+}
+
+auto WaylandWindow::listeners_setup(WindowPtrs &window_ptrs) -> Result<void>
+{
+    auto weak_win = std::make_unique<WeakWindow>(weak_from_this());
+    auto *ptr = weak_win.get();
+    window_ptrs.emplace_back(std::move(weak_win));
+    wl_surface_add_listener(surface.get(), &surface_listener, ptr);
+    xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, ptr);
+    wl_surface_commit(surface.get());
+    return {};
 }
 
 } // namespace upp
