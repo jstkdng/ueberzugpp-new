@@ -49,8 +49,9 @@ class WaylandWindow
     wl::xdg::surface xdg_surface;
     wl::xdg::top_level xdg_toplevel;
     std::string app_id;
-
     ImagePtr image;
+
+    auto socket_setup(const Command &command) -> Result<void>;
 };
 
 } // namespace upp

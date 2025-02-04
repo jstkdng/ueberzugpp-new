@@ -125,9 +125,13 @@ void WaylandCanvas::handle_events()
 void WaylandCanvas::execute(const Command &cmd)
 {
     if (cmd.action == "add") {
-        auto [entry, inserted] = window_map.try_emplace(cmd.preview_id, compositor.get(), shm.get(), wm_base.get());
-        entry->second.init(ctx, cmd);
-    } else {
+        auto window = std::make_shared<WaylandWindow>(ctx, compositor.get(), shm.get(), wm_base.get());
+        if (auto result = window->init(cmd)) {
+            window_map.try_emplace(cmd.preview_id, window);
+        } else {
+            logger->warn(result.error().message());
+        }
+    } else if (cmd.action == "remove") {
         window_map.erase(cmd.preview_id);
     }
 }

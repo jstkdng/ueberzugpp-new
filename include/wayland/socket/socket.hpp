@@ -21,6 +21,7 @@
 #include "util/result.hpp"
 
 #include <memory>
+#include <string_view>
 
 namespace upp
 {
@@ -32,7 +33,9 @@ using WaylandSocketPtr = std::unique_ptr<WaylandSocket>;
 class WaylandSocket
 {
   public:
+    virtual ~WaylandSocket() = default;
     static auto create() -> Result<WaylandSocketPtr>;
+    virtual auto setup(std::string_view app_id, int xcoord, int ycoord) -> Result<void> = 0;
 };
 
 } // namespace upp

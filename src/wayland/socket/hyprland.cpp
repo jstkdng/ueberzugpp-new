@@ -19,14 +19,12 @@
 #include "wayland/socket/hyprland.hpp"
 #include "os/os.hpp"
 #include "unix/socket.hpp"
+#include "util/util.hpp"
 
 #include <glaze/glaze.hpp>
-#include <glaze/json/json_t.hpp>
-#include <glaze/json/read.hpp>
 #include <spdlog/spdlog.h>
 
 #include <format>
-#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -44,6 +42,24 @@ HyprlandSocket::HyprlandSocket(std::string instance_signature) :
     get_version();
 }
 
+auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> Result<void>
+{
+    // [[BATCH]]j/something;j/something
+    auto payload = std::format("[[BATCH]]"
+                               "/keyword windowrulev2 nofocus,title:{0};"
+                               "/keyword windowrulev2 float,title:{0};"
+                               "/keyword windowrulev2 noborder,title:{0};"
+                               "/keyword windowrulev2 rounding 0,title:{0};"
+                               "/dispatch movewindowpixel exact {1} {2},title:{0};",
+                               //"/keyword windowrulev2 move {1} {2},title:{0};",
+                               app_id,
+                               xcoord,
+                               ycoord);
+    logger->debug("socket setup command: {}", payload);
+    unix::socket::Client client;
+    return client.connect_and_write(socket_path, util::make_buffer(payload));
+}
+
 void HyprlandSocket::get_version()
 {
     auto ver_str = request_result("j/version");
@@ -59,9 +75,7 @@ void HyprlandSocket::get_version()
 void HyprlandSocket::request(std::string_view payload)
 {
     unix::socket::Client client;
-    auto result = client.connect(socket_path).and_then([&client, payload] {
-        return client.write(std::as_bytes(std::span{payload.data(), payload.size()}));
-    });
+    auto result = client.connect_and_write(socket_path, util::make_buffer(payload));
     if (!result) {
         logger->error(result.error().message());
     }
@@ -70,11 +84,9 @@ void HyprlandSocket::request(std::string_view payload)
 auto HyprlandSocket::request_result(std::string_view payload) -> std::string
 {
     unix::socket::Client client;
-    auto result = client.connect(socket_path)
-                      .and_then([&client, payload] {
-                          return client.write(std::as_bytes(std::span{payload.data(), payload.size()}));
-                      })
-                      .and_then([&client] { return client.read_until_empty(); });
+    auto result = client.connect_and_write(socket_path, util::make_buffer(payload)).and_then([&client] {
+        return client.read_until_empty();
+    });
     if (!result) {
         logger->error(result.error().message());
         return {};

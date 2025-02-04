@@ -54,15 +54,13 @@ class WaylandCanvas final : public Canvas
     wl::shm shm;
     wl::xdg::wm_base wm_base;
 
-    string_map<WaylandWindow> window_map;
+    string_map<std::shared_ptr<WaylandWindow>> window_map;
 
     std::thread event_handler;
 
     void handle_events();
 
     int display_fd = -1;
-
-    friend class WaylandWindow;
 };
 
 } // namespace upp

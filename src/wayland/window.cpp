@@ -70,6 +70,14 @@ WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor,
     xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, this);
 }
 
+auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
+{
+    auto &font = ctx->terminal.font;
+    int xcoord = (font.width * command.x) + font.horizontal_padding;
+    int ycoord = (font.height * command.y) + font.vertical_padding;
+    return ctx->wl_socket->setup(app_id, xcoord, ycoord);
+}
+
 auto WaylandWindow::init(const Command &command) -> Result<void>
 {
     auto &font = ctx->terminal.font;
@@ -85,6 +93,7 @@ auto WaylandWindow::init(const Command &command) -> Result<void>
             c_unique_ptr<unsigned char, g_free> image_ptr{image->data()};
             return shm.init(image->width(), image->height(), image_ptr.get());
         })
+        .and_then([this, &command] { return socket_setup(command); })
         .and_then([this]() -> Result<void> {
             wl_surface_commit(surface.get());
             return {};
