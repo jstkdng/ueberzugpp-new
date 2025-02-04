@@ -40,7 +40,7 @@ constexpr int id_len = 10;
 void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial)
 {
     xdg_surface_ack_configure(xdg_surface, serial);
-    auto *weak = reinterpret_cast<WeakWindow *>(data);
+    auto *weak = static_cast<WeakWindow *>(data);
     auto window = weak->ptr.lock();
     if (!window) {
         return;
@@ -54,7 +54,7 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 
 void WaylandWindow::preferred_buffer_scale(void *data, [[maybe_unused]] wl_surface *surface, int factor)
 {
-    auto *weak = reinterpret_cast<WeakWindow *>(data);
+    auto *weak = static_cast<WeakWindow *>(data);
     auto window = weak->ptr.lock();
     if (!window) {
         return;

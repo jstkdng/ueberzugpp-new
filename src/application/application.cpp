@@ -63,7 +63,6 @@ Application::~Application()
 #ifdef ENABLE_LIBVIPS
         vips_shutdown();
 #endif
-        logger->info("ueberzugpp terminated");
     }
 }
 
@@ -113,6 +112,7 @@ auto Application::wait_for_layer_commands() -> Result<void>
 {
     command_thread = std::thread(&Application::execute_layer_commands, this);
     stop_flag.wait(false);
+    logger->info("ueberzugpp terminated");
     return {};
 }
 

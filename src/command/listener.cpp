@@ -118,7 +118,6 @@ void CommandListener::extract_commands(std::string_view line)
             } else if (cmd->action == "flush") {
                 flush_command_queue();
             } else {
-                //queue->enqueue(*cmd);
                 enqueue_or_discard(*cmd);
             }
         } else {

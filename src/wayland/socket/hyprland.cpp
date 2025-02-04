@@ -63,11 +63,10 @@ void HyprlandSocket::get_version()
 {
     auto ver_str = request_result("j/version");
     glz::json_t json;
-    auto res = glz::read_json(json, ver_str);
-    if (!res) {
-        logger->info("version: {}", json["version"].get_string());
-    } else {
+    if (auto err = glz::read_json(json, ver_str)) {
         logger->info("could not find hyprland version");
+    } else {
+        logger->info("version: {}", json["version"].get_string());
     }
 }
 
@@ -75,8 +74,7 @@ auto HyprlandSocket::active_window() -> WaylandGeometry
 {
     auto active = request_result("j/activewindow");
     glz::json_t json;
-    auto err = glz::read_json(json, active);
-    if (err) {
+    if (auto err = glz::read_json(json, active)) {
         return {};
     }
     auto coords = json["at"].get_array();
