@@ -52,7 +52,7 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
     wl_surface_commit(surface);
 }
 
-void WaylandWindow::preferred_buffer_scale(void *data, wl_surface * /*surface*/, int factor)
+void WaylandWindow::preferred_buffer_scale(void *data, [[maybe_unused]] wl_surface *surface, int factor)
 {
     auto *weak = reinterpret_cast<WeakWindow *>(data);
     auto window = weak->ptr.lock();

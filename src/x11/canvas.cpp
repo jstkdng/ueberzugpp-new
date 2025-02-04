@@ -68,7 +68,7 @@ void X11Canvas::handle_add_command(const Command &cmd)
     } else {
         logger->trace("reusing existing window");
         window_ptr = window->second;
-    };
+    }
     if (auto result = window_ptr->init(cmd)) {
         window_id_map.try_emplace(cmd.preview_id, window_ptr);
     } else {

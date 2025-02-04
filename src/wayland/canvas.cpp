@@ -42,7 +42,7 @@ constexpr xdg_wm_base_listener xdg_wm_base_listener = {
 };
 
 void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
-                                       uint32_t /*version*/)
+                                       [[maybe_unused]] uint32_t version)
 {
     const std::string_view interface_str(interface);
 
@@ -63,7 +63,7 @@ void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32
     }
 }
 
-void WaylandCanvas::xdg_wm_base_ping(void * /*data*/, xdg_wm_base *xdg_wm_base, uint32_t serial)
+void WaylandCanvas::xdg_wm_base_ping([[maybe_unused]] void *data, xdg_wm_base *xdg_wm_base, uint32_t serial)
 {
     xdg_wm_base_pong(xdg_wm_base, serial);
 }
