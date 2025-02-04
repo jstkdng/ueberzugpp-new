@@ -149,6 +149,7 @@ auto WaylandCanvas::create_buffer(int width, int height, unsigned char *image_da
     wl::buffer_ptr buffer = wl_shm_pool_create_buffer(pool.get(), 0, width, height, stride, WL_SHM_FORMAT_XRGB8888);
     std::memcpy(pool_ptr, image_data, image_size);
     wl_buffer_add_listener(buffer, &buffer_listener, nullptr);
+    munmap(pool_ptr, pool_size);
     return buffer;
 }
 
