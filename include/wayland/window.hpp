@@ -30,8 +30,7 @@ class WaylandWindow
     WaylandWindow(xdg_wm_base *wm_base, wl_compositor *compositor);
 
     static void preferred_buffer_scale(void *data, wl_surface *surface, int factor);
-
-    void finish_init();
+    static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial);
 
   private:
     Logger logger{spdlog::get("wayland")};

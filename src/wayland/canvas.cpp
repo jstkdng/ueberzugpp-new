@@ -41,7 +41,7 @@ void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32
 {
     const std::string_view interface_str(interface);
 
-    const uint32_t compositor_ver = 5;
+    const uint32_t compositor_ver = 6;
     const uint32_t shm_ver = 1;
     const uint32_t xdg_base_ver = 2;
 
@@ -118,8 +118,7 @@ void WaylandCanvas::handle_events()
 void WaylandCanvas::execute(const Command &cmd)
 {
     if (cmd.action == "add") {
-        auto [entry, intserted] = window_map.try_emplace(cmd.preview_id, wm_base.get(), compositor.get());
-        entry->second.finish_init();
+        window_map.try_emplace(cmd.preview_id, wm_base.get(), compositor.get());
     } else {
         window_map.erase(cmd.preview_id);
     }
