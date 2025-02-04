@@ -24,6 +24,7 @@
 #include "log.hpp"
 #include "util/result.hpp"
 #include "util/str_map.hpp"
+#include "wayland/shm.hpp"
 #include "wayland/types.hpp"
 #include "wayland/window.hpp"
 
@@ -54,6 +55,7 @@ class WaylandCanvas final : public Canvas
     wl::shm shm;
     wl::xdg::wm_base wm_base;
 
+    WaylandShmPool shm_pool;
     string_map<WaylandWindow> window_map;
 
     std::thread event_handler;

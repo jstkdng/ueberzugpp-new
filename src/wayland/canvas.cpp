@@ -37,7 +37,7 @@ constexpr wl_registry_listener registry_listener = {.global = WaylandCanvas::wl_
 constexpr xdg_wm_base_listener xdg_wm_base_listener = {.ping = WaylandCanvas::xdg_wm_base_ping};
 
 void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
-                                       uint32_t /*version*/)
+                                       uint32_t version)
 {
     const std::string_view interface_str(interface);
 
@@ -47,6 +47,7 @@ void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32
 
     auto *canvas = static_cast<WaylandCanvas *>(data);
     if (interface_str == wl_compositor_interface.name) {
+        canvas->logger->debug("compositor version wanted: {}, have: {}", compositor_ver, version);
         canvas->compositor.reset(
             static_cast<wl_compositor *>(wl_registry_bind(registry, name, &wl_compositor_interface, compositor_ver)));
     } else if (interface_str == wl_shm_interface.name) {
@@ -86,16 +87,19 @@ auto WaylandCanvas::init() -> Result<void>
     wl_display_roundtrip(display.get());
 
     display_fd = wl_display_get_fd(display.get());
-    event_handler = std::thread(&WaylandCanvas::handle_events, this);
+    return shm_pool.init(shm.get()).and_then([this]() -> Result<void> {
+        event_handler = std::thread(&WaylandCanvas::handle_events, this);
 
-    logger->info("canvas created");
-    return {};
+        logger->info("canvas created");
+        return {};
+    });
 }
 
 void WaylandCanvas::handle_events()
 {
     logger->debug("started event handler");
     auto *display_ptr = display.get();
+
     while (!Application::stop_flag.test()) {
         while (wl_display_prepare_read(display_ptr) != 0) {
             wl_display_dispatch_pending(display_ptr);

@@ -21,6 +21,8 @@
 #include "log.hpp"
 #include "wayland/types.hpp"
 
+#include <string>
+
 namespace upp
 {
 
@@ -39,6 +41,7 @@ class WaylandWindow
     wl::xdg::top_level xdg_toplevel;
 
     int scale_factor = 1;
+    std::string app_id;
 };
 
 } // namespace upp

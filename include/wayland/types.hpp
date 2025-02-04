@@ -31,6 +31,7 @@ struct deleter {
     void operator()(wl_registry *ptr) const { wl_registry_destroy(ptr); }
     void operator()(wl_compositor *ptr) const { wl_compositor_destroy(ptr); }
     void operator()(wl_shm *ptr) const { wl_shm_destroy(ptr); }
+    void operator()(wl_shm_pool *ptr) const { wl_shm_pool_destroy(ptr); }
     void operator()(wl_surface *ptr) const { wl_surface_destroy(ptr); }
     void operator()(wl_buffer *ptr) const { wl_buffer_destroy(ptr); }
 
@@ -43,6 +44,7 @@ using display = std::unique_ptr<wl_display, deleter>;
 using registry = std::unique_ptr<wl_registry, deleter>;
 using compositor = std::unique_ptr<wl_compositor, deleter>;
 using shm = std::unique_ptr<wl_shm, deleter>;
+using shm_pool = std::unique_ptr<wl_shm_pool, deleter>;
 using surface = std::unique_ptr<wl_surface, deleter>;
 using buffer = std::unique_ptr<wl_buffer, deleter>;
 

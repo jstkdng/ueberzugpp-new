@@ -17,6 +17,9 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "wayland/window.hpp"
+#include "util/crypto.hpp"
+
+#include <format>
 
 namespace upp
 {
@@ -26,28 +29,35 @@ constexpr wl_surface_listener surface_listener = {.enter = wl::ignore,
                                                   .preferred_buffer_scale = WaylandWindow::preferred_buffer_scale,
                                                   .preferred_buffer_transform = wl::ignore};
 
-// constexpr xdg_surface_listener xdg_surface_listener = {.configure = WaylandWindow::xdg_surface_configure};
+constexpr struct xdg_surface_listener xdg_surface_listener = {.configure = WaylandWindow::xdg_surface_configure};
 
-void WaylandWindow::preferred_buffer_scale(void *data, [[maybe_unused]] wl_surface *surface, int factor)
+constexpr int id_len = 10;
+
+void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial)
+{
+    xdg_surface_ack_configure(xdg_surface, serial);
+    auto *window = reinterpret_cast<WaylandWindow *>(data);
+    wl_surface_attach(window->surface.get(), nullptr, 0, 0);
+    wl_surface_commit(window->surface.get());
+}
+
+void WaylandWindow::preferred_buffer_scale(void *data, wl_surface * /*surface*/, int factor)
 {
     auto *window = reinterpret_cast<WaylandWindow *>(data);
     window->scale_factor = factor;
     window->logger->debug(factor);
 }
 
-void WaylandWindow::xdg_surface_configure([[maybe_unused]] void *data, struct xdg_surface *xdg_surface, uint32_t serial)
-{
-    xdg_surface_ack_configure(xdg_surface, serial);
-}
-
 WaylandWindow::WaylandWindow(xdg_wm_base *wm_base, wl_compositor *compositor) :
     surface(wl_compositor_create_surface(compositor)),
     xdg_surface(xdg_wm_base_get_xdg_surface(wm_base, surface.get())),
-    xdg_toplevel(xdg_surface_get_toplevel(xdg_surface.get()))
+    xdg_toplevel(xdg_surface_get_toplevel(xdg_surface.get())),
+    app_id(std::format("ueberzugpp_{}", crypto::generate_random_string(id_len)))
 {
+    xdg_toplevel_set_app_id(xdg_toplevel.get(), app_id.c_str());
+    xdg_toplevel_set_title(xdg_toplevel.get(), app_id.c_str());
     wl_surface_add_listener(surface.get(), &surface_listener, this);
-    // xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, this);
-    // wl_surface_commit(surface.get());
+    xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, this);
 }
 
 } // namespace upp

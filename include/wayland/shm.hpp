@@ -18,18 +18,26 @@
 
 #pragma once
 
+#include "unix/fd.hpp"
+#include "util/result.hpp"
 #include "wayland/types.hpp"
 
 namespace upp
 {
 
-class WaylandShm
+class WaylandShmPool
 {
   public:
-    explicit WaylandShm(wl_shm *shm);
+    WaylandShmPool();
+    ~WaylandShmPool();
+    auto init(wl_shm *shm) -> Result<void>;
 
   private:
-    wl_shm *shm;
+    int pool_size;
+    std::byte *pool_data;
+
+    unix::fd memfd;
+    wl::shm_pool pool;
 };
 
 } // namespace upp
