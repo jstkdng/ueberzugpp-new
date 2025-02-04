@@ -24,7 +24,6 @@
 #include "log.hpp"
 #include "util/result.hpp"
 #include "util/str_map.hpp"
-#include "wayland/shm.hpp"
 #include "wayland/types.hpp"
 #include "wayland/window.hpp"
 
@@ -41,10 +40,12 @@ class WaylandCanvas final : public Canvas
     explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
+    auto create_buffer(int width, int height, unsigned char *image_data) -> Result<wl::buffer_ptr>;
 
     static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
                                    uint32_t version);
     static void xdg_wm_base_ping(void *data, xdg_wm_base *xdg_wm_base, uint32_t serial);
+    static void wl_buffer_release(void *data, wl_buffer *buffer);
 
   private:
     [[maybe_unused]] ApplicationContext *ctx;
@@ -55,7 +56,6 @@ class WaylandCanvas final : public Canvas
     wl::shm shm;
     wl::xdg::wm_base wm_base;
 
-    WaylandShmPool shm_pool;
     string_map<WaylandWindow> window_map;
 
     std::thread event_handler;
@@ -63,6 +63,8 @@ class WaylandCanvas final : public Canvas
     void handle_events();
 
     int display_fd = -1;
+
+    friend class WaylandWindow;
 };
 
 } // namespace upp

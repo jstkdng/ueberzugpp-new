@@ -18,30 +18,36 @@
 
 #pragma once
 
+#include "command/command.hpp"
 #include "log.hpp"
 #include "wayland/types.hpp"
+#include "base/image.hpp"
 
 #include <string>
 
 namespace upp
 {
 
+class WaylandCanvas;
+
 class WaylandWindow
 {
   public:
-    WaylandWindow(xdg_wm_base *wm_base, wl_compositor *compositor);
+    explicit WaylandWindow(WaylandCanvas *canvas);
+    auto init(const Command &command) -> Result<void>;
 
     static void preferred_buffer_scale(void *data, wl_surface *surface, int factor);
     static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial);
 
   private:
     Logger logger{spdlog::get("wayland")};
+    WaylandCanvas *canvas;
     wl::surface surface;
     wl::xdg::surface xdg_surface;
     wl::xdg::top_level xdg_toplevel;
 
-    int scale_factor = 1;
     std::string app_id;
+    ImagePtr image;
 };
 
 } // namespace upp

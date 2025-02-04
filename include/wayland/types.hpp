@@ -33,7 +33,6 @@ struct deleter {
     void operator()(wl_shm *ptr) const { wl_shm_destroy(ptr); }
     void operator()(wl_shm_pool *ptr) const { wl_shm_pool_destroy(ptr); }
     void operator()(wl_surface *ptr) const { wl_surface_destroy(ptr); }
-    void operator()(wl_buffer *ptr) const { wl_buffer_destroy(ptr); }
 
     void operator()(xdg_wm_base *ptr) const { xdg_wm_base_destroy(ptr); }
     void operator()(xdg_surface *ptr) const { xdg_surface_destroy(ptr); }
@@ -46,7 +45,7 @@ using compositor = std::unique_ptr<wl_compositor, deleter>;
 using shm = std::unique_ptr<wl_shm, deleter>;
 using shm_pool = std::unique_ptr<wl_shm_pool, deleter>;
 using surface = std::unique_ptr<wl_surface, deleter>;
-using buffer = std::unique_ptr<wl_buffer, deleter>;
+using buffer_ptr = wl_buffer *;
 
 template <typename... Args>
 void ignore([[maybe_unused]] Args... args) { /* ignore wayland callback */ };
