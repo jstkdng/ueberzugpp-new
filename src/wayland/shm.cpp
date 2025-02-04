@@ -44,7 +44,7 @@ WaylandShm::~WaylandShm()
     munmap(pool_data, pool_size);
 }
 
-auto WaylandShm::init(int new_width, int new_height, unsigned char *data) -> Result<void>
+auto WaylandShm::init(int new_width, int new_height) -> Result<void>
 {
     width = new_width;
     height = new_height;
@@ -63,14 +63,14 @@ auto WaylandShm::init(int new_width, int new_height, unsigned char *data) -> Res
         return Err("mmap");
     }
     pool_data = static_cast<uint8_t *>(pool_ptr);
-    std::memcpy(pool_data, data, image_size);
     return {};
 }
 
-auto WaylandShm::get_buffer() -> wl::buffer_ptr
+auto WaylandShm::get_buffer(unsigned char *data, int data_size) -> wl::buffer_ptr
 {
     wl::shm_pool pool{wl_shm_create_pool(shm, memfd.get(), pool_size)};
-    wl::buffer_ptr buffer = wl_shm_pool_create_buffer(pool.get(), 0, width, height, stride, WL_SHM_FORMAT_XRGB8888);
+    wl::buffer_ptr buffer = wl_shm_pool_create_buffer(pool.get(), 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
+    std::memcpy(pool_data, data, data_size);
     wl_buffer_add_listener(buffer, &buffer_listener, nullptr);
     return buffer;
 }

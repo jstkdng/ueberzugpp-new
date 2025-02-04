@@ -103,13 +103,14 @@ void LibvipsImage::process_image()
             image = image_out;
         }
     }
+
+    image_buffer.reset(reinterpret_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr)));
 }
 
 auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool
 {
     auto cached_image_path = util::get_cache_file_save_location(props.file_path);
-    VipsImage *cached_image =
-        vips_image_new_from_file(cached_image_path.c_str(), nullptr);
+    VipsImage *cached_image = vips_image_new_from_file(cached_image_path.c_str(), nullptr);
     if (cached_image == nullptr) {
         return false;
     }
@@ -165,10 +166,9 @@ void LibvipsImage::contain_scaler()
     image = vips_image_new_from_file(cached_image_path.c_str(), nullptr);
 }
 
-// needs to be freed
 auto LibvipsImage::data() -> unsigned char *
 {
-    return static_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr));
+    return image_buffer.get();
 }
 
 auto LibvipsImage::data_size() -> int

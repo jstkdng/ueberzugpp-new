@@ -20,6 +20,7 @@
 
 #include "base/image.hpp"
 #include "log.hpp"
+#include "util/ptr.hpp"
 #include "util/result.hpp"
 
 #include <vips/vips.h>
@@ -48,6 +49,7 @@ class LibvipsImage : public Image
     ImageProps props;
     VipsImage *image;
     VipsImage *image_out;
+    c_unique_ptr<unsigned char, g_free> image_buffer;
 
     auto read_image() -> Result<void>;
     void resize_image();

@@ -30,8 +30,8 @@ class WaylandShm
   public:
     explicit WaylandShm(wl::shm_ptr shm);
     ~WaylandShm();
-    auto init(int new_width, int new_height, unsigned char *data) -> Result<void>;
-    auto get_buffer() -> wl::buffer_ptr;
+    auto init(int new_width, int new_height) -> Result<void>;
+    auto get_buffer(unsigned char* data, int data_size) -> wl::buffer_ptr;
 
     static void wl_buffer_release(void *data, wl_buffer *buffer);
 

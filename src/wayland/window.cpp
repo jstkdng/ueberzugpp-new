@@ -18,7 +18,6 @@
 
 #include "wayland/window.hpp"
 #include "util/crypto.hpp"
-#include "util/ptr.hpp"
 
 #include <glib.h>
 
@@ -44,8 +43,9 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 {
     xdg_surface_ack_configure(xdg_surface, serial);
     auto *window = reinterpret_cast<WaylandWindow *>(data);
+    auto &image = window->image;
+    auto *buffer = window->shm.get_buffer(image->data(), image->data_size());
     auto *surface = window->surface.get();
-    auto *buffer = window->shm.get_buffer();
     wl_surface_attach(surface, buffer, 0, 0);
     wl_surface_set_buffer_scale(surface, window->scale_factor);
     wl_surface_commit(surface);
@@ -92,8 +92,7 @@ auto WaylandWindow::init(const Command &command) -> Result<void>
                                 .height = font.height * command.height});
         })
         .and_then([this]() -> Result<void> {
-            c_unique_ptr<unsigned char, g_free> image_ptr{image->data()};
-            return shm.init(image->width(), image->height(), image_ptr.get());
+            return shm.init(image->width(), image->height());
         })
         .and_then([this, &command] { return socket_setup(command); })
         .and_then([this]() -> Result<void> {
