@@ -25,8 +25,11 @@
 #include <vips/vips.h>
 
 #include <algorithm>
+#include <filesystem>
 #include <unordered_set>
 #include <utility>
+
+namespace fs = std::filesystem;
 
 namespace upp
 {
@@ -43,7 +46,10 @@ LibvipsImage::~LibvipsImage()
 
 auto LibvipsImage::can_load(const std::string &file_path) -> bool
 {
-    return vips_foreign_find_load(file_path.c_str()) != nullptr;
+    fs::path path{file_path};
+    std::unordered_set<std::string_view> non_working_extensions = {".psd"};
+    return vips_foreign_find_load(file_path.c_str()) != nullptr &&
+           !non_working_extensions.contains(path.extension().string());
 }
 
 auto LibvipsImage::load(ImageProps props) -> Result<void>
@@ -58,7 +64,7 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
 
 auto LibvipsImage::read_image() -> Result<void>
 {
-    image = vips_image_new_from_file(props.file_path.c_str(), nullptr);
+    image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     if (image == nullptr) {
         return Err("failed to load image");
     }
@@ -110,7 +116,8 @@ void LibvipsImage::process_image()
 auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool
 {
     auto cached_image_path = util::get_cache_file_save_location(props.file_path);
-    VipsImage *cached_image = vips_image_new_from_file(cached_image_path.c_str(), nullptr);
+    VipsImage *cached_image =
+        vips_image_new_from_file(cached_image_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     if (cached_image == nullptr) {
         return false;
     }
@@ -163,7 +170,7 @@ void LibvipsImage::contain_scaler()
 
     // reread image
     g_object_unref(image);
-    image = vips_image_new_from_file(cached_image_path.c_str(), nullptr);
+    image = vips_image_new_from_file(cached_image_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
 }
 
 auto LibvipsImage::data() -> unsigned char *

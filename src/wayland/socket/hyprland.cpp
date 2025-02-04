@@ -49,6 +49,7 @@ auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> R
                                "/keyword windowrulev2 nofocus,title:{0};"
                                "/keyword windowrulev2 float,title:{0};"
                                "/keyword windowrulev2 noborder,title:{0};"
+                               "/keyword windowrulev2 noanim,title:{0};"
                                "/keyword windowrulev2 rounding 0,title:{0};"
                                //"/dispatch movewindowpixel exact {1} {2},title:{0};",
                                "/keyword windowrulev2 move {1} {2},title:{0};",
