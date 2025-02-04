@@ -18,39 +18,32 @@
 
 #pragma once
 
-#include "application/context.hpp"
-#include "base/image.hpp"
-#include "command/command.hpp"
-#include "log.hpp"
-#include "wayland/shm.hpp"
+#include "unix/fd.hpp"
+#include "util/result.hpp"
 #include "wayland/types.hpp"
-
-#include <string>
 
 namespace upp
 {
 
-class WaylandCanvas;
-
-class WaylandWindow
+class WaylandShm
 {
   public:
-    WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base);
-    auto init(const Command &command) -> Result<void>;
+    explicit WaylandShm(wl::shm_ptr shm);
+    ~WaylandShm();
+    auto init(int new_width, int new_height, unsigned char *data) -> Result<void>;
+    auto get_buffer() -> wl::buffer_ptr;
 
-    static void preferred_buffer_scale(void *data, wl_surface *surface, int factor);
-    static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial);
+    static void wl_buffer_release(void *data, wl_buffer *buffer);
 
   private:
-    Logger logger{spdlog::get("wayland")};
-    ApplicationContext *ctx;
-    WaylandShm shm;
-    wl::surface surface;
-    wl::xdg::surface xdg_surface;
-    wl::xdg::top_level xdg_toplevel;
-    std::string app_id;
+    wl::shm_ptr shm;
+    unix::fd memfd;
 
-    ImagePtr image;
+    uint8_t *pool_data = nullptr;
+    int pool_size = 0;
+    int width = 0;
+    int height = 0;
+    int stride = 0;
 };
 
 } // namespace upp

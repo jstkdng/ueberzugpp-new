@@ -19,20 +19,24 @@
 #include "wayland/window.hpp"
 #include "util/crypto.hpp"
 #include "util/ptr.hpp"
-#include "wayland/canvas.hpp"
+
+#include <glib.h>
 
 #include <format>
-#include <glib.h>
 
 namespace upp
 {
 
-constexpr wl_surface_listener surface_listener = {.enter = wl::ignore,
-                                                  .leave = wl::ignore,
-                                                  .preferred_buffer_scale = WaylandWindow::preferred_buffer_scale,
-                                                  .preferred_buffer_transform = wl::ignore};
+constexpr wl_surface_listener surface_listener = {
+    .enter = wl::ignore,
+    .leave = wl::ignore,
+    .preferred_buffer_scale = WaylandWindow::preferred_buffer_scale,
+    .preferred_buffer_transform = wl::ignore,
+};
 
-constexpr struct xdg_surface_listener xdg_surface_listener = {.configure = WaylandWindow::xdg_surface_configure};
+constexpr xdg_surface_listener xdg_surface_listener = {
+    .configure = WaylandWindow::xdg_surface_configure,
+};
 
 constexpr int id_len = 10;
 
@@ -40,27 +44,23 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 {
     xdg_surface_ack_configure(xdg_surface, serial);
     auto *window = reinterpret_cast<WaylandWindow *>(data);
-    auto &image = window->image;
-    c_unique_ptr<unsigned char, g_free> image_ptr{image->data()};
-    if (auto buffer = window->canvas->create_buffer(image->width(), image->height(), image_ptr.get())) {
-        wl_surface_attach(window->surface.get(), *buffer, 0, 0);
-        wl_surface_commit(window->surface.get());
-    } else {
-        window->logger->debug(buffer.error().message());
-    }
+    auto *surface = window->surface.get();
+    auto *buffer = window->shm.get_buffer();
+    wl_surface_attach(surface, buffer, 0, 0);
+    wl_surface_commit(surface);
 }
 
 void WaylandWindow::preferred_buffer_scale(void *data, wl_surface * /*surface*/, int factor)
 {
     auto *window = reinterpret_cast<WaylandWindow *>(data);
     wl_surface_set_buffer_scale(window->surface.get(), factor);
-    window->logger->debug("factor changed! {}", factor);
 }
 
-WaylandWindow::WaylandWindow(WaylandCanvas *canvas) :
-    canvas(canvas),
-    surface(wl_compositor_create_surface(canvas->compositor.get())),
-    xdg_surface(xdg_wm_base_get_xdg_surface(canvas->wm_base.get(), surface.get())),
+WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base) :
+    ctx(ctx),
+    shm(shm),
+    surface(wl_compositor_create_surface(compositor)),
+    xdg_surface(xdg_wm_base_get_xdg_surface(wm_base, surface.get())),
     xdg_toplevel(xdg_surface_get_toplevel(xdg_surface.get())),
     app_id(std::format("ueberzugpp_{}", crypto::generate_random_string(id_len)))
 {
@@ -72,7 +72,6 @@ WaylandWindow::WaylandWindow(WaylandCanvas *canvas) :
 
 auto WaylandWindow::init(const Command &command) -> Result<void>
 {
-    auto *ctx = canvas->ctx;
     auto &font = ctx->terminal.font;
     return Image::create(ctx->output, command.image_path.string())
         .and_then([this, &font, &command](ImagePtr new_image) {
@@ -81,6 +80,10 @@ auto WaylandWindow::init(const Command &command) -> Result<void>
                                 .scaler = command.image_scaler,
                                 .width = font.width * command.width,
                                 .height = font.height * command.height});
+        })
+        .and_then([this]() -> Result<void> {
+            c_unique_ptr<unsigned char, g_free> image_ptr{image->data()};
+            return shm.init(image->width(), image->height(), image_ptr.get());
         })
         .and_then([this]() -> Result<void> {
             wl_surface_commit(surface.get());

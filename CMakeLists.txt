@@ -137,6 +137,7 @@ if (ENABLE_WAYLAND)
         PRIVATE
             src/wayland/canvas.cpp
             src/wayland/window.cpp
+            src/wayland/shm.cpp
             src/wayland/socket/socket.cpp
             src/wayland/socket/hyprland.cpp
 
@@ -147,6 +148,7 @@ if (ENABLE_WAYLAND)
             include/wayland/canvas.hpp
             include/wayland/types.hpp
             include/wayland/window.hpp
+            include/wayland/shm.hpp
             include/wayland/socket/socket.hpp
             include/wayland/socket/hyprland.hpp
     )

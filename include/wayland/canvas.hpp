@@ -40,15 +40,13 @@ class WaylandCanvas final : public Canvas
     explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
-    auto create_buffer(int width, int height, unsigned char *image_data) -> Result<wl::buffer_ptr>;
 
     static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
                                    uint32_t version);
     static void xdg_wm_base_ping(void *data, xdg_wm_base *xdg_wm_base, uint32_t serial);
-    static void wl_buffer_release(void *data, wl_buffer *buffer);
 
   private:
-    [[maybe_unused]] ApplicationContext *ctx;
+    ApplicationContext *ctx;
     Logger logger{spdlog::get("wayland")};
     wl::display display;
     wl::registry registry;

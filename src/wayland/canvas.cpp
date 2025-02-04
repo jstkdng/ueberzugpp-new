@@ -20,11 +20,8 @@
 #include "application/application.hpp"
 #include "application/context.hpp"
 #include "command/command.hpp"
-#include "unix/fd.hpp"
 #include "util/result.hpp"
 #include "wayland/types.hpp"
-
-#include <sys/mman.h>
 
 #include <spdlog/spdlog.h>
 
@@ -35,12 +32,13 @@
 namespace upp
 {
 
-constexpr wl_registry_listener registry_listener = {.global = WaylandCanvas::wl_registry_global,
-                                                    .global_remove = wl::ignore};
+constexpr wl_registry_listener registry_listener = {
+    .global = WaylandCanvas::wl_registry_global,
+    .global_remove = wl::ignore,
+};
 
-constexpr xdg_wm_base_listener xdg_wm_base_listener = {.ping = WaylandCanvas::xdg_wm_base_ping};
-constexpr wl_buffer_listener buffer_listener = {
-    .release = WaylandCanvas::wl_buffer_release,
+constexpr xdg_wm_base_listener xdg_wm_base_listener = {
+    .ping = WaylandCanvas::xdg_wm_base_ping,
 };
 
 void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
@@ -69,11 +67,6 @@ void WaylandCanvas::wl_registry_global(void *data, wl_registry *registry, uint32
 void WaylandCanvas::xdg_wm_base_ping(void * /*data*/, xdg_wm_base *xdg_wm_base, uint32_t serial)
 {
     xdg_wm_base_pong(xdg_wm_base, serial);
-}
-
-void WaylandCanvas::wl_buffer_release(void * /*data*/, wl_buffer *buffer)
-{
-    wl_buffer_destroy(buffer);
 }
 
 WaylandCanvas::WaylandCanvas(ApplicationContext *ctx) :
@@ -129,35 +122,11 @@ void WaylandCanvas::handle_events()
     }
 }
 
-auto WaylandCanvas::create_buffer(int width, int height, unsigned char *image_data) -> Result<wl::buffer_ptr>
-{
-    const int stride = width * 4;
-    const int image_size = height * stride;
-    const int pool_size = image_size * 2;
-    unix::fd memfd{memfd_create("ueberzugpp-shm", 0)};
-    if (!memfd) {
-        return Err("memfd_create");
-    }
-    if (ftruncate(memfd.get(), pool_size) == -1) {
-        return Err("ftruncate");
-    }
-    auto *pool_ptr = mmap(nullptr, pool_size, PROT_READ | PROT_WRITE, MAP_SHARED, memfd.get(), 0);
-    if (pool_ptr == MAP_FAILED) {
-        return Err("mmap");
-    }
-    wl::shm_pool pool{wl_shm_create_pool(shm.get(), memfd.get(), pool_size)};
-    wl::buffer_ptr buffer = wl_shm_pool_create_buffer(pool.get(), 0, width, height, stride, WL_SHM_FORMAT_XRGB8888);
-    std::memcpy(pool_ptr, image_data, image_size);
-    wl_buffer_add_listener(buffer, &buffer_listener, nullptr);
-    munmap(pool_ptr, pool_size);
-    return buffer;
-}
-
 void WaylandCanvas::execute(const Command &cmd)
 {
     if (cmd.action == "add") {
-        auto [entry, inserted] = window_map.try_emplace(cmd.preview_id, this);
-        entry->second.init(cmd);
+        auto [entry, inserted] = window_map.try_emplace(cmd.preview_id, compositor.get(), shm.get(), wm_base.get());
+        entry->second.init(ctx, cmd);
     } else {
         window_map.erase(cmd.preview_id);
     }

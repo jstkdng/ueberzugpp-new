@@ -46,6 +46,7 @@ using shm = std::unique_ptr<wl_shm, deleter>;
 using shm_pool = std::unique_ptr<wl_shm_pool, deleter>;
 using surface = std::unique_ptr<wl_surface, deleter>;
 using buffer_ptr = wl_buffer *;
+using shm_ptr = wl_shm *;
 
 template <typename... Args>
 void ignore([[maybe_unused]] Args... args) { /* ignore wayland callback */ };
