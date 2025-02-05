@@ -110,7 +110,7 @@ void LibvipsImage::process_image()
         }
     }
 
-    image_buffer.reset(reinterpret_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr)));
+    image_buffer.reset(static_cast<unsigned char *>(vips_image_write_to_memory(image, nullptr)));
 }
 
 auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool

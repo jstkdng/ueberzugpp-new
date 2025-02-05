@@ -28,6 +28,7 @@
 #include <atomic>
 #include <memory>
 #include <string>
+#include <list>
 
 namespace upp
 {
@@ -38,7 +39,7 @@ struct WeakWindow {
     std::weak_ptr<WaylandWindow> ptr;
 };
 
-using WindowPtrs = std::vector<std::unique_ptr<WeakWindow>>;
+using WindowPtrs = std::list<WeakWindow>;
 
 class WaylandWindow : public std::enable_shared_from_this<WaylandWindow>
 {

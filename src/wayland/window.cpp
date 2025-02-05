@@ -109,9 +109,8 @@ auto WaylandWindow::init(const Command &command, WindowPtrs &window_ptrs) -> Res
 
 auto WaylandWindow::listeners_setup(WindowPtrs &window_ptrs) -> Result<void>
 {
-    auto weak_win = std::make_unique<WeakWindow>(weak_from_this());
-    auto *ptr = weak_win.get();
-    window_ptrs.emplace_back(std::move(weak_win));
+    auto weak_win = window_ptrs.emplace(window_ptrs.end(), weak_from_this());
+    auto *ptr = &(*weak_win);
     wl_surface_add_listener(surface.get(), &surface_listener, ptr);
     xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, ptr);
     wl_surface_commit(surface.get());
