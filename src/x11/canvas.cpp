@@ -33,17 +33,10 @@ X11Canvas::X11Canvas(ApplicationContext *ctx) :
 {
 }
 
-X11Canvas::~X11Canvas()
-{
-    if (event_handler.joinable()) {
-        event_handler.join();
-    }
-}
-
 auto X11Canvas::init() -> Result<void>
 {
     logger->info("canvas created");
-    event_handler = std::thread(&X11Canvas::handle_events, this);
+    event_handler = std::jthread([this](auto token) { handle_events(token); });
     return {};
 }
 
@@ -88,11 +81,11 @@ void X11Canvas::handle_remove_command(const Command &cmd)
     }
 }
 
-void X11Canvas::handle_events()
+void X11Canvas::handle_events(const std::stop_token &token)
 {
     logger->debug("started event handler");
     const int filde = ctx->x11.connection_fd;
-    while (!Application::stop_flag.test()) {
+    while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_fd(filde)) {
             if (*in_event) {
                 dispatch_events();

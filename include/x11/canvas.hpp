@@ -30,6 +30,8 @@
 #include <expected>
 #include <memory>
 #include <mutex>
+#include <stop_token>
+#include <thread>
 
 namespace upp
 {
@@ -40,7 +42,6 @@ class X11Canvas final : public Canvas
 {
   public:
     explicit X11Canvas(ApplicationContext *ctx);
-    ~X11Canvas() override;
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
 
@@ -51,12 +52,12 @@ class X11Canvas final : public Canvas
     WindowMap window_map;
     WindowIdMap window_id_map;
     std::mutex window_mutex;
-    std::thread event_handler;
+    std::jthread event_handler;
 
-    void handle_events();
+    void handle_events(const std::stop_token &token);
     void handle_expose_event(xcb_generic_event_t *event);
-    void handle_add_command(const Command& cmd);
-    void handle_remove_command(const Command& cmd);
+    void handle_add_command(const Command &cmd);
+    void handle_remove_command(const Command &cmd);
     void dispatch_events();
 };
 

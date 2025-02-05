@@ -73,13 +73,6 @@ WaylandCanvas::WaylandCanvas(ApplicationContext *ctx) :
 {
 }
 
-WaylandCanvas::~WaylandCanvas()
-{
-    if (event_handler.joinable()) {
-        event_handler.join();
-    }
-}
-
 auto WaylandCanvas::init() -> Result<void>
 {
     display.reset(wl_display_connect(nullptr));
@@ -91,18 +84,18 @@ auto WaylandCanvas::init() -> Result<void>
     wl_display_roundtrip(display.get());
 
     display_fd = wl_display_get_fd(display.get());
-    event_handler = std::thread(&WaylandCanvas::handle_events, this);
+    event_handler = std::jthread([this](auto token) { handle_events(token); });
 
     logger->info("canvas created");
     return {};
 }
 
-void WaylandCanvas::handle_events()
+void WaylandCanvas::handle_events(const std::stop_token &token)
 {
     logger->debug("started event handler");
     auto *display_ptr = display.get();
 
-    while (!Application::stop_flag.test()) {
+    while (!token.stop_requested()) {
         while (wl_display_prepare_read(display_ptr) != 0) {
             wl_display_dispatch_pending(display_ptr);
         }

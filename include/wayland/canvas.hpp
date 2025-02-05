@@ -28,6 +28,7 @@
 #include "wayland/window.hpp"
 
 #include <cstdint>
+#include <stop_token>
 #include <thread>
 
 namespace upp
@@ -36,7 +37,6 @@ namespace upp
 class WaylandCanvas final : public Canvas
 {
   public:
-    ~WaylandCanvas() override;
     explicit WaylandCanvas(ApplicationContext *ctx);
     auto init() -> Result<void> override;
     void execute(const Command &cmd) override;
@@ -57,9 +57,9 @@ class WaylandCanvas final : public Canvas
     string_map<std::shared_ptr<WaylandWindow>> window_map;
     WindowPtrs window_ptrs;
 
-    std::thread event_handler;
+    std::jthread event_handler;
 
-    void handle_events();
+    void handle_events(const std::stop_token &token);
 
     int display_fd = -1;
 };
