@@ -30,7 +30,7 @@ constexpr wl_buffer_listener buffer_listener = {
     .release = WaylandShm::wl_buffer_release,
 };
 
-void WaylandShm::wl_buffer_release(void * /*data*/, wl_buffer *buffer)
+void WaylandShm::wl_buffer_release([[maybe_unused]] void *data, wl_buffer *buffer)
 {
     wl_buffer_destroy(buffer);
 }

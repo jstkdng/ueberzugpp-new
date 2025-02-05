@@ -52,7 +52,7 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
     wl_surface_commit(surface);
 }
 
-void WaylandWindow::preferred_buffer_scale(void *data, [[maybe_unused]] wl_surface *surface, int factor)
+void WaylandWindow::preferred_buffer_scale(void *data, wl_surface *surface, int factor)
 {
     auto *weak = static_cast<WeakWindow *>(data);
     auto window = weak->ptr.lock();
@@ -62,10 +62,9 @@ void WaylandWindow::preferred_buffer_scale(void *data, [[maybe_unused]] wl_surfa
     if (window->scale_factor == factor) {
         return;
     }
-    auto *surface_ptr = window->surface.get();
     window->scale_factor = factor;
-    wl_surface_attach(surface_ptr, nullptr, 0, 0);
-    wl_surface_commit(surface_ptr);
+    wl_surface_attach(surface, nullptr, 0, 0);
+    wl_surface_commit(surface);
 }
 
 WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base) :
