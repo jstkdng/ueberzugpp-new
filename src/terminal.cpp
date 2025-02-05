@@ -127,6 +127,9 @@ void Terminal::set_fallback_size_from_x11()
 void Terminal::set_fallback_size_from_wayland()
 {
 #ifdef ENABLE_WAYLAND
+    if (!ctx->wl_socket) {
+        return;
+    }
     auto geometry = ctx->wl_socket->active_window();
     position.x = geometry.x;
     position.y = geometry.y;
