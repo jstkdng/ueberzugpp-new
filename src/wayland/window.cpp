@@ -83,8 +83,10 @@ auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
 {
     auto &pos = ctx->terminal.position;
     auto &font = ctx->terminal.font;
-    int xcoord = pos.x + (font.width * command.x) + font.horizontal_padding;
-    int ycoord = pos.y + (font.height * command.y) + font.vertical_padding;
+    // for fractional scaling to work, we need to get the scale factor from the compositor, not the buffer factor
+    // and divide the x coordinate by it
+    int xcoord = pos.x + font.horizontal_padding + (font.width * command.x);
+    int ycoord = pos.y + font.vertical_padding + (font.height * command.y);
     return ctx->wl_socket->setup(app_id, xcoord, ycoord);
 }
 
