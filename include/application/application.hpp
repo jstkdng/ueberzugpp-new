@@ -37,7 +37,6 @@ class Application
 {
   public:
     explicit Application(Cli *cli);
-    ~Application();
 
     auto run() -> Result<void>;
 

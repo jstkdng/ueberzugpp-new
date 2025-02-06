@@ -32,35 +32,25 @@ CommandListener::CommandListener(CommandQueue *queue) :
 {
 }
 
-CommandListener::~CommandListener()
-{
-    if (stdin_thread.joinable()) {
-        stdin_thread.join();
-    }
-    if (socket_thread.joinable()) {
-        socket_thread.join();
-    }
-}
-
 auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Result<void>
 {
     logger = spdlog::get("listener");
     parser = new_parser;
     logger->info("using {} parser", parser);
     if (!no_stdin) {
-        stdin_thread = std::thread(&CommandListener::wait_for_input_on_stdin, this);
+        stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
     }
     return socket_server.start().and_then([this]() -> Result<void> {
-        socket_thread = std::thread(&CommandListener::wait_for_input_on_socket, this);
+        socket_thread = std::jthread([this](auto token) { wait_for_input_on_socket(token); });
         return {};
     });
 }
 
-void CommandListener::wait_for_input_on_stdin()
+void CommandListener::wait_for_input_on_stdin(SToken token)
 {
     logger->info("listening for commands on stdin");
     // failing to wait or read data from stdin is fatal
-    while (!Application::stop_flag.test()) {
+    while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_stdin()) {
             if (!*in_event) {
                 continue;
@@ -80,11 +70,11 @@ void CommandListener::wait_for_input_on_stdin()
     }
 }
 
-void CommandListener::wait_for_input_on_socket()
+void CommandListener::wait_for_input_on_socket(SToken token)
 {
     logger->info("listening for commands on socket {}", socket_server.get_endpoint());
     // it is only fatal to wait for data from socket
-    while (!Application::stop_flag.test()) {
+    while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_fd(socket_server.get_fd())) {
             if (!*in_event) {
                 continue;

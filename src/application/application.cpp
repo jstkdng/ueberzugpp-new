@@ -54,15 +54,6 @@ Application::Application(Cli *cli) :
 {
 }
 
-Application::~Application()
-{
-    if (cli->layer_command->parsed()) {
-        if (command_thread.joinable()) {
-            command_thread.join();
-        }
-    }
-}
-
 auto Application::run() -> Result<void>
 {
     return setup_logging().and_then([this] { return handle_cli_commands(); });
