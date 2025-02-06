@@ -22,12 +22,12 @@
 #include "util/util.hpp"
 
 #include <glaze/glaze.hpp>
-#include <spdlog/spdlog.h>
 
 #include <format>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace upp
 {
@@ -69,19 +69,25 @@ void HyprlandSocket::get_version()
     }
 }
 
-auto HyprlandSocket::active_window() -> WaylandGeometry
+auto HyprlandSocket::active_window(int pid) -> WaylandGeometry
 {
-    auto active = request_result("j/activewindow");
-    HyprlandClient client;
-    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(client, active)) {
+    auto active = request_result("j/clients");
+    std::vector<HyprlandClient> clients;
+    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(clients, active)) {
         return {};
     }
-    return {
-        .width = client.size[0],
-        .height = client.size[1],
-        .x = client.at[0],
-        .y = client.at[1],
-    };
+    for (auto spid : os::Process::get_pid_tree(pid)) {
+        auto client = std::ranges::find_if(clients, [spid](const auto &client) { return client.pid == spid; });
+        if (client != clients.end()) {
+            return {
+                .width = client->size[0],
+                .height = client->size[1],
+                .x = client->at[0],
+                .y = client->at[1],
+            };
+        }
+    }
+    return {};
 }
 
 void HyprlandSocket::request(std::string_view payload)

@@ -130,7 +130,7 @@ void Terminal::set_fallback_size_from_wayland()
     if (!ctx->wl_socket) {
         return;
     }
-    auto geometry = ctx->wl_socket->active_window();
+    auto geometry = ctx->wl_socket->active_window(pid);
     position.x = geometry.x;
     position.y = geometry.y;
     size.fallback_width = geometry.width;
@@ -162,7 +162,8 @@ auto Terminal::open_first_pty() -> Result<void>
             continue;
         }
         pid = proc.pid;
-        logger->info("PTY={}", path);
+        logger->info("PTY = {}", path);
+        logger->info("PID = {}", pid);
         return {};
     }
     return Err("could not open terminal");

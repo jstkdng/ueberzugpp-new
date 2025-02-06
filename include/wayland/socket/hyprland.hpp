@@ -33,7 +33,7 @@ class HyprlandSocket : public WaylandSocket
   public:
     explicit HyprlandSocket(std::string instance_signature);
     auto setup(std::string_view app_id, int xcoord, int ycoord) -> Result<void> override;
-    auto active_window() -> WaylandGeometry override;
+    auto active_window(int pid) -> WaylandGeometry override;
 
   private:
     Logger logger{spdlog::get("hyprland")};

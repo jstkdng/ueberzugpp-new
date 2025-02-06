@@ -44,7 +44,7 @@ class WaylandSocket
     virtual ~WaylandSocket() = default;
     static auto create() -> Result<WaylandSocketPtr>;
     virtual auto setup(std::string_view app_id, int xcoord, int ycoord) -> Result<void> = 0;
-    virtual auto active_window() -> WaylandGeometry = 0;
+    virtual auto active_window(int pid) -> WaylandGeometry = 0;
 };
 
 } // namespace upp
