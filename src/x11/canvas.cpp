@@ -81,7 +81,7 @@ void X11Canvas::handle_remove_command(const Command &cmd)
     }
 }
 
-void X11Canvas::handle_events(const std::stop_token &token)
+void X11Canvas::handle_events(SToken token)
 {
     logger->debug("started event handler");
     const int filde = ctx->x11.connection_fd;

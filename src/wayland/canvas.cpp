@@ -90,7 +90,7 @@ auto WaylandCanvas::init() -> Result<void>
     return {};
 }
 
-void WaylandCanvas::handle_events(const std::stop_token &token)
+void WaylandCanvas::handle_events(SToken token)
 {
     logger->debug("started event handler");
     auto *display_ptr = display.get();

@@ -25,13 +25,12 @@
 #include "terminal.hpp"
 #include "util/result.hpp"
 #include "util/str_map.hpp"
+#include "util/thread.hpp"
 #include "x11/window.hpp"
 
 #include <expected>
 #include <memory>
 #include <mutex>
-#include <stop_token>
-#include <thread>
 
 namespace upp
 {
@@ -54,7 +53,7 @@ class X11Canvas final : public Canvas
     std::mutex window_mutex;
     std::jthread event_handler;
 
-    void handle_events(const std::stop_token &token);
+    void handle_events(SToken token);
     void handle_expose_event(xcb_generic_event_t *event);
     void handle_add_command(const Command &cmd);
     void handle_remove_command(const Command &cmd);

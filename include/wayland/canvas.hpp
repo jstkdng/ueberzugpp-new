@@ -24,12 +24,11 @@
 #include "log.hpp"
 #include "util/result.hpp"
 #include "util/str_map.hpp"
+#include "util/thread.hpp"
 #include "wayland/types.hpp"
 #include "wayland/window.hpp"
 
 #include <cstdint>
-#include <stop_token>
-#include <thread>
 
 namespace upp
 {
@@ -59,7 +58,7 @@ class WaylandCanvas final : public Canvas
 
     std::jthread event_handler;
 
-    void handle_events(const std::stop_token &token);
+    void handle_events(SToken token);
 
     int display_fd = -1;
 };
