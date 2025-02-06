@@ -75,9 +75,17 @@ if (ENABLE_X11 OR ENABLE_WAYLAND)
 endif ()
 
 # check if <execution> is available
-# set(CMAKE_REQUIRED_LIBRARIES TBB::tbb)
-# set(CMAKE_REQUIRED_FLAGS -std=c++23)
+set(CMAKE_REQUIRED_LIBRARIES
+    # TBB::tbb
+    Threads::Threads
+)
+set(CMAKE_REQUIRED_FLAGS -std=c++23)
 # check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION)
+
+check_source_compiles(CXX "
+#include <thread>
+int main(void) {auto t = std::jthread([] {}); return 0;}
+" HAVE_STD_JTHREAD)
 
 if (ENABLE_LIBVIPS)
     pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)

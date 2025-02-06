@@ -60,9 +60,6 @@ Application::~Application()
         if (command_thread.joinable()) {
             command_thread.join();
         }
-#ifdef ENABLE_LIBVIPS
-        vips_shutdown();
-#endif
     }
 }
 
@@ -110,15 +107,18 @@ auto Application::handle_cmd_subcommand() -> Result<void>
 
 auto Application::wait_for_layer_commands() -> Result<void>
 {
-    command_thread = std::thread(&Application::execute_layer_commands, this);
+    command_thread = std::jthread([this](auto token) { execute_layer_commands(token); });
     stop_flag.wait(false);
+#ifdef ENABLE_LIBVIPS
+    vips_shutdown();
+#endif
     logger->info("ueberzugpp terminated");
     return {};
 }
 
-void Application::execute_layer_commands()
+void Application::execute_layer_commands(SToken token)
 {
-    while (!stop_flag.test()) {
+    while (!token.stop_requested()) {
         if (auto cmd = queue.try_dequeue(os::waitms)) {
             canvas->execute(*cmd);
         } else {

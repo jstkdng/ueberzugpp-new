@@ -37,6 +37,7 @@ else ()
     find_package(glaze REQUIRED)
 endif ()
 
+target_include_directories(ueberzugpp SYSTEM PRIVATE include/)
 target_link_libraries(ueberzugpp PRIVATE spdlog::spdlog CLI11::CLI11 glaze::glaze)
 
 # cmake-format: on

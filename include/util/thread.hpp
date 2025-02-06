@@ -1,4 +1,4 @@
-// Display images in the terminal
+// Display images inside a terminal
 // Copyright (C) 2024  JustKidding
 //
 // This file is part of ueberzugpp.
@@ -18,18 +18,18 @@
 
 #pragma once
 
-#cmakedefine ENABLE_X11
-#cmakedefine ENABLE_LIBVIPS
-#cmakedefine ENABLE_WAYLAND
+#include "buildconfig.hpp"
 
-#cmakedefine HAVE_STD_EXECUTION
-#cmakedefine HAVE_STD_JTHREAD
+// IWYU pragma: begin_exports
+#ifdef HAVE_STD_JTHREAD
+#include <stop_token>
+#include <thread>
+#else
+#include "jthread/jthread.hpp"
+#endif
+// IWYU pragma: end_exports
 
 namespace upp
 {
-
-constexpr auto build_date = "@BUILD_DATE@";
-constexpr auto version_str = "@CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
-constexpr auto full_version_str = "ueberzugpp-new @CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
-
-} // namespace upp
+using SToken = const std::stop_token &;
+}

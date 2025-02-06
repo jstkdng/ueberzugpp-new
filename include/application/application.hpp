@@ -25,6 +25,7 @@
 #include "command/listener.hpp"
 #include "log.hpp"
 #include "util/result.hpp"
+#include "util/thread.hpp"
 
 #include <CLI/CLI.hpp>
 #include <atomic>
@@ -53,7 +54,7 @@ class Application
     CanvasPtr canvas;
     Logger logger;
 
-    std::thread command_thread;
+    std::jthread command_thread;
 
     void print_header();
     void setup_signal_handler();
@@ -63,7 +64,7 @@ class Application
     auto handle_cli_commands() -> Result<void>;
     auto handle_cmd_subcommand() -> Result<void>;
     auto wait_for_layer_commands() -> Result<void>;
-    void execute_layer_commands();
+    void execute_layer_commands(SToken token);
 };
 
 } // namespace upp
