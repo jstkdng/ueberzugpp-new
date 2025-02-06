@@ -1,5 +1,7 @@
 # ueberzugpp-new
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jstkdng_ueberzugpp-new&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jstkdng_ueberzugpp-new)
+
 This project uses C++23, supports GCC (libstdc++), Clang and Apple Clang (libc++)
 
 Available in the [AUR](https://aur.archlinux.org/packages/ueberzugpp-new-git)
