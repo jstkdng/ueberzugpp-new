@@ -44,13 +44,12 @@ HyprlandSocket::HyprlandSocket(std::string instance_signature) :
 
 auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> Result<void>
 {
+    // maybe add /dispatch movewindowpixel exact {1} {2},title:{0} back at some point
     auto payload = std::format("[[BATCH]]"
                                "/keyword windowrulev2 nofocus,title:{0};"
                                "/keyword windowrulev2 float,title:{0};"
                                "/keyword windowrulev2 noborder,title:{0};"
-                               //"/keyword windowrulev2 noanim,title:{0};"
                                "/keyword windowrulev2 rounding 0,title:{0};"
-                               //"/dispatch movewindowpixel exact {1} {2},title:{0};",
                                "/keyword windowrulev2 move {1} {2},title:{0};",
                                app_id,
                                xcoord,
@@ -62,28 +61,26 @@ auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> R
 void HyprlandSocket::get_version()
 {
     auto ver_str = request_result("j/version");
-    glz::json_t json;
-    if (auto err = glz::read_json(json, ver_str)) {
+    HyprlandVersion ver;
+    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(ver, ver_str)) {
         logger->info("could not find hyprland version");
     } else {
-        logger->info("version: {}", json["version"].get_string());
+        logger->info("version: {}", ver.version);
     }
 }
 
 auto HyprlandSocket::active_window() -> WaylandGeometry
 {
     auto active = request_result("j/activewindow");
-    glz::json_t json;
-    if (auto err = glz::read_json(json, active)) {
+    HyprlandClient client;
+    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(client, active)) {
         return {};
     }
-    auto coords = json["at"].get_array();
-    auto sizes = json["size"].get_array();
     return {
-        .width = sizes[0].as<int>(),
-        .height = sizes[1].as<int>(),
-        .x = coords[0].as<int>(),
-        .y = coords[1].as<int>(),
+        .width = client.size[0],
+        .height = client.size[1],
+        .x = client.at[0],
+        .y = client.at[1],
     };
 }
 

@@ -21,6 +21,7 @@
 #include "log.hpp"
 #include "wayland/socket/socket.hpp"
 
+#include <array>
 #include <string>
 #include <string_view>
 
@@ -42,6 +43,19 @@ class HyprlandSocket : public WaylandSocket
     void get_version();
     void request(std::string_view payload);
     auto request_result(std::string_view payload) -> std::string;
+};
+
+struct HyprlandVersion {
+    std::string branch;
+    std::string commit;
+    std::string version;
+};
+
+struct HyprlandClient {
+    std::array<int, 2> at;
+    std::array<int, 2> size;
+    int monitor;
+    int pid;
 };
 
 } // namespace upp
