@@ -57,9 +57,12 @@ Terminal::Terminal(ApplicationContext *ctx) :
 auto Terminal::init() -> Result<void>
 {
     logger = spdlog::get("terminal");
-    return open_first_pty().and_then([this] { return set_terminal_size(); }).and_then([this] {
-        return set_font_size();
-    });
+    return open_first_pty().and_then([this] { return load_state(); });
+}
+
+auto Terminal::load_state() -> Result<void>
+{
+    return set_terminal_size().and_then([this] { return set_font_size(); });
 }
 
 auto Terminal::set_terminal_size() -> Result<void>

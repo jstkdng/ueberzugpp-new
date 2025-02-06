@@ -111,6 +111,10 @@ void Application::execute_layer_commands(SToken token)
 {
     while (!token.stop_requested()) {
         if (auto cmd = queue.try_dequeue(os::waitms)) {
+            auto state = ctx.terminal.load_state();
+            if (!state) {
+                logger->warn(state.error().message());
+            }
             canvas->execute(*cmd);
         } else {
             continue;

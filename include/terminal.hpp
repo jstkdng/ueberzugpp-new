@@ -55,6 +55,7 @@ class Terminal
   public:
     explicit Terminal(ApplicationContext *ctx);
     auto init() -> Result<void>;
+    auto load_state() -> Result<void>;
     TerminalSize size;
     TerminalFont font;
     TerminalPosition position;
