@@ -19,7 +19,6 @@
 #pragma once
 
 #include "buildconfig.hpp"
-#include "cli.hpp"
 #include "log.hpp"
 #include "os/os.hpp"
 #include "terminal.hpp"
@@ -34,6 +33,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 
 namespace upp
 {
@@ -41,11 +41,9 @@ namespace upp
 class ApplicationContext
 {
   public:
-    explicit ApplicationContext(Cli *cli);
-    auto init() -> Result<void>;
+    auto init(std::string_view cli_output) -> Result<void>;
 
-    Cli *cli;
-    Terminal terminal;
+    Terminal terminal{this};
     std::string term{os::getenv("TERM").value_or("xterm-256color")};
     std::string term_program{os::getenv("TERM_PROGRAM").value_or("")};
     std::string output;
@@ -61,7 +59,7 @@ class ApplicationContext
 
     auto x11_init() -> Result<void>;
     auto wayland_init() -> Result<void>;
-    void set_detected_output();
+    void set_detected_output(std::string_view cli_output);
 };
 
 } // namespace upp

@@ -17,7 +17,6 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application/context.hpp"
-#include "cli.hpp"
 #include "util/result.hpp"
 
 #ifdef ENABLE_WAYLAND
@@ -31,13 +30,7 @@
 namespace upp
 {
 
-ApplicationContext::ApplicationContext(Cli *cli) :
-    cli(cli),
-    terminal(this)
-{
-}
-
-auto ApplicationContext::init() -> Result<void>
+auto ApplicationContext::init(std::string_view cli_output) -> Result<void>
 {
     logger = spdlog::get("application");
     logger->info("TERM = {}", term);
@@ -47,8 +40,8 @@ auto ApplicationContext::init() -> Result<void>
     return x11_init()
         .and_then([this] { return wayland_init(); })
         .and_then([this] { return terminal.init(); })
-        .and_then([this]() -> Result<void> {
-            set_detected_output();
+        .and_then([this, cli_output]() -> Result<void> {
+            set_detected_output(cli_output);
             return {};
         });
 }
@@ -76,10 +69,10 @@ auto ApplicationContext::wayland_init() -> Result<void>
     return {};
 }
 
-void ApplicationContext::set_detected_output()
+void ApplicationContext::set_detected_output(std::string_view cli_output)
 {
-    if (!cli->layer.output.empty()) {
-        output = cli->layer.output;
+    if (!cli_output.empty()) {
+        output = cli_output;
         return;
     }
 #ifdef ENABLE_X11
