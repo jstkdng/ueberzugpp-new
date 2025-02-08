@@ -65,8 +65,8 @@ auto Application::handle_cli_commands() -> Result<void>
         setup_signal_handler();
         return setup_vips()
             .and_then([this] { return daemonize(); })
-            .and_then([this] { return ctx.init(cli->layer.output); })
-            .and_then([this] { return Canvas::create(&ctx); })
+            .and_then([this] { return ctx->init(cli->layer.output); })
+            .and_then([this] { return Canvas::create(ctx.get()); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);
                 return canvas->init();
@@ -110,10 +110,6 @@ void Application::execute_layer_commands(SToken token)
 {
     while (!token.stop_requested()) {
         if (auto cmd = queue.try_dequeue(os::waitms)) {
-            auto state = ctx.terminal.load_state();
-            if (!state) {
-                logger->warn(state.error().message());
-            }
             canvas->execute(*cmd);
         } else {
             continue;
@@ -214,6 +210,12 @@ void Application::setup_signal_handler()
     sigaction(SIGTERM, &sga, nullptr);
     sigaction(SIGHUP, &sga, nullptr);
     sigaction(SIGCHLD, nullptr, nullptr);
+
+    struct sigaction sgaw{};
+    sgaw.sa_handler = sigwinch_handler;
+    sigemptyset(&sgaw.sa_mask);
+    sgaw.sa_flags = 0;
+    sigaction(SIGWINCH, &sgaw, nullptr);
 }
 
 void Application::signal_handler(int signal)
@@ -235,6 +237,16 @@ void Application::signal_handler(int signal)
     }
 
     terminate();
+}
+
+void Application::sigwinch_handler([[maybe_unused]] int signal)
+{
+    auto ctx = ApplicationContext::get();
+    ctx->logger->debug("received SIGWINCH, recalculating terminal state");
+    auto state = ctx->terminal.load_state();
+    if (!state) {
+        ctx->logger->warn(state.error().message());
+    }
 }
 
 auto Application::daemonize() -> Result<void>

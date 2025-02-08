@@ -29,6 +29,7 @@
 
 #include <CLI/CLI.hpp>
 #include <atomic>
+#include <memory>
 
 namespace upp
 {
@@ -42,12 +43,13 @@ class Application
 
     static void terminate();
     static void signal_handler(int signal);
+    static void sigwinch_handler(int signal);
 
     inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 
   private:
     Cli *cli;
-    ApplicationContext ctx;
+    std::shared_ptr<ApplicationContext> ctx{ApplicationContext::get()};
     CommandQueue queue;
     CommandListener command_listener{&queue};
     CanvasPtr canvas;

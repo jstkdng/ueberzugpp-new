@@ -41,6 +41,16 @@ namespace upp
 class ApplicationContext
 {
   public:
+    auto operator=(ApplicationContext &&) -> ApplicationContext & = delete;
+
+    static auto get() -> std::shared_ptr<ApplicationContext>
+    {
+        struct enabler : ApplicationContext {
+        };
+        static auto ptr = std::make_shared<enabler>();
+        return ptr;
+    }
+
     auto init(std::string_view cli_output) -> Result<void>;
 
     Terminal terminal{this};
@@ -60,6 +70,8 @@ class ApplicationContext
     auto x11_init() -> Result<void>;
     auto wayland_init() -> Result<void>;
     void set_detected_output(std::string_view cli_output);
+
+    friend class Application;
 };
 
 } // namespace upp
