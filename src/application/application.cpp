@@ -110,6 +110,7 @@ void Application::execute_layer_commands(SToken token)
 {
     while (!token.stop_requested()) {
         if (auto cmd = queue.try_dequeue(os::waitms)) {
+            std::scoped_lock state_lock{ctx->state_mutex};
             canvas->execute(*cmd);
         } else {
             continue;
@@ -243,6 +244,7 @@ void Application::sigwinch_handler([[maybe_unused]] int signal)
 {
     auto ctx = ApplicationContext::get();
     ctx->logger->debug("received SIGWINCH, recalculating terminal state");
+    std::scoped_lock state_lock{ctx->state_mutex};
     auto state = ctx->terminal.load_state();
     if (!state) {
         ctx->logger->warn(state.error().message());

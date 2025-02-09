@@ -34,6 +34,8 @@
 
 #include <string>
 #include <string_view>
+#include <memory>
+#include <mutex>
 
 namespace upp
 {
@@ -66,6 +68,7 @@ class ApplicationContext
 
   private:
     Logger logger;
+    std::mutex state_mutex;
 
     auto x11_init() -> Result<void>;
     auto wayland_init() -> Result<void>;
