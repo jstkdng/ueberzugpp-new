@@ -65,13 +65,13 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
 auto LibvipsImage::read_image() -> Result<void>
 {
     std::string_view loader{vips_foreign_find_load(props.file_path.c_str())};
-    // attempt to read all "pages" in a file except on pdfs (for animations)
-    int num_pages = -1;
+    // TODO: attempt to read all "pages" in a file except on pdfs (for animations)
+    /*int num_pages = -1;
     if (loader == "VipsForeignLoadPdfFile") {
         num_pages = 1;
-    }
+    }*/
     image =
-        vips_image_new_from_file(props.file_path.c_str(), "n", num_pages, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+        vips_image_new_from_file(props.file_path.c_str(), "n", 1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     if (origin_is_animated()) {
         logger->info("image is animated");
     }
