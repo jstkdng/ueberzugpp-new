@@ -116,7 +116,7 @@ auto Terminal::set_font_size() -> Result<void>
 void Terminal::set_fallback_size_from_x11()
 {
 #ifdef ENABLE_X11
-    if (auto result = ctx->x11.load_state(pid); !result) {
+    if (auto result = ctx->x11.load_state(pty_pid); !result) {
         logger->debug(result.error().message());
         return;
     }
@@ -133,7 +133,7 @@ void Terminal::set_fallback_size_from_wayland()
     if (!ctx->wl_socket) {
         return;
     }
-    auto geometry = ctx->wl_socket->active_window(pid);
+    auto geometry = ctx->wl_socket->active_window(pty_pid);
     position.x = geometry.x;
     position.y = geometry.y;
     size.fallback_width = geometry.width;
@@ -164,9 +164,9 @@ auto Terminal::open_first_pty() -> Result<void>
             logger->debug("open: {}", os::strerror());
             continue;
         }
-        pid = proc.pid;
+        pty_pid = proc.pid;
         logger->info("PTY = {}", path);
-        logger->info("PID = {}", pid);
+        logger->info("PID = {}", pty_pid);
         return {};
     }
     return Err("could not open terminal");

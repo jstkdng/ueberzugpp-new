@@ -59,9 +59,8 @@ auto X11Window::configure_xcb_windows(const Command &command) -> Result<void>
                                             XCB_IMAGE_FORMAT_Z_PIXMAP,
                                             x11.screen->root_depth,
                                             nullptr,
-                                            0,
-                                            nullptr));
-    xcb_image->data = image->data();
+                                            image->data_size(),
+                                            image->data()));
     xcb_window.configure((font.width * command.x) + font.horizontal_padding,
                          (font.height * command.y) + font.vertical_padding,
                          image->width(),

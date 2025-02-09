@@ -64,8 +64,8 @@ auto Application::handle_cli_commands() -> Result<void>
         print_header();
         setup_signal_handler();
         return setup_vips()
-            .and_then([this] { return daemonize(); })
             .and_then([this] { return ctx->init(cli->layer.output); })
+            .and_then([this] { return daemonize(); })
             .and_then([this] { return Canvas::create(ctx.get()); })
             .and_then([this](CanvasPtr new_canvas) {
                 canvas = std::move(new_canvas);

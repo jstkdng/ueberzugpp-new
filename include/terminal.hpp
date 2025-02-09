@@ -65,7 +65,7 @@ class Terminal
     ApplicationContext *ctx;
     std::string pty_path;
     unix::fd pty_fd;
-    int pid = -1;
+    int pty_pid = -1;
 
     auto open_first_pty() -> Result<void>;
     auto set_terminal_size() -> Result<void>;
