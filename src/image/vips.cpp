@@ -64,7 +64,17 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
 
 auto LibvipsImage::read_image() -> Result<void>
 {
-    image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+    std::string_view loader{vips_foreign_find_load(props.file_path.c_str())};
+    // attempt to read all "pages" in a file except on pdfs (for animations)
+    int num_pages = -1;
+    if (loader == "VipsForeignLoadPdfFile") {
+        num_pages = 1;
+    }
+    image =
+        vips_image_new_from_file(props.file_path.c_str(), "n", num_pages, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+    if (origin_is_animated()) {
+        logger->info("image is animated");
+    }
     if (image == nullptr) {
         return Err("failed to load image");
     }
@@ -191,6 +201,21 @@ auto LibvipsImage::width() -> int
 auto LibvipsImage::height() -> int
 {
     return vips_image_get_height(image);
+}
+
+auto LibvipsImage::get_frame_delays() -> std::optional<std::span<int>>
+{
+    int size = -1;
+    int *array = nullptr;
+    if (vips_image_get_array_int(image, "delay", &array, &size) == -1) {
+        return {};
+    }
+    return std::span{array, static_cast<size_t>(size)};
+}
+
+auto LibvipsImage::origin_is_animated() const -> bool
+{
+    return vips_image_get_typeof(image, "delay") == VIPS_TYPE_ARRAY_INT;
 }
 
 } // namespace upp

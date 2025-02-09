@@ -25,6 +25,8 @@
 
 #include <vips/vips.h>
 
+#include <optional>
+#include <span>
 #include <string>
 
 namespace upp
@@ -56,6 +58,8 @@ class LibvipsImage : public Image
     void process_image();
     void contain_scaler();
     auto image_is_cached(int new_width, int new_height) -> bool;
+    auto origin_is_animated() const -> bool;
+    auto get_frame_delays() -> std::optional<std::span<int>>;
 };
 
 } // namespace upp
