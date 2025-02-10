@@ -29,8 +29,6 @@
 #include <unordered_set>
 #include <utility>
 
-namespace fs = std::filesystem;
-
 namespace upp
 {
 
@@ -46,10 +44,7 @@ LibvipsImage::~LibvipsImage()
 
 auto LibvipsImage::can_load(const std::string &file_path) -> bool
 {
-    fs::path path{file_path};
-    std::unordered_set<std::string_view> non_working_extensions = {".psd"};
-    return vips_foreign_find_load(file_path.c_str()) != nullptr &&
-           !non_working_extensions.contains(path.extension().string());
+    return vips_foreign_find_load(file_path.c_str()) != nullptr;
 }
 
 auto LibvipsImage::load(ImageProps props) -> Result<void>
@@ -70,13 +65,12 @@ auto LibvipsImage::read_image() -> Result<void>
     if (loader == "VipsForeignLoadPdfFile") {
         num_pages = 1;
     }*/
-    image =
-        vips_image_new_from_file(props.file_path.c_str(), "n", 1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
-    if (origin_is_animated()) {
-        logger->info("image is animated");
-    }
+    image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     if (image == nullptr) {
         return Err("failed to load image");
+    }
+    if (origin_is_animated()) {
+        logger->info("image is animated");
     }
     return {};
 }
@@ -171,16 +165,16 @@ void LibvipsImage::contain_scaler()
 
     logger->info("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
 
-    vips_thumbnail(props.file_path.c_str(), &image_out, new_width, "height", new_height, nullptr);
+    g_object_unref(image);
+    vips_thumbnail(props.file_path.c_str(), &image, new_width, "height", new_height, nullptr);
+
+    // images from vips_thumbnail can only be read once
+    image_out = vips_image_copy_memory(image);
     g_object_unref(image);
     image = image_out;
 
     auto cached_image_path = util::get_cache_file_save_location(props.file_path);
     vips_image_write_to_file(image, cached_image_path.c_str(), nullptr);
-
-    // reread image
-    g_object_unref(image);
-    image = vips_image_new_from_file(cached_image_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
 }
 
 auto LibvipsImage::data() -> unsigned char *
