@@ -55,10 +55,6 @@ if (USE_LIBCXX)
 endif ()
 
 add_subdirectory(third_party/ EXCLUDE_FROM_ALL)
-target_compile_definitions(ueberzugpp PRIVATE
-    $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>
-    $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>
-)
 
 include(GNUInstallDirs)
 include(CheckCXXSymbolExists)
@@ -166,7 +162,7 @@ if (ENABLE_OPENCL)
     find_package(OpenCL REQUIRED)
     find_package(OpenCLHeaders REQUIRED)
     find_package(OpenCLHeadersCpp REQUIRED)
-    target_link_libraries(ueberzugpp PRIVATE OpenCL::Headers OpenCL::OpenCL OpenCL::HeadersCpp)
+    target_link_libraries(ueberzugpp PRIVATE OpenCL::OpenCL OpenCL::Headers OpenCL::HeadersCpp)
 endif ()
 
 target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
@@ -174,8 +170,6 @@ target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)
-target_compile_options(ueberzugpp PRIVATE "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
-
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
