@@ -91,15 +91,16 @@ void LibvipsImage::process_image()
         }
 
         // convert from RGB to BGR
-        auto bands = util::make_vector<VipsImage *>(num_channels());
-        for (int i = 0; i < num_channels(); ++i) {
+        int chan = num_channels();
+        std::vector<VipsImage *> bands(chan, nullptr);
+        for (int i = 0; i < chan; ++i) {
             VipsImage *band = nullptr;
             vips_extract_band(image, &band, i, nullptr);
-            bands.emplace_back(band);
+            bands[i] = band;
         }
         std::swap(bands[0], bands[2]);
 
-        vips_bandjoin(bands.data(), &image_out, num_channels(), nullptr);
+        vips_bandjoin(bands.data(), &image_out, chan, nullptr);
         g_object_unref(image);
         image = image_out;
 

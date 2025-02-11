@@ -32,6 +32,9 @@
 namespace upp
 {
 
+template <typename T>
+using glib_ptr = c_unique_ptr<T, g_free>;
+
 class LibvipsImage : public Image
 {
   public:
@@ -51,14 +54,14 @@ class LibvipsImage : public Image
     ImageProps props;
     VipsImage *image;
     VipsImage *image_out;
-    c_unique_ptr<unsigned char, g_free> image_buffer;
+    glib_ptr<unsigned char> image_buffer;
 
     auto read_image() -> Result<void>;
     void resize_image();
     void process_image();
     void contain_scaler();
     auto image_is_cached(int new_width, int new_height) -> bool;
-    auto origin_is_animated() const -> bool;
+    [[nodiscard]] auto origin_is_animated() const -> bool;
     auto get_frame_delays() -> std::optional<std::span<int>>;
 };
 
