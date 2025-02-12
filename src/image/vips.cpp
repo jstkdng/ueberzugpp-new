@@ -61,8 +61,9 @@ auto LibvipsImage::read_image() -> Result<void>
     }
     if (origin_is_animated()) {
         logger->info("image is animated");
-        g_object_unref(image);
-        image = vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+        // g_object_unref(image);
+        // image = vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL,
+        // nullptr);
     }
     return {};
 }
