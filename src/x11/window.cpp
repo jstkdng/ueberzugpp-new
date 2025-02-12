@@ -24,14 +24,14 @@ namespace upp
 X11Window::X11Window(ApplicationContext *ctx, WindowMap *window_map) :
     ctx(ctx),
     window_map(window_map),
-    image(ctx)
+    image(ctx),
+    xcb_window(ctx->x11.connection.get(), ctx->x11.screen, ctx->x11.parent)
 {
 }
 
 void X11Window::create_xcb_windows()
 {
-    auto &x11 = ctx->x11;
-    xcb_window.create(x11.connection.get(), x11.screen, x11.parent);
+    xcb_window.create();
     window_map->emplace(xcb_window.id(), weak_from_this());
 }
 
@@ -53,18 +53,11 @@ auto X11Window::configure_xcb_windows(const Command &command) -> Result<void>
 {
     auto &x11 = ctx->x11;
     auto &font = ctx->terminal.font;
-    xcb_image.reset(xcb_image_create_native(x11.connection.get(),
-                                            image.width(),
-                                            image.height(),
-                                            XCB_IMAGE_FORMAT_Z_PIXMAP,
-                                            x11.screen->root_depth,
-                                            nullptr,
-                                            image.data_size(),
-                                            image.data()));
+    xcb_image.reset(xcb_image_create_native(x11.connection.get(), image.width(), image.height(),
+                                            XCB_IMAGE_FORMAT_Z_PIXMAP, x11.screen->root_depth, nullptr,
+                                            image.data_size(), image.data()));
     xcb_window.configure((font.width * command.x) + font.horizontal_padding,
-                         (font.height * command.y) + font.vertical_padding,
-                         image.width(),
-                         image.height());
+                         (font.height * command.y) + font.vertical_padding, image.width(), image.height());
     x11.flush();
     return {};
 }

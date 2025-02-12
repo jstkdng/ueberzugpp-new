@@ -12,6 +12,5 @@ InsertNewlineAtEOF: true
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBraces: Linux
 BreakConstructorInitializers: AfterColon
-BinPackArguments: false
 PackConstructorInitializers: Never
 EmptyLineBeforeAccessModifier: Always

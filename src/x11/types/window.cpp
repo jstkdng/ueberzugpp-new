@@ -21,17 +21,21 @@
 namespace upp::xcb
 {
 
+window::window(connection_ptr connection, screen_ptr screen, window_id parent_id) :
+    connection(connection),
+    screen(screen),
+    parent_id(parent_id)
+{
+}
+
 window::~window()
 {
     xcb_destroy_window(connection, _id);
     xcb_flush(connection);
 }
 
-void window::create(connection_ptr connection, screen_ptr screen, window_id parent_id)
+void window::create()
 {
-    this->connection = connection;
-    this->screen = screen;
-    this->parent_id = parent_id;
     _id = xcb_generate_id(connection);
 
     const uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BORDER_PIXEL | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
