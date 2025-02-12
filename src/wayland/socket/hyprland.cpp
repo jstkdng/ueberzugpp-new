@@ -77,13 +77,13 @@ auto HyprlandSocket::active_window(int pid) -> WaylandGeometry
         return {};
     }
     for (auto spid : os::Process::get_pid_tree(pid)) {
-        auto client = std::ranges::find_if(clients, [spid](const auto &client) { return client.pid == spid; });
-        if (client != clients.end()) {
+        auto term = std::ranges::find_if(clients, [spid](const auto &client) { return client.pid == spid; });
+        if (term != clients.end()) {
             return {
-                .width = client->size[0],
-                .height = client->size[1],
-                .x = client->at[0],
-                .y = client->at[1],
+                .width = term->size[0],
+                .height = term->size[1],
+                .x = term->at[0],
+                .y = term->at[1],
             };
         }
     }
