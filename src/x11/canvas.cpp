@@ -53,8 +53,7 @@ void X11Canvas::execute(const Command &cmd)
 void X11Canvas::handle_add_command(const Command &cmd)
 {
     std::shared_ptr<X11Window> window_ptr;
-    auto window = window_id_map.find(cmd.preview_id);
-    if (window == window_id_map.end()) {
+    if (auto window = window_id_map.find(cmd.preview_id); window == window_id_map.end()) {
         logger->trace("creating new window");
         window_ptr = std::make_shared<X11Window>(ctx, &window_map);
         window_ptr->create_xcb_windows();

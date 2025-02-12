@@ -123,8 +123,7 @@ auto get_pid_from_socket(int sockfd) -> Result<int>
 {
 #ifdef UPP_OS_LINUX
     struct ucred ucred;
-    socklen_t len = sizeof(struct ucred);
-    if (getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
+    if (socklen_t len = sizeof(struct ucred); getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
         return Err("getsockopt");
     }
     return ucred.pid;
