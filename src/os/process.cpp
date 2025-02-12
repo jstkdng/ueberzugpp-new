@@ -18,13 +18,14 @@
 
 #include "os/os.hpp"
 
-#ifdef UPP_OS_LINUX
+#ifdef __linux__
 #include <sys/sysmacros.h>
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__APPLE__)
+#include <sys/types.h>
 #endif
 
-#ifdef UPP_OS_APPLE
+#ifdef __APPLE__
 #include <libproc.h>
-#include <sys/types.h>
 #endif
 
 #include <format>
@@ -40,7 +41,7 @@ namespace upp::os
 Process::Process(int pid) :
     pid(pid)
 {
-#ifdef UPP_OS_LINUX
+#ifdef __linux__
     constexpr auto max_size = std::numeric_limits<std::streamsize>::max();
     const auto stat_file = std::format("/proc/{}/stat", pid);
 
@@ -52,7 +53,7 @@ Process::Process(int pid) :
     pty_path = std::format("/dev/pts/{}", minor_dev);
 #endif
 
-#ifdef UPP_OS_APPLE
+#ifdef __APPLE__
     struct proc_bsdshortinfo sproc;
     struct proc_bsdinfo proc;
 

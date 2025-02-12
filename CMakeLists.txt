@@ -61,7 +61,7 @@ include(CheckCXXSymbolExists)
 include(CheckSourceCompiles)
 
 find_package(PkgConfig REQUIRED)
-# find_package(TBB REQUIRED)
+find_package(TBB REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 find_package(Threads REQUIRED)
 
@@ -69,19 +69,6 @@ if (ENABLE_X11 OR ENABLE_WAYLAND)
     find_package(ECM REQUIRED NO_MODULE)
     list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 endif ()
-
-# check if <execution> is available
-set(CMAKE_REQUIRED_LIBRARIES
-    # TBB::tbb
-    Threads::Threads
-)
-set(CMAKE_REQUIRED_FLAGS -std=c++23)
-# check_cxx_symbol_exists(std::execution::par_unseq execution HAVE_STD_EXECUTION)
-
-check_source_compiles(CXX "
-#include <thread>
-int main(void) {auto t = std::jthread([] {}); return 0;}
-" HAVE_STD_JTHREAD)
 
 if (ENABLE_LIBVIPS)
     pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
@@ -173,16 +160,6 @@ string(TIMESTAMP BUILD_DATE UTC)
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-if (CMAKE_HOST_SYSTEM_VERSION MATCHES "^.*microsoft.*$")
-    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_WSL)
-endif ()
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_LINUX)
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_compile_definitions(ueberzugpp PRIVATE UPP_OS_APPLE)
-endif ()
-
 target_sources(
     ueberzugpp
     PRIVATE
@@ -227,7 +204,7 @@ target_sources(
         include/base/canvas.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
-    # TBB::tbb
+    TBB::tbb
     Threads::Threads
     OpenSSL::Crypto
 )

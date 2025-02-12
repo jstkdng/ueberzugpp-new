@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include "buildconfig.hpp"
+#include <version>
 
 // IWYU pragma: begin_exports
-#ifdef HAVE_STD_JTHREAD
+#ifdef __cpp_lib_jthread
 #include <stop_token>
 #include <thread>
 #else
