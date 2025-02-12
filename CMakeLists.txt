@@ -201,7 +201,7 @@ target_sources(
         src/util/util.cpp
         src/util/crypto.cpp
         src/canvas.cpp
-        src/image.cpp
+        src/image/scalers.cpp
 
     PRIVATE
     FILE_SET HEADERS
@@ -214,6 +214,7 @@ target_sources(
         include/terminal.hpp
         include/command/command.hpp
         include/command/listener.hpp
+        include/image/scalers.hpp
         include/util/result.hpp
         include/util/concurrent_deque.hpp
         include/util/ptr.hpp
@@ -224,7 +225,6 @@ target_sources(
         include/unix/socket.hpp
         include/os/os.hpp
         include/base/canvas.hpp
-        include/base/image.hpp
 )
 target_link_libraries(ueberzugpp PRIVATE
     # TBB::tbb

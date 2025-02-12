@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "base/image.hpp"
+#include "application/context.hpp"
 #include "log.hpp"
 #include "util/ptr.hpp"
 #include "util/result.hpp"
@@ -35,22 +35,28 @@ namespace upp
 template <typename T>
 using glib_ptr = c_unique_ptr<T, g_free>;
 
-class LibvipsImage : public Image
+struct ImageProps {
+    std::string file_path;
+    std::string scaler;
+    int width = -1;
+    int height = -1;
+};
+
+class LibvipsImage
 {
   public:
-    explicit LibvipsImage(std::string output);
-    ~LibvipsImage() override;
-    auto load(ImageProps props) -> Result<void> override;
-    static auto can_load(const std::string &file_path) -> bool;
-    auto num_channels() -> int override;
-    auto data() -> unsigned char * override;
-    auto data_size() -> int override;
-    auto width() -> int override;
-    auto height() -> int override;
+    explicit LibvipsImage(ApplicationContext *ctx);
+    ~LibvipsImage();
+    auto load(ImageProps props) -> Result<void>;
+    auto num_channels() -> int;
+    auto data() -> unsigned char *;
+    auto data_size() -> int;
+    auto width() -> int;
+    auto height() -> int;
 
   private:
     Logger logger{spdlog::get("vips")};
-    std::string output;
+    ApplicationContext *ctx;
     ImageProps props;
     VipsImage *image;
     VipsImage *image_out;

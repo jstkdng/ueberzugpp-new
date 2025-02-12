@@ -16,31 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "base/image.hpp"
-#include "buildconfig.hpp" // IWYU pragma: keep
-#include "util/result.hpp"
-#ifdef ENABLE_LIBVIPS
-#include "image/vips.hpp"
-#endif
+#include "image/scalers.hpp"
 
-#include <memory>
-#include <utility>
+#include <algorithm>
 
-namespace upp
+namespace upp::image
 {
 
-auto Image::create([[maybe_unused]] std::string output, const std::string &file_path) -> Result<ImagePtr>
-{
-#ifdef ENABLE_LIBVIPS
-    if (LibvipsImage::can_load(file_path)) {
-        return std::make_unique<LibvipsImage>(std::move(output));
-    }
-#endif
-
-    return Err("can't load image " + file_path, 0);
-}
-
-auto Image::fit_contain_sizes(const current_image_sizes sizes) -> target_image_sizes
+auto fit_contain_sizes(const current_sizes sizes) -> target_sizes
 {
     const auto factor = std::min(static_cast<float>(sizes.width) / static_cast<float>(sizes.image_width),
                                  static_cast<float>(sizes.height) / static_cast<float>(sizes.image_height));
@@ -48,7 +31,7 @@ auto Image::fit_contain_sizes(const current_image_sizes sizes) -> target_image_s
             .height = static_cast<int>(static_cast<float>(sizes.image_height) * factor)};
 }
 
-auto Image::contain_sizes(const current_image_sizes sizes) -> target_image_sizes
+auto contain_sizes(const current_sizes sizes) -> target_sizes
 {
     return fit_contain_sizes({
         .width = std::min(sizes.image_width, sizes.width),
@@ -58,4 +41,4 @@ auto Image::contain_sizes(const current_image_sizes sizes) -> target_image_sizes
     });
 }
 
-} // namespace upp
+} // namespace upp::image

@@ -69,6 +69,7 @@ void WaylandWindow::preferred_buffer_scale(void *data, wl_surface *surface, int 
 
 WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base) :
     ctx(ctx),
+    image(ctx),
     shm(shm),
     surface(wl_compositor_create_surface(compositor)),
     xdg_surface(xdg_wm_base_get_xdg_surface(wm_base, surface.get())),
@@ -93,17 +94,14 @@ auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
 auto WaylandWindow::init(const Command &command, WindowPtrs &window_ptrs) -> Result<void>
 {
     auto &font = ctx->terminal.font;
-    return Image::create(ctx->output, command.image_path.string())
-        .and_then([this, &font, &command](ImagePtr new_image) {
-            image = std::move(new_image);
-            return image->load({
-                .file_path = command.image_path.string(),
-                .scaler = command.image_scaler,
-                .width = font.width * command.width,
-                .height = font.height * command.height,
-            });
+    return image
+        .load({
+            .file_path = command.image_path.string(),
+            .scaler = command.image_scaler,
+            .width = font.width * command.width,
+            .height = font.height * command.height,
         })
-        .and_then([this] { return shm.init(image->width(), image->height(), image->data()); })
+        .and_then([this] { return shm.init(image.width(), image.height(), image.data()); })
         .and_then([this, &command] { return socket_setup(command); })
         .and_then([this, &window_ptrs] { return listeners_setup(window_ptrs); });
 }

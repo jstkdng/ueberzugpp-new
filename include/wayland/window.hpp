@@ -19,7 +19,7 @@
 #pragma once
 
 #include "application/context.hpp"
-#include "base/image.hpp"
+#include "image/vips.hpp"
 #include "command/command.hpp"
 #include "log.hpp"
 #include "wayland/shm.hpp"
@@ -53,12 +53,13 @@ class WaylandWindow : public std::enable_shared_from_this<WaylandWindow>
   private:
     Logger logger{spdlog::get("wayland")};
     ApplicationContext *ctx;
+    LibvipsImage image;
+
     WaylandShm shm;
     wl::surface surface;
     wl::xdg::surface xdg_surface;
     wl::xdg::top_level xdg_toplevel;
     std::string app_id;
-    ImagePtr image;
     std::atomic_int scale_factor = 1;
 
     auto socket_setup(const Command &command) -> Result<void>;

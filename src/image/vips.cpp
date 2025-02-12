@@ -17,7 +17,7 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "image/vips.hpp"
-#include "base/image.hpp"
+#include "image/scalers.hpp"
 #include "util/result.hpp"
 #include "util/util.hpp"
 
@@ -32,19 +32,14 @@
 namespace upp
 {
 
-LibvipsImage::LibvipsImage(std::string output) :
-    output(std::move(output))
+LibvipsImage::LibvipsImage(ApplicationContext *ctx) :
+    ctx(ctx)
 {
 }
 
 LibvipsImage::~LibvipsImage()
 {
     g_object_unref(image);
-}
-
-auto LibvipsImage::can_load(const std::string &file_path) -> bool
-{
-    return vips_foreign_find_load(file_path.c_str()) != nullptr;
 }
 
 auto LibvipsImage::load(ImageProps props) -> Result<void>
@@ -60,17 +55,14 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
 auto LibvipsImage::read_image() -> Result<void>
 {
     std::string_view loader{vips_foreign_find_load(props.file_path.c_str())};
-    // TODO: attempt to read all "pages" in a file except on pdfs (for animations)
-    /*int num_pages = -1;
-    if (loader == "VipsForeignLoadPdfFile") {
-        num_pages = 1;
-    }*/
     image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     if (image == nullptr) {
         return Err("failed to load image");
     }
     if (origin_is_animated()) {
         logger->info("image is animated");
+        g_object_unref(image);
+        image = vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     }
     return {};
 }
@@ -82,6 +74,7 @@ void LibvipsImage::process_image()
     image = image_out;
 
     const std::unordered_set<std::string_view> bgra_outputs = {"x11", "chafa", "wayland"};
+    std::string_view output = ctx->output;
     if (bgra_outputs.contains(output)) {
         // alpha channel required
         if (vips_image_hasalpha(image) == FALSE) {
@@ -155,8 +148,13 @@ auto LibvipsImage::num_channels() -> int
 
 void LibvipsImage::contain_scaler()
 {
-    auto [new_width, new_height] =
-        contain_sizes({.width = props.width, .height = props.height, .image_width = width(), .image_height = height()});
+    auto [new_width, new_height] = image::contain_sizes({
+        .width = props.width,
+        .height = props.height,
+        .image_width = width(),
+        .image_height = height(),
+    });
+
     if (new_width == width() && new_height == height()) {
         return;
     }
