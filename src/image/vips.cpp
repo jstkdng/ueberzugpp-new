@@ -61,9 +61,14 @@ auto LibvipsImage::read_image() -> Result<void>
     }
     if (origin_is_animated()) {
         logger->info("image is animated");
-        // g_object_unref(image);
-        // image = vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL,
-        // nullptr);
+        VipsImage *temp =
+            vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+        int n_pages = vips_image_get_n_pages(temp);
+        int temp_height = vips_image_get_height(temp);
+        logger->debug("animated sizes: {}x{}", vips_image_get_width(temp), vips_image_get_height(temp));
+        logger->debug("number of frames: {}", n_pages);
+        logger->debug("frame height: {}  original height: {}", temp_height / n_pages, height());
+        g_object_unref(temp);
     }
     return {};
 }
