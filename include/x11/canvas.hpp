@@ -46,7 +46,7 @@ class X11Canvas final : public Canvas
 
   private:
     ApplicationContext *ctx;
-    Logger logger{spdlog::get("X11")};
+    Logger logger;
 
     WindowMap window_map;
     WindowIdMap window_id_map;

@@ -69,7 +69,8 @@ void WaylandCanvas::xdg_wm_base_ping([[maybe_unused]] void *data, xdg_wm_base *x
 }
 
 WaylandCanvas::WaylandCanvas(ApplicationContext *ctx) :
-    ctx(ctx)
+    ctx(ctx),
+    logger(spdlog::get("wayland"))
 {
 }
 

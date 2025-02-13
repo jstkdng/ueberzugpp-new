@@ -46,7 +46,7 @@ class WaylandCanvas final : public Canvas
 
   private:
     ApplicationContext *ctx;
-    Logger logger{spdlog::get("wayland")};
+    Logger logger;
     wl::display display;
     wl::registry registry;
     wl::compositor compositor;

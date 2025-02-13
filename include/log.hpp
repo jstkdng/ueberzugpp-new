@@ -18,13 +18,11 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
+#include <spdlog/fwd.h>
 
 #include <memory>
 
 namespace upp
 {
-
 using Logger = std::shared_ptr<spdlog::logger>;
-
 } // namespace upp

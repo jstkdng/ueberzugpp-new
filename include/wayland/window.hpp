@@ -51,7 +51,7 @@ class WaylandWindow : public std::enable_shared_from_this<WaylandWindow>
     static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial);
 
   private:
-    Logger logger{spdlog::get("wayland")};
+    Logger logger;
     ApplicationContext *ctx;
     LibvipsImage image;
 

@@ -21,6 +21,8 @@
 #include "os/os.hpp"
 #include "util/result.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <string>
 #include <string_view>
 

@@ -33,6 +33,7 @@ namespace upp
 {
 
 LibvipsImage::LibvipsImage(ApplicationContext *ctx) :
+    logger(spdlog::get("vips")),
     ctx(ctx)
 {
 }

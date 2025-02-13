@@ -27,6 +27,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cmath>
 

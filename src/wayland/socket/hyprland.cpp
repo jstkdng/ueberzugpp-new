@@ -22,6 +22,7 @@
 #include "util/util.hpp"
 
 #include <glaze/glaze.hpp>
+#include <spdlog/spdlog.h>
 
 #include <format>
 #include <string>
@@ -33,6 +34,7 @@ namespace upp
 {
 
 HyprlandSocket::HyprlandSocket(std::string instance_signature) :
+    logger(spdlog::get("hyprland")),
     signature(std::move(instance_signature))
 {
     auto socket_base_dir = os::getenv("XDG_RUNTIME_DIR").value_or("/tmp");
@@ -51,9 +53,7 @@ auto HyprlandSocket::setup(std::string_view app_id, int xcoord, int ycoord) -> R
                                "/keyword windowrulev2 noborder,title:{0};"
                                "/keyword windowrulev2 rounding 0,title:{0};"
                                "/keyword windowrulev2 move {1} {2},title:{0};",
-                               app_id,
-                               xcoord,
-                               ycoord);
+                               app_id, xcoord, ycoord);
     unix::socket::Client client;
     return client.connect_and_write(socket_path, util::make_buffer(payload));
 }
