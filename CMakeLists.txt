@@ -19,7 +19,6 @@
 # along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.23...3.29 FATAL_ERROR)
-cmake_policy(SET CMP0146 OLD)
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type.")
 set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -64,6 +63,10 @@ find_package(PkgConfig REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 find_package(Threads REQUIRED)
+
+set(CMAKE_REQUIRED_FLAGS -std=c++20)
+check_cxx_symbol_exists(__cpp_lib_jthread "version" HAVE_STD_JTHREAD)
+check_cxx_symbol_exists(__cpp_lib_execution "version" HAVE_STD_EXECUTION)
 
 if (ENABLE_X11 OR ENABLE_WAYLAND)
     find_package(ECM REQUIRED NO_MODULE)
