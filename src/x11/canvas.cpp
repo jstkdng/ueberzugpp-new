@@ -26,13 +26,10 @@
 #include "util/result.hpp"
 #include "x11/window.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace upp
 {
 X11Canvas::X11Canvas(ApplicationContext *ctx) :
-    ctx(ctx),
-    logger(spdlog::get("X11"))
+    ctx(ctx)
 {
 }
 

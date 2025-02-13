@@ -21,7 +21,6 @@
 #include "util/result.hpp"
 #include "util/util.hpp"
 
-#include <spdlog/spdlog.h>
 #include <vips/vips.h>
 
 #include <algorithm>
@@ -33,7 +32,6 @@ namespace upp
 {
 
 LibvipsImage::LibvipsImage(ApplicationContext *ctx) :
-    logger(spdlog::get("vips")),
     ctx(ctx)
 {
 }

@@ -28,6 +28,7 @@
 #include "util/thread.hpp"
 
 #include <CLI/CLI.hpp>
+
 #include <atomic>
 #include <memory>
 

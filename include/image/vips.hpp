@@ -55,7 +55,7 @@ class LibvipsImage
     auto height() -> int;
 
   private:
-    Logger logger;
+    Logger logger{spdlog::get("vips")};
     ApplicationContext *ctx;
     ImageProps props;
     VipsImage *image;

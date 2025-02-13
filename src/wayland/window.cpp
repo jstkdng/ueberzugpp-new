@@ -19,8 +19,6 @@
 #include "wayland/window.hpp"
 #include "util/crypto.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <format>
 
 namespace upp
@@ -70,7 +68,6 @@ void WaylandWindow::preferred_buffer_scale(void *data, wl_surface *surface, int 
 }
 
 WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base) :
-    logger(spdlog::get("wayland")),
     ctx(ctx),
     image(ctx),
     shm(shm),

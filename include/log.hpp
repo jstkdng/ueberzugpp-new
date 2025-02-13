@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <spdlog/fwd.h>
+#include <spdlog/spdlog.h>
 
 #include <memory>
 

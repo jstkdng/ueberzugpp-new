@@ -22,7 +22,6 @@
 #include "util/util.hpp"
 
 #include <glaze/glaze.hpp>
-#include <spdlog/spdlog.h>
 
 #include <format>
 #include <string>
@@ -34,7 +33,6 @@ namespace upp
 {
 
 HyprlandSocket::HyprlandSocket(std::string instance_signature) :
-    logger(spdlog::get("hyprland")),
     signature(std::move(instance_signature))
 {
     auto socket_base_dir = os::getenv("XDG_RUNTIME_DIR").value_or("/tmp");

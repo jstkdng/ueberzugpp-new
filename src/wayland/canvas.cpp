@@ -23,8 +23,6 @@
 #include "util/result.hpp"
 #include "wayland/types.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <cstdint>
 #include <cstring>
 #include <string_view>
@@ -69,8 +67,7 @@ void WaylandCanvas::xdg_wm_base_ping([[maybe_unused]] void *data, xdg_wm_base *x
 }
 
 WaylandCanvas::WaylandCanvas(ApplicationContext *ctx) :
-    ctx(ctx),
-    logger(spdlog::get("wayland"))
+    ctx(ctx)
 {
 }
 
