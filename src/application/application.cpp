@@ -243,6 +243,9 @@ void Application::signal_handler(int signal)
 void Application::sigwinch_handler([[maybe_unused]] int signal)
 {
     auto ctx = ApplicationContext::get();
+    if (!ctx->is_initialized) {
+        return;
+    }
     ctx->logger->debug("received SIGWINCH, recalculating terminal state");
     std::scoped_lock state_lock{ctx->state_mutex};
     auto state = ctx->terminal.load_state();

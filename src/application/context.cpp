@@ -42,6 +42,7 @@ auto ApplicationContext::init(std::string_view cli_output) -> Result<void>
         .and_then([this] { return terminal.init(); })
         .and_then([this, cli_output]() -> Result<void> {
             set_detected_output(cli_output);
+            is_initialized = true;
             return {};
         });
 }

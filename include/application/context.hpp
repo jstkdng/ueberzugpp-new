@@ -32,10 +32,11 @@
 #include "wayland/socket/socket.hpp"
 #endif
 
-#include <string>
-#include <string_view>
+#include <atomic>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <string_view>
 
 namespace upp
 {
@@ -69,6 +70,7 @@ class ApplicationContext
   private:
     Logger logger;
     std::mutex state_mutex;
+    std::atomic_bool is_initialized{false};
 
     auto x11_init() -> Result<void>;
     auto wayland_init() -> Result<void>;
