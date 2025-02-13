@@ -56,17 +56,11 @@ endif ()
 add_subdirectory(third_party/ EXCLUDE_FROM_ALL)
 
 include(GNUInstallDirs)
-include(CheckCXXSymbolExists)
-include(CheckSourceCompiles)
 
 find_package(PkgConfig REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS Crypto)
 find_package(Threads REQUIRED)
-
-set(CMAKE_REQUIRED_FLAGS -std=c++20)
-check_cxx_symbol_exists(__cpp_lib_jthread "version" HAVE_STD_JTHREAD)
-check_cxx_symbol_exists(__cpp_lib_execution "version" HAVE_STD_EXECUTION)
 
 if (ENABLE_X11 OR ENABLE_WAYLAND)
     find_package(ECM REQUIRED NO_MODULE)
