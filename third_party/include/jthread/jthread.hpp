@@ -1,5 +1,3 @@
-#define _LIBCPP___THREAD_JTHREAD_H
-
 // -----------------------------------------------------
 // cooperative interruptable and joining thread:
 // -----------------------------------------------------
@@ -13,7 +11,7 @@
 #include <functional>  // for invoke()
 #include <iostream>    // for debugging output
 
-namespace std {
+namespace nonstd {
 
 //***************************************** 
 //* class jthread
@@ -171,6 +169,6 @@ inline void jthread::swap(jthread& t) noexcept {
 }
 
 
-} // std
+} // namespace nonstd
 
 #endif // JTHREAD_HPP

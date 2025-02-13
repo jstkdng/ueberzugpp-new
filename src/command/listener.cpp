@@ -40,10 +40,10 @@ auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Resul
     parser = new_parser;
     logger->info("using {} parser", parser);
     if (!no_stdin) {
-        stdin_thread = std::jthread([this](auto token) { wait_for_input_on_stdin(token); });
+        stdin_thread = jthread([this](auto token) { wait_for_input_on_stdin(token); });
     }
     return socket_server.start().and_then([this]() -> Result<void> {
-        socket_thread = std::jthread([this](auto token) { wait_for_input_on_socket(token); });
+        socket_thread = jthread([this](auto token) { wait_for_input_on_socket(token); });
         return {};
     });
 }

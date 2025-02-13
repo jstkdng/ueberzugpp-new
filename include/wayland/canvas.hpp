@@ -56,7 +56,7 @@ class WaylandCanvas final : public Canvas
     string_map<std::shared_ptr<WaylandWindow>> window_map;
     WindowPtrs window_ptrs;
 
-    std::jthread event_handler;
+    jthread event_handler;
 
     void handle_events(SToken token);
 

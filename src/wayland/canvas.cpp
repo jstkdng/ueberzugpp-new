@@ -85,7 +85,7 @@ auto WaylandCanvas::init() -> Result<void>
     wl_display_roundtrip(display.get());
 
     display_fd = wl_display_get_fd(display.get());
-    event_handler = std::jthread([this](auto token) { handle_events(token); });
+    event_handler = jthread([this](auto token) { handle_events(token); });
 
     logger->info("canvas created");
     return {};

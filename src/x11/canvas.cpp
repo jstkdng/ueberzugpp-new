@@ -39,7 +39,7 @@ X11Canvas::X11Canvas(ApplicationContext *ctx) :
 auto X11Canvas::init() -> Result<void>
 {
     logger->info("canvas created");
-    event_handler = std::jthread([this](auto token) { handle_events(token); });
+    event_handler = jthread([this](auto token) { handle_events(token); });
     return {};
 }
 

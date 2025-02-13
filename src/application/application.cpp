@@ -97,7 +97,7 @@ auto Application::handle_cmd_subcommand() -> Result<void>
 
 auto Application::wait_for_layer_commands() -> Result<void>
 {
-    command_thread = std::jthread([this](auto token) { execute_layer_commands(token); });
+    command_thread = jthread([this](auto token) { execute_layer_commands(token); });
     stop_flag.wait(false);
 #ifdef ENABLE_LIBVIPS
     vips_shutdown();

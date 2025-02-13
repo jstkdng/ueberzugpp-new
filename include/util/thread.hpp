@@ -24,12 +24,18 @@
 #ifdef __cpp_lib_jthread
 #include <stop_token>
 #include <thread>
+
+using jthread = std::jthread;
+using stop_token = std::stop_token;
 #else
 #include "jthread/jthread.hpp"
+
+using jthread = nonstd::jthread;
+using stop_token = nonstd::stop_token;
 #endif
 // IWYU pragma: end_exports
 
 namespace upp
 {
-using SToken = const std::stop_token &;
+using SToken = const stop_token &;
 }

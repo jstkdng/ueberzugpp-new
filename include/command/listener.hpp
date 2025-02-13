@@ -44,8 +44,8 @@ class CommandListener
 
     CommandQueue *queue;
     std::string parser;
-    std::jthread stdin_thread;
-    std::jthread socket_thread;
+    jthread stdin_thread;
+    jthread socket_thread;
     unix::socket::Server socket_server;
     Logger logger;
 };

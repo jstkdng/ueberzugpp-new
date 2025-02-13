@@ -55,7 +55,7 @@ class Application
     CanvasPtr canvas;
     Logger logger;
 
-    std::jthread command_thread;
+    jthread command_thread;
 
     void print_header();
     void setup_signal_handler();
