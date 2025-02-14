@@ -75,12 +75,12 @@ auto Command::create(std::string_view parser, std::string line) -> Result<Comman
 
 auto Command::from_json(std::string line) -> Result<Command>
 {
-    Command cmd;
-    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(cmd, line)) {
+    auto cmd = make_result<Command>();
+    if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(*cmd, line)) {
         return Err(glz::format_error(err, line));
     }
-    if (cmd.image_scaler.empty()) {
-        cmd.image_scaler = "contain";
+    if (cmd->image_scaler.empty()) {
+        cmd->image_scaler = "contain";
     }
     return cmd;
 }

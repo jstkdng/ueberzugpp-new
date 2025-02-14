@@ -96,12 +96,12 @@ auto wait_for_data_on_stdin() -> Result<bool>
 // will block if there is no data available
 auto read_data_from_fd(int filde) -> Result<std::string>
 {
-    std::string result(bufsize, 0);
-    const auto bytes_read = read(filde, result.data(), bufsize);
+    auto result = make_result<std::string>(bufsize, 0);
+    const auto bytes_read = read(filde, result->data(), bufsize);
     if (bytes_read == -1) {
         return Err("could not read from file descriptor");
     }
-    result.resize(bytes_read);
+    result->resize(bytes_read);
     return result;
 }
 
@@ -121,7 +121,7 @@ auto get_pid_process_name(int pid) -> std::string
 
 auto get_pid_from_socket(int sockfd) -> Result<int>
 {
-#ifdef UPP_OS_LINUX
+#ifdef __linux__
     struct ucred ucred;
     if (socklen_t len = sizeof(struct ucred); getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
         return Err("getsockopt");

@@ -73,4 +73,10 @@ auto Err(Args &&...args) -> std::unexpected<Error> // NOLINT
     return std::unexpected<Error>(std::in_place, std::forward<Args>(args)...);
 }
 
+template <class T, class... Args>
+auto make_result(Args &&...args) -> Result<T>
+{
+    return Result<T>(std::in_place, std::forward<Args>(args)...);
+}
+
 } // namespace upp

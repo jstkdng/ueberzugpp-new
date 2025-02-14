@@ -77,10 +77,10 @@ auto Client::read(std::span<std::byte> buffer) const -> Result<void>
 
 auto Client::read_until_empty() const -> Result<std::string>
 {
-    std::string result;
+    auto result = make_result<std::string>();
     const int read_buffer_size = 4096;
     std::array<char, read_buffer_size> read_buffer;
-    result.reserve(read_buffer_size);
+    result->reserve(read_buffer_size);
     while (true) {
         const auto status = recv(sockfd.get(), read_buffer.data(), read_buffer_size, 0);
         if (status == -1) {
@@ -89,7 +89,7 @@ auto Client::read_until_empty() const -> Result<std::string>
         if (status == 0) {
             return result;
         }
-        result.append(read_buffer.data(), status);
+        result->append(read_buffer.data(), status);
     }
 }
 
