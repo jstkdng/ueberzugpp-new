@@ -24,9 +24,7 @@
 #include <vips/vips.h>
 
 #include <algorithm>
-#include <filesystem>
 #include <unordered_set>
-#include <utility>
 
 namespace upp
 {
@@ -38,7 +36,9 @@ LibvipsImage::LibvipsImage(ApplicationContext *ctx) :
 
 LibvipsImage::~LibvipsImage()
 {
-    g_object_unref(image);
+    if (image != nullptr) {
+        g_object_unref(image);
+    }
 }
 
 auto LibvipsImage::load(ImageProps props) -> Result<void>
@@ -53,7 +53,6 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
 
 auto LibvipsImage::read_image() -> Result<void>
 {
-    std::string_view loader{vips_foreign_find_load(props.file_path.c_str())};
     image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
     if (image == nullptr) {
         return Err("failed to load image");
