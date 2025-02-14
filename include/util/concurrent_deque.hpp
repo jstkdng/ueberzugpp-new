@@ -75,7 +75,7 @@ class ConcurrentDeque
 
         auto elem = queue.front();
         queue.pop_front();
-        return elem;
+        return std::make_optional(elem);
     }
 
     void clear()

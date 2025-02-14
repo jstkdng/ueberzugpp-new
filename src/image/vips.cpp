@@ -210,7 +210,7 @@ auto LibvipsImage::get_frame_delays() -> std::optional<std::span<int>>
     if (vips_image_get_array_int(image, "delay", &array, &size) == -1) {
         return {};
     }
-    return std::span{array, static_cast<size_t>(size)};
+    return std::make_optional<std::span<int>>(array, static_cast<size_t>(size));
 }
 
 auto LibvipsImage::origin_is_animated() const -> bool

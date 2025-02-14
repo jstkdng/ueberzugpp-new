@@ -28,7 +28,6 @@
 #include <array>
 #include <cstdlib>
 #include <format>
-#include <optional>
 #include <ranges>
 #include <span>
 #include <stack>

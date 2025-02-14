@@ -54,7 +54,7 @@ auto getenv(const std::string &var) -> std::optional<std::string>
     if (env_p == nullptr) {
         return {};
     }
-    return env_p;
+    return std::make_optional(env_p);
 }
 
 auto get_poll_err(int event) -> std::string_view
