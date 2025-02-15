@@ -151,6 +151,7 @@ if (ENABLE_OPENCL)
 endif ()
 
 target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
+target_compile_definitions(ueberzugpp PRIVATE SPDLOG_NO_SOURCE_LOC)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 if (ENABLE_DEBUG_LOGGING)
     target_compile_definitions(ueberzugpp PRIVATE $<$<NOT:$<CONFIG:Debug>>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
