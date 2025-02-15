@@ -48,7 +48,7 @@ auto buffer_to_hexstring(std::span<const std::byte> buffer) -> std::string
 
 auto blake2b_encode(std::span<const std::byte> buffer) -> std::string
 {
-    const auto mdctx = c_unique_ptr<EVP_MD_CTX, EVP_MD_CTX_free>{EVP_MD_CTX_new()};
+    const auto mdctx = c_unique_ptr<EVP_MD_CTX, &EVP_MD_CTX_free>{EVP_MD_CTX_new()};
 #ifdef LIBRESSL_VERSION_NUMBER
     const auto *evp = EVP_sha256();
 #else

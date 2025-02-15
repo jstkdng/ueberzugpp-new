@@ -33,8 +33,7 @@ auto main(int argc, char *argv[]) -> int
     }
 
     upp::Application application(&cli);
-    auto result = application.run();
-    if (!result) {
+    if (auto result = application.run(); !result) {
         auto msg = result.error().message();
         if (msg.back() == '\n') {
             msg.pop_back();
