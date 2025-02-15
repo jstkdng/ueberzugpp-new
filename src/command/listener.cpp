@@ -38,7 +38,7 @@ auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Resul
 {
     logger = spdlog::get("listener");
     parser = new_parser;
-    logger->info("using {} parser", parser);
+    LOG_INFO("using {} parser", parser);
     if (!no_stdin) {
         stdin_thread = jthread([this](auto token) { wait_for_input_on_stdin(token); });
     }
@@ -50,7 +50,7 @@ auto CommandListener::start(std::string_view new_parser, bool no_stdin) -> Resul
 
 void CommandListener::wait_for_input_on_stdin(SToken token)
 {
-    logger->info("listening for commands on stdin");
+    LOG_INFO("listening for commands on stdin");
     // failing to wait or read data from stdin is fatal
     while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_stdin()) {
@@ -58,14 +58,14 @@ void CommandListener::wait_for_input_on_stdin(SToken token)
                 continue;
             }
         } else {
-            logger->warn("could not wait for data from stdin: {}", in_event.error().message());
+            LOG_WARN("could not wait for data from stdin: {}", in_event.error().message());
             Application::terminate();
             return;
         }
         if (auto data = os::read_data_from_stdin()) {
             extract_commands(*data);
         } else {
-            logger->warn("could not read data from stdin: {}", data.error().message());
+            LOG_WARN("could not read data from stdin: {}", data.error().message());
             Application::terminate();
             return;
         }
@@ -74,7 +74,7 @@ void CommandListener::wait_for_input_on_stdin(SToken token)
 
 void CommandListener::wait_for_input_on_socket(SToken token)
 {
-    logger->info("listening for commands on socket {}", socket_server.get_endpoint());
+    LOG_INFO("listening for commands on socket {}", socket_server.get_endpoint());
     // it is only fatal to wait for data from socket
     while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_fd(socket_server.get_fd())) {
@@ -82,14 +82,14 @@ void CommandListener::wait_for_input_on_socket(SToken token)
                 continue;
             }
         } else {
-            logger->warn("could not wait for data from socket: {}", in_event.error().message());
+            LOG_WARN("could not wait for data from socket: {}", in_event.error().message());
             Application::terminate(); // stop this program if this thread dies
             return;
         }
         if (auto data = socket_server.read_data_from_connection()) {
             extract_commands(*data);
         } else {
-            logger->debug("could not read data from connection: {}", data.error().message());
+            LOG_DEBUG("could not read data from connection: {}", data.error().message());
         }
     }
 }
@@ -103,7 +103,7 @@ void CommandListener::extract_commands(std::string_view line)
         }
 
         auto cmd_str = line.substr(0, find_result);
-        logger->trace("Received command: {}", cmd_str);
+        LOG_TRACE("Received command: {}", cmd_str);
         if (auto cmd = Command::create(parser, std::string{cmd_str})) {
             if (cmd->action == "exit") {
                 Application::terminate();
@@ -113,7 +113,7 @@ void CommandListener::extract_commands(std::string_view line)
                 enqueue_or_discard(*cmd);
             }
         } else {
-            logger->error(cmd.error().message());
+            LOG_ERROR(cmd.error().message());
         }
         line.remove_prefix(find_result + 1);
     }
@@ -121,7 +121,7 @@ void CommandListener::extract_commands(std::string_view line)
 
 void CommandListener::flush_command_queue() const
 {
-    logger->debug("flushing command queue");
+    LOG_DEBUG("flushing command queue");
     queue->clear();
 }
 
@@ -132,7 +132,7 @@ void CommandListener::enqueue_or_discard(const Command &cmd)
             return true;
         }
         if (auto &last = deque.back(); last.action == "add" && last.preview_id == cmd.preview_id) {
-            logger->info("discarding add/remove command pair for {}", last.image_path.filename().string());
+            LOG_INFO("discarding add/remove command pair for {}", last.image_path.filename().string());
             deque.pop_back();
             return false;
         }

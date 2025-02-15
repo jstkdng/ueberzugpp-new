@@ -38,7 +38,7 @@ HyprlandSocket::HyprlandSocket(std::string instance_signature) :
     auto socket_base_dir = os::getenv("XDG_RUNTIME_DIR").value_or("/tmp");
     auto socket_rel_path = std::format("hypr/{}/.socket.sock", signature);
     socket_path = std::format("{}/{}", socket_base_dir, socket_rel_path);
-    logger->info("using socket {}", socket_path);
+    LOG_INFO("using socket {}", socket_path);
     get_version();
 }
 
@@ -61,9 +61,9 @@ void HyprlandSocket::get_version()
     auto ver_str = request_result("j/version");
     HyprlandVersion ver;
     if (auto err = glz::read<glz::opts{.error_on_unknown_keys = 0}>(ver, ver_str)) {
-        logger->info("could not find hyprland version");
+        LOG_INFO("could not find hyprland version");
     } else {
-        logger->info("version: {}", ver.version);
+        LOG_INFO("version: {}", ver.version);
     }
 }
 
@@ -93,7 +93,7 @@ void HyprlandSocket::request(std::string_view payload)
     unix::socket::Client client;
     auto result = client.connect_and_write(socket_path, util::make_buffer(payload));
     if (!result) {
-        logger->error(result.error().message());
+        LOG_ERROR(result.error().message());
     }
 }
 
@@ -104,7 +104,7 @@ auto HyprlandSocket::request_result(std::string_view payload) -> std::string
         return client.read_until_empty();
     });
     if (!result) {
-        logger->error(result.error().message());
+        LOG_ERROR(result.error().message());
         return {};
     }
 

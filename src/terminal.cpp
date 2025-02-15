@@ -75,7 +75,7 @@ auto Terminal::set_terminal_size() -> Result<void>
     size.rows = termsize.ws_row;
     size.width = termsize.ws_xpixel;
     size.height = termsize.ws_ypixel;
-    logger->debug("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", size.cols, size.rows, size.width, size.height);
+    LOG_DEBUG("ioctl sizes: COLS={} ROWS={} XPIXEL={} YPIXEL={}", size.cols, size.rows, size.width, size.height);
 
     set_fallback_size_from_x11();
     set_fallback_size_from_wayland();
@@ -108,8 +108,8 @@ auto Terminal::set_font_size() -> Result<void>
         font.height = size.height / size.rows;
     }
 
-    logger->debug("padding_horiz={} padding_vert={}", font.horizontal_padding, font.vertical_padding);
-    logger->debug("font_width={} font_height={}", font.width, font.height);
+    LOG_DEBUG("padding_horiz={} padding_vert={}", font.horizontal_padding, font.vertical_padding);
+    LOG_DEBUG("font_width={} font_height={}", font.width, font.height);
     return {};
 }
 
@@ -117,13 +117,13 @@ void Terminal::set_fallback_size_from_x11()
 {
 #ifdef ENABLE_X11
     if (auto result = ctx->x11.load_state(pty_pid); !result) {
-        logger->debug(result.error().message());
+        LOG_DEBUG(result.error().message());
         return;
     }
     auto [width, height] = ctx->x11.parent_geometry;
     size.fallback_width = width;
     size.fallback_height = height;
-    logger->debug("x11 sizes: XPIXEL={} YPIXEL={}", width, height);
+    LOG_DEBUG("x11 sizes: XPIXEL={} YPIXEL={}", width, height);
 #endif
 }
 
@@ -138,8 +138,7 @@ void Terminal::set_fallback_size_from_wayland()
     position.y = geometry.y;
     size.fallback_width = geometry.width;
     size.fallback_height = geometry.height;
-    logger->debug(
-        "wayland sizes: X={} Y={} XPIXEL={} YPIXEL={}", position.x, position.y, geometry.width, geometry.height);
+    LOG_DEBUG("wayland sizes: X={} Y={} XPIXEL={} YPIXEL={}", position.x, position.y, geometry.width, geometry.height);
 #endif
 }
 
@@ -152,21 +151,21 @@ auto Terminal::open_first_pty() -> Result<void>
     for (const auto &proc : tree) {
         const auto &path = proc.pty_path;
         if (stat(path.c_str(), &stat_info) == -1) {
-            logger->debug("stat {}: {}", path, os::strerror());
+            LOG_DEBUG("stat {}: {}", path, os::strerror());
             continue;
         }
         if (proc.tty_nr != static_cast<int>(stat_info.st_rdev)) {
-            logger->debug("device {} != {}", proc.tty_nr, stat_info.st_rdev);
+            LOG_DEBUG("device {} != {}", proc.tty_nr, stat_info.st_rdev);
             continue;
         }
         pty_fd = open(path.c_str(), O_RDONLY | O_NOCTTY);
         if (!pty_fd) {
-            logger->debug("open: {}", os::strerror());
+            LOG_DEBUG("open: {}", os::strerror());
             continue;
         }
         pty_pid = proc.pid;
-        logger->info("PTY = {}", path);
-        logger->info("PID = {}", pty_pid);
+        LOG_INFO("PTY = {}", path);
+        LOG_INFO("PID = {}", pty_pid);
         return {};
     }
     return Err("could not open terminal");

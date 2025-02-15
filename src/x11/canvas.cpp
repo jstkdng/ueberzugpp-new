@@ -35,7 +35,7 @@ X11Canvas::X11Canvas(ApplicationContext *ctx) :
 
 auto X11Canvas::init() -> Result<void>
 {
-    logger->info("canvas created");
+    LOG_INFO("canvas created");
     event_handler = jthread([this](auto token) { handle_events(token); });
     return {};
 }
@@ -54,17 +54,17 @@ void X11Canvas::handle_add_command(const Command &cmd)
 {
     std::shared_ptr<X11Window> window_ptr;
     if (auto window = window_id_map.find(cmd.preview_id); window == window_id_map.end()) {
-        logger->trace("creating new window");
+        LOG_TRACE("creating new window");
         window_ptr = std::make_shared<X11Window>(ctx, &window_map);
         window_ptr->create_xcb_windows();
     } else {
-        logger->trace("reusing existing window");
+        LOG_TRACE("reusing existing window");
         window_ptr = window->second;
     }
     if (auto result = window_ptr->init(cmd)) {
         window_id_map.try_emplace(cmd.preview_id, window_ptr);
     } else {
-        logger->warn(result.error().message());
+        LOG_WARN(result.error().message());
     }
 }
 
@@ -82,7 +82,7 @@ void X11Canvas::handle_remove_command(const Command &cmd)
 
 void X11Canvas::handle_events(SToken token)
 {
-    logger->debug("started event handler");
+    LOG_DEBUG("started event handler");
     const int filde = ctx->x11.connection_fd;
     while (!token.stop_requested()) {
         if (auto in_event = os::wait_for_data_on_fd(filde)) {
@@ -112,7 +112,7 @@ void X11Canvas::dispatch_events()
                 break;
             }
             default: {
-                logger->debug("received unknown event {}", real_event);
+                LOG_DEBUG("received unknown event {}", real_event);
                 break;
             }
         }

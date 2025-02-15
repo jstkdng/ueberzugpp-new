@@ -84,13 +84,13 @@ auto WaylandCanvas::init() -> Result<void>
     display_fd = wl_display_get_fd(display.get());
     event_handler = jthread([this](auto token) { handle_events(token); });
 
-    logger->info("canvas created");
+    LOG_INFO("canvas created");
     return {};
 }
 
 void WaylandCanvas::handle_events(SToken token)
 {
-    logger->debug("started event handler");
+    LOG_DEBUG("started event handler");
     auto *display_ptr = display.get();
 
     while (!token.stop_requested()) {
@@ -119,7 +119,7 @@ void WaylandCanvas::execute(const Command &cmd)
         if (auto result = window->init(cmd, window_ptrs)) {
             window_map.try_emplace(cmd.preview_id, window);
         } else {
-            logger->warn(result.error().message());
+            LOG_WARN(result.error().message());
         }
     } else if (cmd.action == "remove") {
         window_map.erase(cmd.preview_id);

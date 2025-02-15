@@ -40,6 +40,7 @@ option(ENABLE_X11 "Enable X11 support" ON)
 option(ENABLE_WAYLAND "Enable wayland support" ON)
 option(ENABLE_LIBVIPS "Enable image loading through libvips" ON)
 option(ENABLE_OPENCL "Enable OpenCL image processing" OFF)
+option(ENABLE_DEBUG_LOGGING "Enable debug logging on non debug builds" OFF)
 option(USE_BUNDLED_LIBRARIES "Use bundled libraries" ON)
 option(USE_LIBCXX "Link against libc++" OFF)
 
@@ -150,7 +151,12 @@ if (ENABLE_OPENCL)
 endif ()
 
 target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
-target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG>)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
+if (ENABLE_DEBUG_LOGGING)
+    target_compile_definitions(ueberzugpp PRIVATE $<$<NOT:$<CONFIG:Debug>>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
+else ()
+    target_compile_definitions(ueberzugpp PRIVATE $<$<NOT:$<CONFIG:Debug>>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
+endif ()
 
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)

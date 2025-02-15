@@ -58,14 +58,14 @@ auto LibvipsImage::read_image() -> Result<void>
         return Err("failed to load image");
     }
     if (origin_is_animated()) {
-        logger->info("image is animated");
+        LOG_INFO("image is animated");
         VipsImage *temp =
             vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
         int n_pages = vips_image_get_n_pages(temp);
         int temp_height = vips_image_get_height(temp);
-        logger->debug("animated sizes: {}x{}", vips_image_get_width(temp), vips_image_get_height(temp));
-        logger->debug("number of frames: {}", n_pages);
-        logger->debug("frame height: {}  original height: {}", temp_height / n_pages, height());
+        LOG_DEBUG("animated sizes: {}x{}", vips_image_get_width(temp), vips_image_get_height(temp));
+        LOG_DEBUG("number of frames: {}", n_pages);
+        LOG_DEBUG("frame height: {}  original height: {}", temp_height / n_pages, height());
         g_object_unref(temp);
     }
     return {};
@@ -82,13 +82,13 @@ void LibvipsImage::process_image()
     if (bgra_outputs.contains(output)) {
         // alpha channel required
         if (vips_image_hasalpha(image) == FALSE) {
-            logger->debug("adding alpha channel to image");
+            LOG_DEBUG("adding alpha channel to image");
             vips_addalpha(image, &image_out, nullptr);
             g_object_unref(image);
             image = image_out;
         }
 
-        logger->debug("converting image to BGRX");
+        LOG_DEBUG("converting image to BGRX");
         // convert from RGB to BGR
         int chan = num_channels();
         std::vector<VipsImage *> bands(chan, nullptr);
@@ -133,7 +133,7 @@ auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool
         ((new_width - cached_width) <= delta || (new_height - cached_height) <= delta)) {
         g_object_unref(image);
         image = cached_image;
-        logger->info("loading image {} from cache", util::get_filename(props.file_path));
+        LOG_INFO("loading image {} from cache", util::get_filename(props.file_path));
         return true;
     }
 
@@ -168,7 +168,7 @@ void LibvipsImage::contain_scaler()
         return;
     }
 
-    logger->info("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
+    LOG_INFO("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
 
     g_object_unref(image);
     vips_thumbnail(props.file_path.c_str(), &image, new_width, "height", new_height, nullptr);

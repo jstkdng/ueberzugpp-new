@@ -64,15 +64,15 @@ auto X11Context::init() -> Result<void>
 
     return os::get_pid_from_socket(connection_fd).and_then([this](int pid) -> Result<void> {
         auto proc_name = os::get_pid_process_name(pid);
-        logger->debug("vendor: {}", proc_name);
+        LOG_DEBUG("vendor: {}", proc_name);
         if (proc_name != "Xorg") {
-            logger->info("connected to Xwayland");
+            LOG_INFO("connected to Xwayland");
             is_xwayland = true;
         } else {
-            logger->info("connected to X11 server");
+            LOG_INFO("connected to X11 server");
         }
         is_valid = true;
-        logger->debug("context initialized");
+        LOG_DEBUG("context initialized");
         return {};
     });
 }
@@ -90,7 +90,7 @@ auto X11Context::load_state(int pid) -> Result<void>
 
     set_pid_window_map();
     return set_parent_window(pid).and_then([this] {
-        logger->debug("parent window: {}", parent);
+        LOG_DEBUG("parent window: {}", parent);
         return set_parent_window_geometry();
     });
 }
@@ -132,7 +132,7 @@ auto X11Context::set_parent_window(int pid) -> Result<void>
             return {};
         }
     }
-    logger->debug("WINDOWID not set or invalid");
+    LOG_DEBUG("WINDOWID not set or invalid");
     for (auto spid : os::Process::get_pid_tree(pid)) {
         auto search = pid_window_map.find(spid);
         if (search != pid_window_map.end()) {
@@ -216,7 +216,7 @@ auto X11Context::set_parent_window_geometry() -> Result<void>
         return Err(std::format("failed to set geometry for window {}", parent));
     }
     const auto &reply = *reply_result;
-    logger->debug("parent window size: {}x{}", reply->width, reply->height);
+    LOG_DEBUG("parent window size: {}x{}", reply->width, reply->height);
     parent_geometry.width = reply->width;
     parent_geometry.height = reply->height;
     return {};
@@ -226,7 +226,7 @@ void X11Context::create_gcontext()
 {
     gcontext = xcb_generate_id(connection.get());
     xcb_create_gc(connection.get(), gcontext, screen->root, 0, nullptr);
-    logger->debug("created gc with id {}", gcontext);
+    LOG_DEBUG("created gc with id {}", gcontext);
 }
 
 void X11Context::handle_xcb_error(xcb::error_ptr err) const
@@ -238,8 +238,8 @@ void X11Context::handle_xcb_error(xcb::error_ptr err) const
 
     const std::string_view ext_str = extension != nullptr ? extension : "no_extension";
     const std::string_view minor_str = minor != nullptr ? minor : "no_minor";
-    logger->error("XCB: {}:{}, {}:{}, resource {} sequence {}", error, ext_str, major, minor_str, err->resource_id,
-                  err->sequence);
+    LOG_ERROR("XCB: {}:{}, {}:{}, resource {} sequence {}", error, ext_str, major, minor_str, err->resource_id,
+              err->sequence);
 }
 
 } // namespace upp

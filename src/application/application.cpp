@@ -90,7 +90,7 @@ auto Application::handle_cmd_subcommand() -> Result<void>
     unix::socket::Client client;
     auto result = client.connect_and_write(cli->cmd.socket, util::make_buffer(payload));
     if (!result) {
-        logger->debug("could not send command: {}", result.error().message());
+        LOG_DEBUG("could not send command: {}", result.error().message());
     }
     return {};
 }
@@ -102,7 +102,7 @@ auto Application::wait_for_layer_commands() -> Result<void>
 #ifdef ENABLE_LIBVIPS
     vips_shutdown();
 #endif
-    logger->info("ueberzugpp terminated");
+    LOG_INFO("ueberzugpp terminated");
     return {};
 }
 
@@ -129,7 +129,7 @@ void Application::print_header()
  \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
                                        __/ |    new
                                       |___/)";
-    logger->info(art, version_str, build_date);
+    LOG_INFO(art, version_str, build_date);
 }
 
 auto Application::setup_logging() -> Result<void>
@@ -189,7 +189,7 @@ auto Application::setup_vips() -> Result<void>
         return Err("can't startup vips");
     }
     vips_cache_set_max(0);
-    logger->debug("libvips initialized");
+    LOG_DEBUG("libvips initialized");
 #endif
     return {};
 }
@@ -202,7 +202,7 @@ void Application::terminate()
 
 void Application::setup_signal_handler()
 {
-    logger->debug("setting up signal handler");
+    LOG_DEBUG("setting up signal handler");
     struct sigaction sga{};
     sga.sa_handler = signal_handler;
     sigemptyset(&sga.sa_mask);
@@ -232,9 +232,9 @@ void Application::signal_handler(int signal)
     const auto *found = std::ranges::find_if(signal_map, [signal](const pair_t &pair) { return pair.first == signal; });
     auto logger = spdlog::get("application");
     if (found == signal_map.end()) {
-        logger->warn("received unknown signal, terminating");
+        LOG_WARN("received unknown signal, terminating");
     } else {
-        logger->warn("received {}, terminating", found->second);
+        LOG_WARN("received {}, terminating", found->second);
     }
 
     terminate();
@@ -246,11 +246,12 @@ void Application::sigwinch_handler([[maybe_unused]] int signal)
     if (!ctx->is_initialized) {
         return;
     }
-    ctx->logger->debug("received SIGWINCH, recalculating terminal state");
+    auto logger = ctx->logger;
+    LOG_DEBUG("received SIGWINCH, recalculating terminal state");
     std::scoped_lock state_lock{ctx->state_mutex};
     auto state = ctx->terminal.load_state();
     if (!state) {
-        ctx->logger->warn(state.error().message());
+        LOG_WARN(state.error().message());
     }
 }
 

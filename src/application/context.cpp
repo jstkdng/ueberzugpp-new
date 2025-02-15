@@ -33,9 +33,9 @@ namespace upp
 auto ApplicationContext::init(std::string_view cli_output) -> Result<void>
 {
     logger = spdlog::get("application");
-    logger->info("TERM = {}", term);
+    LOG_INFO("TERM = {}", term);
     if (!term_program.empty()) {
-        logger->info("TERM_PROGRAM = {}", term_program);
+        LOG_INFO("TERM_PROGRAM = {}", term_program);
     }
     return x11_init()
         .and_then([this] { return wayland_init(); })
@@ -52,7 +52,7 @@ auto ApplicationContext::x11_init() -> Result<void>
 #ifdef ENABLE_X11
     auto result = x11.init();
     if (!result) {
-        logger->debug(result.error().message());
+        LOG_DEBUG(result.error().message());
     }
 #endif
     return {};
@@ -64,7 +64,7 @@ auto ApplicationContext::wayland_init() -> Result<void>
     if (auto result = WaylandSocket::create()) {
         wl_socket = std::move(*result);
     } else {
-        logger->debug(result.error().message());
+        LOG_DEBUG(result.error().message());
     }
 #endif
     return {};
