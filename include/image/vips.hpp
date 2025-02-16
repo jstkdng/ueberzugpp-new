@@ -37,15 +37,21 @@ using VImage = ::VipsImage;
 class VipsImage
 {
   public:
+    explicit VipsImage(ApplicationContext *ctx);
     ~VipsImage();
     auto read(const std::string &image_path) -> Result<void>;
     void scale_image(int target_width, int target_height, std::string_view scaler);
-
     auto width() -> int;
     auto height() -> int;
 
+    static auto add_alpha(VImage *image) -> Result<VImage *>;
+    static auto thumbnail(const std::string &image_path, int width, int height) -> Result<VImage *>;
+    static auto rgb_to_bgr(VImage *image) -> Result<VImage *>;
+    static auto last_error() -> std::unexpected<Error>;
+
   private:
     Logger logger{spdlog::get("vips")};
+    ApplicationContext *m_ctx;
     std::string m_image_path;
     VImage *m_image;
     VImage *m_image_out;
@@ -54,8 +60,6 @@ class VipsImage
 };
 
 /*
-template <typename T>
-using glib_ptr = c_unique_ptr<T, g_free>;
 
 struct ImageProps {
     std::string file_path;
@@ -67,14 +71,12 @@ struct ImageProps {
 class LibvipsImage
 {
   public:
-    explicit LibvipsImage(ApplicationContext *ctx);
     auto load(ImageProps props) -> Result<void>;
     auto num_channels() -> int;
     auto data() -> unsigned char *;
     auto data_size() -> int;
 
   private:
-    ApplicationContext *ctx;
     ImageProps props;
     VipsImage *image;
     VipsImage *image_out;

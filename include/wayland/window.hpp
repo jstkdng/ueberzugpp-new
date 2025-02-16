@@ -36,7 +36,7 @@ namespace upp
 class WaylandWindow;
 
 struct WeakWindow {
-    std::weak_ptr<WaylandWindow> ptr;
+    std::weak_ptr<WaylandWindow> m_ptr;
 };
 
 using WindowPtrs = std::list<WeakWindow>;
@@ -52,15 +52,15 @@ class WaylandWindow : public std::enable_shared_from_this<WaylandWindow>
 
   private:
     Logger logger{spdlog::get("wayland")};
-    ApplicationContext *ctx;
-    LibvipsImage image;
+    ApplicationContext *m_ctx;
+    VipsImage m_image;
 
-    WaylandShm shm;
-    wl::surface surface;
-    wl::xdg::surface xdg_surface;
-    wl::xdg::top_level xdg_toplevel;
-    std::string app_id;
-    std::atomic_int scale_factor = 1;
+    WaylandShm m_shm;
+    wl::surface m_surface;
+    wl::xdg::surface m_xdg_surface;
+    wl::xdg::top_level m_xdg_toplevel;
+    std::string m_app_id;
+    std::atomic_int m_scale_factor = 1;
 
     auto socket_setup(const Command &command) -> Result<void>;
     auto listeners_setup(WindowPtrs &window_ptrs) -> Result<void>;

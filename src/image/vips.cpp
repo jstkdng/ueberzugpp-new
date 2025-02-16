@@ -24,10 +24,19 @@
 #include <vips/vips.h>
 
 #include <algorithm>
+#include <string_view>
 #include <unordered_set>
 
 namespace upp
 {
+
+template <typename T>
+using glib_ptr = c_unique_ptr<T, g_free>;
+
+VipsImage::VipsImage(ApplicationContext *ctx) :
+    m_ctx(ctx)
+{
+}
 
 VipsImage::~VipsImage()
 {
@@ -76,15 +85,75 @@ void VipsImage::contain_scaler(int target_width, int target_height)
         return;
     }
 
-    LOG_INFO("resizing image {} to {}x{}", util::get_filename(m_image_path), new_width, new_height);
+    LOG_DEBUG("resizing image {} to {}x{}", util::get_filename(m_image_path), new_width, new_height);
+    if (auto img = thumbnail(m_image_path, new_width, new_height)) {
+        g_object_unref(m_image);
+        m_image = *img;
+        LOG_DEBUG("resulting sizes after resize: {}x{}", width(), height());
+    } else {
+        LOG_ERROR(img.error().message());
+    }
+}
+
+auto VipsImage::thumbnail(const std::string &image_path, int width, int height) -> Result<VImage *>
+{
+    VImage *temp = nullptr;
+    if (vips_thumbnail(image_path.c_str(), &temp, width, "height", height, nullptr) == -1) {
+        return last_error();
+    }
+
+    auto result = make_result<VImage *>(vips_image_copy_memory(temp));
+    if (*result == nullptr) {
+        g_object_unref(temp);
+        return last_error();
+    }
+    return result;
+}
+
+auto VipsImage::last_error() -> std::unexpected<Error>
+{
+    glib_ptr<char> err{vips_error_buffer_copy()};
+    std::string_view err_view{err.get()};
+    err_view.remove_suffix(1);
+    return Err(err_view, 0);
+}
+
+auto VipsImage::rgb_to_bgr(VImage *image) -> Result<VImage *>
+{
+    int channels = vips_image_get_bands(image);
+    auto bands = util::make_vector<VImage *>(channels);
+
+    for (int i = 0; i < channels; ++i) {
+        VImage *band = nullptr;
+        if (vips_extract_band(image, &band, i, nullptr) == -1) {
+            std::ranges::for_each(bands, g_object_unref);
+            return last_error();
+        }
+        bands[i] = band;
+    }
+    std::swap(bands[0], bands[2]);
+
+    auto result = make_result<VImage *>();
+    if (vips_bandjoin(bands.data(), &(*result), channels, nullptr) == -1) {
+        std::ranges::for_each(bands, g_object_unref);
+        return last_error();
+    }
+    std::ranges::for_each(bands, g_object_unref);
+
+    return result;
+}
+
+auto VipsImage::add_alpha(VImage *image) -> Result<VImage *>
+{
+    if (vips_image_hasalpha(image) == FALSE) {
+        LOG_DEBUG("adding alpha channel to image");
+        vips_addalpha(image, &image_out, nullptr);
+        g_object_unref(image);
+        image = image_out;
+    }
 }
 
 /*
-LibvipsImage::LibvipsImage(ApplicationContext *ctx) :
-    ctx(ctx)
-{
-}
-
 auto LibvipsImage::load(ImageProps props) -> Result<void>
 {
     this->props = std::move(props);
@@ -93,26 +162,6 @@ auto LibvipsImage::load(ImageProps props) -> Result<void>
         process_image();
         return {};
     });
-}
-
-auto LibvipsImage::read_image() -> Result<void>
-{
-    image = vips_image_new_from_file(props.file_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
-    if (image == nullptr) {
-        return Err("failed to load image");
-    }
-    if (origin_is_animated()) {
-        LOG_INFO("image is animated");
-        VipsImage *temp =
-            vips_image_new_from_file(props.file_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
-        int n_pages = vips_image_get_n_pages(temp);
-        int temp_height = vips_image_get_height(temp);
-        LOG_DEBUG("animated sizes: {}x{}", vips_image_get_width(temp), vips_image_get_height(temp));
-        LOG_DEBUG("number of frames: {}", n_pages);
-        LOG_DEBUG("frame height: {}  original height: {}", temp_height / n_pages, height());
-        g_object_unref(temp);
-    }
-    return {};
 }
 
 void LibvipsImage::process_image()
@@ -125,29 +174,10 @@ void LibvipsImage::process_image()
     std::string_view output = ctx->output;
     if (bgra_outputs.contains(output)) {
         // alpha channel required
-        if (vips_image_hasalpha(image) == FALSE) {
-            LOG_DEBUG("adding alpha channel to image");
-            vips_addalpha(image, &image_out, nullptr);
-            g_object_unref(image);
-            image = image_out;
-        }
 
         LOG_DEBUG("converting image to BGRX");
         // convert from RGB to BGR
         int chan = num_channels();
-        std::vector<VipsImage *> bands(chan, nullptr);
-        for (int i = 0; i < chan; ++i) {
-            VipsImage *band = nullptr;
-            vips_extract_band(image, &band, i, nullptr);
-            bands[i] = band;
-        }
-        std::swap(bands[0], bands[2]);
-
-        vips_bandjoin(bands.data(), &image_out, chan, nullptr);
-        g_object_unref(image);
-        image = image_out;
-
-        std::ranges::for_each(bands, g_object_unref);
 
     } else if (output == "sixel") {
         // sixel expects RGB888
@@ -182,13 +212,6 @@ auto LibvipsImage::image_is_cached(int new_width, int new_height) -> bool
     }
 
     return false;
-}
-
-void LibvipsImage::resize_image()
-{
-    if (props.scaler == "contain") {
-        contain_scaler();
-    }
 }
 
 auto LibvipsImage::num_channels() -> int

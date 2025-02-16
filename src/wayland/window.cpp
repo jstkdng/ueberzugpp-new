@@ -41,59 +41,64 @@ void WaylandWindow::xdg_surface_configure(void *data, struct xdg_surface *xdg_su
 {
     xdg_surface_ack_configure(xdg_surface, serial);
     const auto *weak = static_cast<WeakWindow *>(data);
-    auto window = weak->ptr.lock();
+    auto window = weak->m_ptr.lock();
     if (!window) {
         return;
     }
-    auto *buffer = window->shm.get_buffer();
-    auto *surface = window->surface.get();
+    auto *buffer = window->m_shm.get_buffer();
+    auto *surface = window->m_surface.get();
     wl_surface_attach(surface, buffer, 0, 0);
-    wl_surface_set_buffer_scale(surface, window->scale_factor);
+    wl_surface_set_buffer_scale(surface, window->m_scale_factor);
     wl_surface_commit(surface);
 }
 
 void WaylandWindow::preferred_buffer_scale(void *data, wl_surface *surface, int factor)
 {
     const auto *weak = static_cast<WeakWindow *>(data);
-    auto window = weak->ptr.lock();
+    auto window = weak->m_ptr.lock();
     if (!window) {
         return;
     }
-    if (window->scale_factor == factor) {
+    if (window->m_scale_factor == factor) {
         return;
     }
-    window->scale_factor = factor;
+    window->m_scale_factor = factor;
     wl_surface_attach(surface, nullptr, 0, 0);
     wl_surface_commit(surface);
 }
 
 WaylandWindow::WaylandWindow(ApplicationContext *ctx, wl_compositor *compositor, wl_shm *shm, xdg_wm_base *wm_base) :
-    ctx(ctx),
-    image(ctx),
-    shm(shm),
-    surface(wl_compositor_create_surface(compositor)),
-    xdg_surface(xdg_wm_base_get_xdg_surface(wm_base, surface.get())),
-    xdg_toplevel(xdg_surface_get_toplevel(xdg_surface.get())),
-    app_id(std::format("ueberzugpp_{}", crypto::generate_random_string(id_len)))
+    m_ctx(ctx),
+    m_image(ctx),
+    m_shm(shm),
+    m_surface(wl_compositor_create_surface(compositor)),
+    m_xdg_surface(xdg_wm_base_get_xdg_surface(wm_base, m_surface.get())),
+    m_xdg_toplevel(xdg_surface_get_toplevel(m_xdg_surface.get())),
+    m_app_id(std::format("ueberzugpp_{}", crypto::generate_random_string(id_len)))
 {
-    xdg_toplevel_set_app_id(xdg_toplevel.get(), app_id.c_str());
-    xdg_toplevel_set_title(xdg_toplevel.get(), app_id.c_str());
+    xdg_toplevel_set_app_id(m_xdg_toplevel.get(), m_app_id.c_str());
+    xdg_toplevel_set_title(m_xdg_toplevel.get(), m_app_id.c_str());
 }
 
 auto WaylandWindow::socket_setup(const Command &command) -> Result<void>
 {
-    auto &pos = ctx->terminal.position;
-    auto &font = ctx->terminal.font;
+    auto &pos = m_ctx->terminal.position;
+    auto &font = m_ctx->terminal.font;
     // for fractional scaling to work, we need to get the scale factor from the compositor, not the buffer factor
     // and divide the x coordinate by it
     int xcoord = pos.x + font.horizontal_padding + (font.width * command.x);
     int ycoord = pos.y + font.vertical_padding + (font.height * command.y);
-    return ctx->wl_socket->setup(app_id, xcoord, ycoord);
+    return m_ctx->wl_socket->setup(m_app_id, xcoord, ycoord);
 }
 
-auto WaylandWindow::init(const Command &command, WindowPtrs &window_ptrs) -> Result<void>
+auto WaylandWindow::init(const Command &command, [[maybe_unused]] WindowPtrs &window_ptrs) -> Result<void>
 {
-    auto &font = ctx->terminal.font;
+    return m_image.read(command.image_path).and_then([this, &command] -> Result<void> {
+        auto &font = m_ctx->terminal.font;
+        m_image.scale_image(font.width * command.width, font.height * command.height, command.image_scaler);
+        return {};
+    });
+    /*
     return image
         .load({
             .file_path = command.image_path.string(),
@@ -101,18 +106,18 @@ auto WaylandWindow::init(const Command &command, WindowPtrs &window_ptrs) -> Res
             .width = font.width * command.width,
             .height = font.height * command.height,
         })
-        .and_then([this] { return shm.init(image.width(), image.height(), image.data()); })
+        .and_then([this] { return m_shm.init(image.width(), image.height(), image.data()); })
         .and_then([this, &command] { return socket_setup(command); })
-        .and_then([this, &window_ptrs] { return listeners_setup(window_ptrs); });
+        .and_then([this, &window_ptrs] { return listeners_setup(window_ptrs); });*/
 }
 
 auto WaylandWindow::listeners_setup(WindowPtrs &window_ptrs) -> Result<void>
 {
     auto weak_win = window_ptrs.emplace(window_ptrs.end(), weak_from_this());
     auto *ptr = &(*weak_win);
-    wl_surface_add_listener(surface.get(), &surface_listener, ptr);
-    xdg_surface_add_listener(xdg_surface.get(), &xdg_surface_listener, ptr);
-    wl_surface_commit(surface.get());
+    wl_surface_add_listener(m_surface.get(), &surface_listener, ptr);
+    xdg_surface_add_listener(m_xdg_surface.get(), &xdg_surface_listener, ptr);
+    wl_surface_commit(m_surface.get());
     return {};
 }
 

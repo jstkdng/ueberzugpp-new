@@ -33,35 +33,34 @@ namespace upp
 class Error
 {
   public:
-    Error(std::string prefix, std::errc errc) :
-        prefix(std::move(prefix)),
-        condition(errc)
+    Error(std::string_view prefix, std::errc errc) :
+        m_prefix(prefix),
+        m_condition(errc)
+    {
+    }
+
+    explicit Error(std::string_view prefix, int code = errno) :
+        m_prefix(prefix),
+        m_condition(code, std::generic_category())
     {
     }
 
     Error(std::string_view prefix, const std::exception &exc) :
-        prefix(std::format("{}: {}", prefix, exc.what()))
-    {
-    }
-
-    // pass 0 to prevent creating an error condition
-    explicit Error(std::string prefix, int code = errno) :
-        prefix(std::move(prefix)),
-        condition(code, std::generic_category())
+        m_prefix(std::format("{}: {}", prefix, exc.what()))
     {
     }
 
     [[nodiscard]] auto message() const -> std::string
     {
-        if (condition.value() == 0) {
-            return prefix;
+        if (m_condition.value() == 0) {
+            return m_prefix;
         }
-        return std::format("{}: {}", prefix, condition.message());
+        return std::format("{}: {}", m_prefix, m_condition.message());
     }
 
   private:
-    std::string prefix;
-    std::error_condition condition;
+    std::string m_prefix;
+    std::error_condition m_condition;
 };
 
 template <class T>
