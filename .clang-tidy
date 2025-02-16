@@ -22,6 +22,8 @@ CheckOptions:
     value: lower_case
   - key: readability-identifier-naming.ClassMemberSuffix
     value: ''
+  - key: readability-identifier-naming.MemberPrefix
+    value: 'm_'
   - key: readability-identifier-naming.VariableCase
     value: lower_case
   - key: readability-identifier-naming.FunctionCase

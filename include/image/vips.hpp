@@ -23,7 +23,7 @@
 #include "util/ptr.hpp"
 #include "util/result.hpp"
 
-#include <vips/vips.h>
+#include <vips/basic.h>
 
 #include <optional>
 #include <span>
@@ -32,6 +32,28 @@
 namespace upp
 {
 
+using VImage = ::VipsImage;
+
+class VipsImage
+{
+  public:
+    ~VipsImage();
+    auto read(const std::string &image_path) -> Result<void>;
+    void scale_image(int target_width, int target_height, std::string_view scaler);
+
+    auto width() -> int;
+    auto height() -> int;
+
+  private:
+    Logger logger{spdlog::get("vips")};
+    std::string m_image_path;
+    VImage *m_image;
+    VImage *m_image_out;
+
+    void contain_scaler(int target_width, int target_height);
+};
+
+/*
 template <typename T>
 using glib_ptr = c_unique_ptr<T, g_free>;
 
@@ -46,16 +68,12 @@ class LibvipsImage
 {
   public:
     explicit LibvipsImage(ApplicationContext *ctx);
-    ~LibvipsImage();
     auto load(ImageProps props) -> Result<void>;
     auto num_channels() -> int;
     auto data() -> unsigned char *;
     auto data_size() -> int;
-    auto width() -> int;
-    auto height() -> int;
 
   private:
-    Logger logger{spdlog::get("vips")};
     ApplicationContext *ctx;
     ImageProps props;
     VipsImage *image;
@@ -69,6 +87,6 @@ class LibvipsImage
     auto image_is_cached(int new_width, int new_height) -> bool;
     [[nodiscard]] auto origin_is_animated() const -> bool;
     auto get_frame_delays() -> std::optional<std::span<int>>;
-};
+};*/
 
 } // namespace upp

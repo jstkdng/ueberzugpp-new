@@ -29,16 +29,60 @@
 namespace upp
 {
 
+VipsImage::~VipsImage()
+{
+    if (m_image != nullptr) {
+        g_object_unref(m_image);
+    }
+}
+
+auto VipsImage::read(const std::string &image_path) -> Result<void>
+{
+    m_image_path = image_path;
+    m_image = vips_image_new_from_file(m_image_path.c_str(), "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+    if (m_image == nullptr) {
+        return Err("failed to load image");
+    }
+    LOG_DEBUG("loading image {}", m_image_path);
+    return {};
+}
+
+auto VipsImage::width() -> int
+{
+    return vips_image_get_width(m_image);
+}
+
+auto VipsImage::height() -> int
+{
+    return vips_image_get_height(m_image);
+}
+
+void VipsImage::scale_image(int target_width, int target_height, std::string_view scaler)
+{
+    if (scaler == "contain") {
+        contain_scaler(target_width, target_height);
+    }
+}
+
+void VipsImage::contain_scaler(int target_width, int target_height)
+{
+    auto [new_width, new_height] = image::contain_sizes({
+        .width = target_width,
+        .height = target_height,
+        .image_width = width(),
+        .image_height = height(),
+    });
+    if (new_width == width() && new_height == height()) {
+        return;
+    }
+
+    LOG_INFO("resizing image {} to {}x{}", util::get_filename(m_image_path), new_width, new_height);
+}
+
+/*
 LibvipsImage::LibvipsImage(ApplicationContext *ctx) :
     ctx(ctx)
 {
-}
-
-LibvipsImage::~LibvipsImage()
-{
-    if (image != nullptr) {
-        g_object_unref(image);
-    }
 }
 
 auto LibvipsImage::load(ImageProps props) -> Result<void>
@@ -154,21 +198,10 @@ auto LibvipsImage::num_channels() -> int
 
 void LibvipsImage::contain_scaler()
 {
-    auto [new_width, new_height] = image::contain_sizes({
-        .width = props.width,
-        .height = props.height,
-        .image_width = width(),
-        .image_height = height(),
-    });
-
-    if (new_width == width() && new_height == height()) {
-        return;
-    }
     if (image_is_cached(new_width, new_height)) {
         return;
     }
 
-    LOG_INFO("resizing image {} to {}x{} and caching", util::get_filename(props.file_path), new_width, new_height);
 
     g_object_unref(image);
     vips_thumbnail(props.file_path.c_str(), &image, new_width, "height", new_height, nullptr);
@@ -192,16 +225,6 @@ auto LibvipsImage::data_size() -> int
     return VIPS_IMAGE_SIZEOF_IMAGE(image);
 }
 
-auto LibvipsImage::width() -> int
-{
-    return vips_image_get_width(image);
-}
-
-auto LibvipsImage::height() -> int
-{
-    return vips_image_get_height(image);
-}
-
 auto LibvipsImage::get_frame_delays() -> std::optional<std::span<int>>
 {
     int size = -1;
@@ -216,5 +239,6 @@ auto LibvipsImage::origin_is_animated() const -> bool
 {
     return vips_image_get_typeof(image, "delay") == VIPS_TYPE_ARRAY_INT;
 }
+*/
 
 } // namespace upp
