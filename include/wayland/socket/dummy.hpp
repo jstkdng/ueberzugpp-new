@@ -16,24 +16,28 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "wayland/socket/socket.hpp"
-#include "os/os.hpp"
-#include "util/result.hpp"
-#include "wayland/socket/hyprland.hpp"
-#include "wayland/socket/dummy.hpp"
+#pragma once
 
-#include <memory>
+#include "log.hpp"
+#include "wayland/socket/socket.hpp"
 
 namespace upp
 {
 
-auto WaylandSocket::create() -> Result<WaylandSocketPtr>
+class DummySocket : public WaylandSocket
 {
-    if (auto hyprland_signature = os::getenv("HYPRLAND_INSTANCE_SIGNATURE")) {
-        return std::make_unique<HyprlandSocket>(*hyprland_signature);
+  public:
+    DummySocket() { LOG_WARN("using dummy socket, functionality will be limited"); };
+    auto setup([[maybe_unused]] std::string_view app_id, [[maybe_unused]] int xcoord, [[maybe_unused]] int ycoord)
+        -> Result<void> override
+    {
+        return {};
     }
 
-    return std::make_unique<DummySocket>();
-}
+    auto active_window([[maybe_unused]] int pid) -> WaylandGeometry override { return {}; }
 
-} // namespace upp
+  private:
+    Logger logger{spdlog::get("wayland")};
+};
+
+}; // namespace upp

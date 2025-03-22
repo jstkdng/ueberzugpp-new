@@ -140,6 +140,7 @@ if (ENABLE_WAYLAND)
             include/wayland/shm.hpp
             include/wayland/socket/socket.hpp
             include/wayland/socket/hyprland.hpp
+            include/wayland/socket/dummy.hpp
     )
 endif ()
 
