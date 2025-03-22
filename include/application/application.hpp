@@ -66,6 +66,7 @@ class Application
     auto handle_cli_commands() -> Result<void>;
     auto handle_cmd_subcommand() -> Result<void>;
     auto wait_for_layer_commands() -> Result<void>;
+    [[nodiscard]] auto set_silent() const -> Result<void>;
     void execute_layer_commands(SToken token);
 };
 

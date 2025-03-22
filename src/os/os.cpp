@@ -19,6 +19,7 @@
 #include "os/os.hpp"
 #include "util/result.hpp"
 
+#include <fcntl.h>
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -143,6 +144,23 @@ auto daemonize() -> Result<void>
     if (pid > 0) {
         spdlog::debug("child process {} created, terminating parent", pid);
         std::exit(EXIT_SUCCESS); // NOLINT
+    }
+    return {};
+}
+
+auto close_stderr() -> Result<void>
+{
+    const int nullfd = open("/dev/null", O_WRONLY);
+    if (nullfd == -1) {
+        return Err("could not open /dev/null");
+    }
+    int res = dup2(nullfd, STDERR_FILENO);
+    if (res == -1) {
+        return Err("could not reassign stderr");
+    }
+    res = close(nullfd);
+    if (res == -1) {
+        return Err("could not close /dev/null fd");
     }
     return {};
 }

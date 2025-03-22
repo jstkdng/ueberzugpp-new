@@ -55,7 +55,7 @@ Application::Application(Cli *cli) :
 
 auto Application::run() -> Result<void>
 {
-    return setup_logging().and_then([this] { return handle_cli_commands(); });
+    return set_silent().and_then([this] { return setup_logging(); }).and_then([this] { return handle_cli_commands(); });
 }
 
 auto Application::handle_cli_commands() -> Result<void>
@@ -148,13 +148,11 @@ auto Application::setup_logging() -> Result<void>
         spdlog::set_level(level);
         spdlog::flush_on(level);
 
-        auto dist_sink = std::make_shared<spdlog::sinks::dist_sink_mt>();
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
+        auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+        auto dist_sink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+        dist_sink->add_sink(stderr_sink);
         dist_sink->add_sink(file_sink);
-        if (!cli->layer.silent) {
-            auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            dist_sink->add_sink(stdout_sink);
-        }
 
         logger = std::make_shared<spdlog::logger>("application", dist_sink);
         auto term = std::make_shared<spdlog::logger>("terminal", dist_sink);
@@ -265,6 +263,14 @@ auto Application::daemonize() -> Result<void>
         ofs << os::getpid() << std::flush;
         return {};
     });
+}
+
+auto Application::set_silent() const -> Result<void>
+{
+    if (!cli->layer.silent) {
+        return {};
+    }
+    return os::close_stderr();
 }
 
 } // namespace upp
