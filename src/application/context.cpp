@@ -82,7 +82,7 @@ void ApplicationContext::set_detected_output(std::string_view cli_output)
     }
 #endif
 #ifdef ENABLE_WAYLAND
-    if (wl_socket) {
+    if (!wl_socket->is_dummy()) {
         output = "wayland";
     }
 #endif

@@ -36,6 +36,8 @@ class DummySocket : public WaylandSocket
 
     auto active_window([[maybe_unused]] int pid) -> WaylandGeometry override { return {}; }
 
+    [[nodiscard]] auto is_dummy() const -> bool override { return true; }
+
   private:
     Logger logger{spdlog::get("wayland")};
 };
