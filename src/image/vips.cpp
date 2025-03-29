@@ -43,6 +43,9 @@ VipsImage::~VipsImage()
     if (m_image != nullptr) {
         g_object_unref(m_image);
     }
+    if (m_animated_image != nullptr) {
+        g_object_unref(m_animated_image);
+    }
 }
 
 auto VipsImage::read(const std::string &image_path) -> Result<void>
@@ -52,7 +55,15 @@ auto VipsImage::read(const std::string &image_path) -> Result<void>
     if (m_image == nullptr) {
         return Err("failed to load image");
     }
-    LOG_DEBUG("loading image {}", m_image_path);
+
+    if (is_animated(m_image)) {
+        m_animated_image =
+            vips_image_new_from_file(m_image_path.c_str(), "n", -1, "access", VIPS_ACCESS_SEQUENTIAL, nullptr);
+        LOG_DEBUG("loading animated image {}", m_image_path);
+    } else {
+        LOG_DEBUG("loading image {}", m_image_path);
+    }
+
     return {};
 }
 
@@ -86,7 +97,7 @@ void VipsImage::contain_scaler(int target_width, int target_height)
     }
 
     LOG_DEBUG("resizing image {} to {}x{}", util::get_filename(m_image_path), new_width, new_height);
-    if (auto img = thumbnail(m_image_path, new_width, new_height)) {
+    if (auto img = thumbnail(m_image_path, new_width)) {
         g_object_unref(m_image);
         m_image = *img;
         LOG_DEBUG("resulting sizes after resize: {}x{}", width(), height());
@@ -95,10 +106,10 @@ void VipsImage::contain_scaler(int target_width, int target_height)
     }
 }
 
-auto VipsImage::thumbnail(const std::string &image_path, int width, int height) -> Result<VImage *>
+auto VipsImage::thumbnail(const std::string &image_path, int width) -> Result<VImage *>
 {
     VImage *temp = nullptr;
-    if (vips_thumbnail(image_path.c_str(), &temp, width, "height", height, nullptr) == -1) {
+    if (vips_thumbnail(image_path.c_str(), &temp, width, nullptr) == -1) {
         return last_error();
     }
 
@@ -143,14 +154,9 @@ auto VipsImage::rgb_to_bgr(VImage *image) -> Result<VImage *>
     return result;
 }
 
-auto VipsImage::add_alpha(VImage *image) -> Result<VImage *>
+auto VipsImage::is_animated(VImage *image) -> bool
 {
-    if (vips_image_hasalpha(image) == FALSE) {
-        LOG_DEBUG("adding alpha channel to image");
-        vips_addalpha(image, &image_out, nullptr);
-        g_object_unref(image);
-        image = image_out;
-    }
+    return vips_image_get_typeof(image, "delay") == VIPS_TYPE_ARRAY_INT;
 }
 
 /*
@@ -175,6 +181,12 @@ void LibvipsImage::process_image()
     if (bgra_outputs.contains(output)) {
         // alpha channel required
 
+    if (vips_image_hasalpha(image) == FALSE) {
+        LOG_DEBUG("adding alpha channel to image");
+        vips_addalpha(image, &image_out, nullptr);
+        g_object_unref(image);
+        image = image_out;
+    }
         LOG_DEBUG("converting image to BGRX");
         // convert from RGB to BGR
         int chan = num_channels();
@@ -260,7 +272,6 @@ auto LibvipsImage::get_frame_delays() -> std::optional<std::span<int>>
 
 auto LibvipsImage::origin_is_animated() const -> bool
 {
-    return vips_image_get_typeof(image, "delay") == VIPS_TYPE_ARRAY_INT;
 }
 */
 

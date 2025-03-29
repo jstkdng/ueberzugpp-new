@@ -44,8 +44,8 @@ class VipsImage
     auto width() -> int;
     auto height() -> int;
 
-    static auto add_alpha(VImage *image) -> Result<VImage *>;
-    static auto thumbnail(const std::string &image_path, int width, int height) -> Result<VImage *>;
+    static auto is_animated(VImage *image) -> bool;
+    static auto thumbnail(const std::string &image_path, int width) -> Result<VImage *>;
     static auto rgb_to_bgr(VImage *image) -> Result<VImage *>;
     static auto last_error() -> std::unexpected<Error>;
 
@@ -54,7 +54,7 @@ class VipsImage
     ApplicationContext *m_ctx;
     std::string m_image_path;
     VImage *m_image;
-    VImage *m_image_out;
+    VImage *m_animated_image;
 
     void contain_scaler(int target_width, int target_height);
 };
