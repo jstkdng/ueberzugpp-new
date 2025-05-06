@@ -34,13 +34,17 @@ set_target_properties(ueberzugpp PROPERTIES
     EXPORT_COMPILE_COMMANDS ON
 )
 
-option(USE_BUNDLED_LIBRARIES "Use bundled libraries" ON)
-
 add_subdirectory(third_party/ EXCLUDE_FROM_ALL)
 
 target_sources(ueberzugpp
     PRIVATE
         src/main.cpp
+
+    PRIVATE
+    FILE_SET HEADERS
+    BASE_DIRS include/
+    FILES
+        include/cli.hpp
 )
 
 # cmake-format: on
