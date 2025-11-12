@@ -1,0 +1,16 @@
+---
+BasedOnStyle: LLVM
+
+Language: Cpp
+Standard: Latest
+
+AllowShortFunctionsOnASingleLine: InlineOnly
+IndentCaseLabels: true
+IndentWidth: 4
+ColumnLimit: 120
+InsertNewlineAtEOF: true
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBraces: Linux
+BreakConstructorInitializers: AfterColon
+PackConstructorInitializers: Never
+EmptyLineBeforeAccessModifier: Always
