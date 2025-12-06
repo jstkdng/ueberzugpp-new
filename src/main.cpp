@@ -16,26 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <stacktrace>
-#include <stdexcept>
 #include <iostream>
-#include <string>
-
-void some() {
-    throw std::runtime_error("error"); 
-}
-
-void other() {
-    some();
-}
 
 auto main(int argc, char *argv[]) -> int
 {
-    try {
-        other();
-    } catch (const std::exception&) {
-        auto trace = std::stacktrace::current();
-        std::cerr << std::to_string(trace) << '\n';
-    }
     return 0;
 }

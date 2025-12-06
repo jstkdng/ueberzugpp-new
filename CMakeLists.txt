@@ -28,12 +28,20 @@ project(ueberzugpp LANGUAGES CXX C VERSION 0.0.1)
 add_executable(ueberzugpp)
 set_target_properties(ueberzugpp
 PROPERTIES
-    CXX_STANDARD 23
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     CXX_SCAN_FOR_MODULES OFF
     EXPORT_COMPILE_COMMANDS ON
 )
+
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
+
+# reproducible builds
+string(TIMESTAMP BUILD_DATE UTC)
+target_compile_options(ueberzugpp PRIVATE "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=/")
 
 target_sources(ueberzugpp
 PRIVATE
@@ -45,7 +53,9 @@ FILES
     include/util/ptr.hpp
 )
 
-target_link_libraries(ueberzugpp PRIVATE stdc++_libbacktrace)
+target_link_libraries(ueberzugpp PRIVATE
+    PkgConfig::VIPS
+)
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
 
