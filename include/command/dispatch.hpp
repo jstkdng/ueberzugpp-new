@@ -16,15 +16,37 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <CLI/CLI.hpp>
+#pragma once
 
-#include "application.hpp"
+#include <string>
 
-auto main(int argc, char *argv[]) -> int
+#include <CLI/App.hpp>
+
+namespace upp
 {
-    CLI::App cli{"Display images in the terminal", "ueberzugpp"};
-    upp::Application::setup_cli(cli);
 
-    CLI11_PARSE(cli, argc, argv);
-    return 0;
-}
+struct DispatchOptions {
+    std::string socket;
+    std::string identifier;
+    std::string action;
+    std::string file_path;
+    std::string scaler = "contain";
+
+    int x;
+    int y;
+    int width;
+    int height;
+};
+
+class DispatchCommand
+{
+  public:
+    explicit DispatchCommand(DispatchOptions *opts);
+    void execute();
+    static void setup(CLI::App &cli);
+
+  private:
+    DispatchOptions *opts;
+};
+
+} // namespace upp

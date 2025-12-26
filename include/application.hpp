@@ -16,15 +16,22 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <CLI/CLI.hpp>
+#pragma once
 
-#include "application.hpp"
+#include <atomic>
 
-auto main(int argc, char *argv[]) -> int
+#include <CLI/App.hpp>
+
+namespace upp
 {
-    CLI::App cli{"Display images in the terminal", "ueberzugpp"};
-    upp::Application::setup_cli(cli);
 
-    CLI11_PARSE(cli, argc, argv);
-    return 0;
-}
+class Application
+{
+  public:
+    static void setup_cli(CLI::App &cli);
+    static void setup_logging();
+
+    inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
+};
+
+}; // namespace upp

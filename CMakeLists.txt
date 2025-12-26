@@ -28,7 +28,7 @@ project(ueberzugpp LANGUAGES CXX C VERSION 0.0.1)
 add_executable(ueberzugpp)
 set_target_properties(ueberzugpp
 PROPERTIES
-    CXX_STANDARD 20
+    CXX_STANDARD 23
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     CXX_SCAN_FOR_MODULES OFF
@@ -36,6 +36,8 @@ PROPERTIES
 )
 
 find_package(PkgConfig REQUIRED)
+find_package(CLI11 CONFIG REQUIRED)
+find_package(spdlog REQUIRED)
 
 pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
 
@@ -43,18 +45,28 @@ pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
 string(TIMESTAMP BUILD_DATE UTC)
 target_compile_options(ueberzugpp PRIVATE "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=/")
 
+target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
+target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
+
 target_sources(ueberzugpp
 PRIVATE
     src/main.cpp
+    src/application.cpp
+    src/command/layer.cpp
+    src/command/dispatch.cpp
 PRIVATE
 FILE_SET HEADERS
 BASE_DIRS include/
 FILES
+    include/application.hpp
     include/util/ptr.hpp
+    include/command/layer.hpp
+    include/command/dispatch.hpp
 )
 
 target_link_libraries(ueberzugpp PRIVATE
-    PkgConfig::VIPS
+    CLI11::CLI11
+    spdlog::spdlog
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)
