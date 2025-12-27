@@ -54,6 +54,8 @@ target_sources(ueberzugpp
 PRIVATE
     src/main.cpp
     src/application.cpp
+    src/os.cpp
+    src/exceptions.cpp
     src/command/layer.cpp
     src/command/dispatch.cpp
 PRIVATE
@@ -61,6 +63,8 @@ FILE_SET HEADERS
 BASE_DIRS include/
 FILES
     include/application.hpp
+    include/os.hpp
+    include/exceptions.hpp
     include/util/ptr.hpp
     include/util/log.hpp
     include/command/layer.hpp

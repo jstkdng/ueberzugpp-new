@@ -51,7 +51,9 @@ class LayerCommand
     Logger logger{spdlog::default_logger()};
 
     void setup_vips();
+    void close_stderr();
     void print_header();
+    void daemonize();
 };
 
 } // namespace upp

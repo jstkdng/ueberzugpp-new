@@ -16,36 +16,36 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "exceptions.hpp"
 
-#include <cstdlib>
-#include <memory>
-#include <type_traits>
+#include <cerrno>
+#include <format>
 
-namespace upp
+#include <vips/vips.h>
+
+namespace upp::ex
 {
 
-template <auto Fn>
-struct deleter_type {
-    template <typename T>
-    constexpr void operator()(T *ptr) const
-    {
-        Fn(const_cast<std::remove_const_t<T> *>(ptr));
+posix_error::posix_error(std::string_view what) :
+    std::system_error(errno, std::generic_category(), std::string(what))
+{
+}
+
+posix_error::posix_error(int errc, std::string_view what) :
+    std::system_error(errc, std::generic_category(), std::string(what))
+{
+}
+
+vips_error::vips_error(std::string_view what) :
+    std::runtime_error(""),
+    vips_msg(vips_error_buffer_copy())
+{
+    std::string_view vips_msg_v{vips_msg.get()};
+    if (vips_msg_v.empty()) {
+        full_msg = what;
+    } else {
+        full_msg = std::format("{}: {}", what, vips_msg_v);
     }
-};
+}
 
-struct free_deleter {
-    template <typename T>
-    constexpr void operator()(T *ptr) const
-    {
-        std::free(const_cast<std::remove_const_t<T> *>(ptr)); // NOLINT
-    }
-};
-
-template <typename T, auto Fn>
-using c_unique_ptr = std::unique_ptr<T, deleter_type<Fn>>;
-
-template <typename T>
-using unique_C_ptr = std::unique_ptr<T, free_deleter>;
-
-} // namespace upp
+} // namespace upp::ex

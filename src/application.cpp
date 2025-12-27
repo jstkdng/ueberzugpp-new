@@ -17,9 +17,9 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include "buildconfig.hpp"
 #include "command/dispatch.hpp"
 #include "command/layer.hpp"
-#include "buildconfig.hpp"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -47,11 +47,15 @@ auto Application::run(int argc, char **argv) -> int
 void Application::setup_cli()
 {
     cli.set_version_flag("-V", full_version_str);
+    cli.allow_extras(false);
+    cli.require_subcommand(1);
 
     LayerCommand::setup(cli);
     DispatchCommand::setup(cli);
 
-    cli.require_subcommand(1);
+    auto *query_win_command =
+        cli.add_subcommand("query_windows", "**UNUSED**, only present for backwards compatibility");
+    query_win_command->allow_extras();
 }
 
 void Application::setup_logging()

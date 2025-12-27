@@ -18,12 +18,14 @@
 
 #include "command/layer.hpp"
 #include "buildconfig.hpp"
-
-#include <stdexcept>
+#include "exceptions.hpp"
+#include "os.hpp"
 
 #include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 #include <vips/vips.h>
+
+#include <fstream>
 
 namespace upp
 {
@@ -35,17 +37,39 @@ LayerCommand::LayerCommand(LayerOptions *opts) :
 
 void LayerCommand::execute()
 {
+    close_stderr();
     print_header();
+    daemonize();
     setup_vips();
+    // TODO: initialize context
 }
 
 void LayerCommand::setup_vips()
 {
     if (VIPS_INIT("ueberzugpp")) {
-        throw std::runtime_error("could not initialize libvips");
+        throw ex::vips_error("could not initialize libvips");
     }
     vips_cache_set_max(0);
     LOG_DEBUG("libvips initialized");
+}
+
+void LayerCommand::daemonize()
+{
+    if (!opts->no_stdin) {
+        return;
+    }
+    os::daemonize();
+    int new_pid = os::getpid();
+    LOG_DEBUG("child process {} created, parent terminated", new_pid);
+    std::ofstream ofs(opts->pid_file);
+    ofs << new_pid;
+}
+
+void LayerCommand::close_stderr()
+{
+    if (opts->silent) {
+        os::close_stderr();
+    }
 }
 
 void LayerCommand::print_header()

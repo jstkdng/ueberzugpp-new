@@ -18,34 +18,31 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <memory>
-#include <type_traits>
+#include "util/ptr.hpp"
 
-namespace upp
+#include <string_view>
+#include <system_error>
+
+namespace upp::ex
 {
 
-template <auto Fn>
-struct deleter_type {
-    template <typename T>
-    constexpr void operator()(T *ptr) const
-    {
-        Fn(const_cast<std::remove_const_t<T> *>(ptr));
-    }
+class posix_error : public std::system_error
+{
+  public:
+    explicit posix_error(std::string_view what = "");
+    explicit posix_error(int errc, std::string_view what = "");
 };
 
-struct free_deleter {
-    template <typename T>
-    constexpr void operator()(T *ptr) const
-    {
-        std::free(const_cast<std::remove_const_t<T> *>(ptr)); // NOLINT
-    }
+class vips_error : public std::runtime_error
+{
+  public:
+    explicit vips_error(std::string_view what = "");
+
+    [[nodiscard]] auto what() const noexcept -> const char * override { return full_msg.c_str(); }
+
+  private:
+    unique_C_ptr<char> vips_msg;
+    std::string full_msg;
 };
 
-template <typename T, auto Fn>
-using c_unique_ptr = std::unique_ptr<T, deleter_type<Fn>>;
-
-template <typename T>
-using unique_C_ptr = std::unique_ptr<T, free_deleter>;
-
-} // namespace upp
+} // namespace upp::ex
