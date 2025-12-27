@@ -16,21 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
+#pragma once
 
-#include <iostream> // IWYU pragma: keep
+#include <spdlog/spdlog.h>
 
-auto main(int argc, char *argv[]) -> int
+#include <memory>
+
+#define LOG_TRACE(...) SPDLOG_LOGGER_TRACE(logger __VA_OPT__(, ) __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(logger __VA_OPT__(, ) __VA_ARGS__)
+#define LOG_INFO(...) SPDLOG_LOGGER_INFO(logger __VA_OPT__(, ) __VA_ARGS__)
+#define LOG_WARN(...) SPDLOG_LOGGER_WARN(logger __VA_OPT__(, ) __VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_LOGGER_ERROR(logger __VA_OPT__(, ) __VA_ARGS__)
+
+namespace upp
 {
-    upp::Application app;
-#ifdef DEBUG
-    return app.run(argc, argv);
-#else
-    try {
-        return app.run(argc, argv);
-    } catch (const std::exception &ex) {
-        std::cerr << "Exception: " << ex.what() << '\n';
-        return 1;
-    }
-#endif
-}
+using Logger = std::shared_ptr<spdlog::logger>;
+} // namespace upp

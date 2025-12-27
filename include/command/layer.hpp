@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "util/log.hpp"
+
 #include <string>
 
 #include <CLI/App.hpp>
@@ -46,6 +48,10 @@ class LayerCommand
 
   private:
     LayerOptions *opts;
+    Logger logger{spdlog::default_logger()};
+
+    void setup_vips();
+    void print_header();
 };
 
 } // namespace upp

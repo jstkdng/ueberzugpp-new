@@ -19,6 +19,7 @@
 #include "application.hpp"
 #include "command/dispatch.hpp"
 #include "command/layer.hpp"
+#include "buildconfig.hpp"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -26,19 +27,31 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <CLI/CLI.hpp>
+
 namespace upp
 {
 
-void Application::setup_cli(CLI::App &cli)
+auto Application::run(int argc, char **argv) -> int
 {
-    cli.set_version_flag("-V", "0.0.1");
+    setup_cli();
+    setup_logging();
+    try {
+        cli.parse(argc, argv);
+    } catch (const CLI::ParseError &e) {
+        return cli.exit(e);
+    }
+    return 0;
+}
+
+void Application::setup_cli()
+{
+    cli.set_version_flag("-V", full_version_str);
 
     LayerCommand::setup(cli);
     DispatchCommand::setup(cli);
 
     cli.require_subcommand(1);
-
-    setup_logging();
 }
 
 void Application::setup_logging()
@@ -55,7 +68,7 @@ void Application::setup_logging()
     dist_sink->add_sink(stderr_sink);
     // dist_sink->add_sink(file_sink);
 
-    auto logger = std::make_shared<spdlog::logger>("ueberzugpp", dist_sink);
+    logger = std::make_shared<spdlog::logger>("ueberzugpp", dist_sink);
     spdlog::initialize_logger(logger);
 
     logger->set_pattern("[%Y-%m-%d %T.%F] %^[%L]%$ [%@] %v");

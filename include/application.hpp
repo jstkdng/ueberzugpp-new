@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "util/log.hpp"
+
 #include <atomic>
 
 #include <CLI/App.hpp>
@@ -28,10 +30,16 @@ namespace upp
 class Application
 {
   public:
-    static void setup_cli(CLI::App &cli);
-    static void setup_logging();
+    auto run(int argc, char **argv) -> int;
 
     inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
+
+  private:
+    CLI::App cli{"Display images in the terminal", "ueberzugpp"};
+    Logger logger;
+
+    void setup_cli();
+    void setup_logging();
 };
 
 }; // namespace upp

@@ -17,9 +17,13 @@
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "command/layer.hpp"
+#include "buildconfig.hpp"
+
+#include <stdexcept>
 
 #include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
+#include <vips/vips.h>
 
 namespace upp
 {
@@ -31,8 +35,31 @@ LayerCommand::LayerCommand(LayerOptions *opts) :
 
 void LayerCommand::execute()
 {
-    SPDLOG_DEBUG("oh noes {}", opts->parser);
-    SPDLOG_INFO("hello");
+    print_header();
+    setup_vips();
+}
+
+void LayerCommand::setup_vips()
+{
+    if (VIPS_INIT("ueberzugpp")) {
+        throw std::runtime_error("could not initialize libvips");
+    }
+    vips_cache_set_max(0);
+    LOG_DEBUG("libvips initialized");
+}
+
+void LayerCommand::print_header()
+{
+    constexpr auto *art = R"(starting
+ _   _      _
+| | | |    | |                                _     _
+| | | | ___| |__   ___ _ __ _____   _  __ _ _| |_ _| |_
+| | | |/ _ \ '_ \ / _ \ '__|_  / | | |/ _` |_   _|_   _|   version: {}
+| |_| |  __/ |_) |  __/ |   / /| |_| | (_| | |_|   |_|     build date: {}
+ \___/ \___|_.__/ \___|_|  /___|\__,_|\__, |
+                                       __/ |    new
+                                      |___/)";
+    LOG_INFO(art, version_str, build_date);
 }
 
 void LayerCommand::setup(CLI::App &cli)

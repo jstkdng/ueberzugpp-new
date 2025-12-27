@@ -43,8 +43,10 @@ pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
 
 # reproducible builds
 string(TIMESTAMP BUILD_DATE UTC)
-target_compile_options(ueberzugpp PRIVATE "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=/")
+configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
+target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
+target_compile_options(ueberzugpp PRIVATE "-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=/")
 target_compile_options(ueberzugpp PRIVATE $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -Werror>)
 target_compile_definitions(ueberzugpp PRIVATE $<$<CONFIG:Debug>:DEBUG SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 
@@ -60,6 +62,7 @@ BASE_DIRS include/
 FILES
     include/application.hpp
     include/util/ptr.hpp
+    include/util/log.hpp
     include/command/layer.hpp
     include/command/dispatch.hpp
 )
@@ -67,6 +70,7 @@ FILES
 target_link_libraries(ueberzugpp PRIVATE
     CLI11::CLI11
     spdlog::spdlog
+    PkgConfig::VIPS
 )
 
 file(CREATE_LINK ueberzugpp "${PROJECT_BINARY_DIR}/ueberzug" SYMBOLIC)

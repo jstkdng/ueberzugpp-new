@@ -16,21 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "application.hpp"
+#pragma once
 
-#include <iostream> // IWYU pragma: keep
+#cmakedefine ENABLE_X11
+#cmakedefine ENABLE_LIBVIPS
+#cmakedefine ENABLE_WAYLAND
 
-auto main(int argc, char *argv[]) -> int
+#cmakedefine HAVE_STD_EXECUTION
+#cmakedefine HAVE_STD_JTHREAD
+
+namespace upp
 {
-    upp::Application app;
-#ifdef DEBUG
-    return app.run(argc, argv);
-#else
-    try {
-        return app.run(argc, argv);
-    } catch (const std::exception &ex) {
-        std::cerr << "Exception: " << ex.what() << '\n';
-        return 1;
-    }
-#endif
-}
+
+constexpr auto build_date = "@BUILD_DATE@";
+constexpr auto version_str = "@CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
+constexpr auto full_version_str = "ueberzugpp-new @CMAKE_PROJECT_VERSION@ (@CMAKE_BUILD_TYPE@ build)";
+
+} // namespace upp
