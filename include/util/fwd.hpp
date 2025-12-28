@@ -18,33 +18,7 @@
 
 #pragma once
 
-#include "util/ptr.hpp"
-
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <system_error>
-
-namespace upp::ex
+namespace CLI // NOLINT
 {
-
-class posix_error : public std::system_error
-{
-  public:
-    explicit posix_error(std::string_view what = "");
-    explicit posix_error(int errc, std::string_view what = "");
-};
-
-class vips_error : public std::runtime_error
-{
-  public:
-    explicit vips_error(std::string_view what = "");
-
-    [[nodiscard]] auto what() const noexcept -> const char * override { return full_msg.c_str(); }
-
-  private:
-    unique_C_ptr<char> vips_msg;
-    std::string full_msg;
-};
-
-} // namespace upp::ex
+class App;
+}

@@ -23,8 +23,6 @@
 #include "util/log.hpp"
 
 #include <CLI/CLI.hpp>
-#include <spdlog/spdlog.h>
-#include <vips/operation.h>
 #include <vips/vips.h>
 
 #include <fstream>

@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <string>
+#include "util/fwd.hpp"
 
-#include <CLI/CLI.hpp>
+#include <string>
 
 namespace upp
 {

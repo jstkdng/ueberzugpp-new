@@ -20,11 +20,14 @@
 #include "exceptions.hpp"
 
 #include <fcntl.h>
-#include <poll.h>
-#include <sys/socket.h>
+//#include <poll.h>
+//#include <sys/socket.h>
 #include <unistd.h>
 
 #include <cstdlib>
+#include <optional>
+#include <string>
+#include <string_view>
 
 namespace upp::os
 {

@@ -18,10 +18,10 @@
 
 #pragma once
 
+#include "util/fwd.hpp"
+
 #include <atomic>
 #include <string>
-
-#include <CLI/CLI.hpp>
 
 namespace upp
 {
@@ -44,15 +44,15 @@ class LayerCommand
     explicit LayerCommand(LayerOptions *opts);
     void execute();
     static void setup(CLI::App &cli);
+    static void setup_vips();
+    static void print_header();
 
     inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 
   private:
     LayerOptions *opts;
 
-    void setup_vips();
     void close_stderr();
-    void print_header();
     void daemonize();
 };
 
