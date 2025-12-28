@@ -52,17 +52,14 @@ void close_stderr();
 void daemonize();
 auto getenv(std::string_view var) -> std::optional<std::string>;
 
-/*
+auto wait_for_data_on_fd(int filde) -> bool;
+auto wait_for_data_on_stdin() -> bool;
 
-auto wait_for_data_on_fd(int filde) -> Result<bool>;
-auto wait_for_data_on_stdin() -> Result<bool>;
-
-auto read_data_from_fd(int filde) -> Result<std::string>;
-auto read_data_from_stdin() -> Result<std::string>;
+auto read_data_from_fd(int filde) -> std::string;
+auto read_data_from_stdin() -> std::string;
 
 auto get_poll_err(int event) -> std::string_view;
 auto get_pid_process_name(int pid) -> std::string;
-auto get_pid_from_socket(int sockfd) -> Result<int>;
-*/
+auto get_pid_from_socket(int sockfd) -> int;
 
 } // namespace upp::os

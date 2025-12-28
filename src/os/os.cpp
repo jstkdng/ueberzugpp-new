@@ -1,0 +1,156 @@
+// Display images in the terminal
+// Copyright (C) 2024  JustKidding
+//
+// This file is part of ueberzugpp.
+//
+// ueberzugpp is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// ueberzugpp is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
+
+#include "os/os.hpp"
+#include "exceptions.hpp"
+
+#include <fcntl.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <cstdlib>
+#include <format>
+#include <fstream>
+#include <optional>
+#include <string>
+#include <string_view>
+
+namespace upp::os
+{
+
+auto getpid() -> int
+{
+    return ::getpid();
+}
+
+auto getenv(std::string_view var) -> std::optional<std::string>
+{
+    const char *env_p = std::getenv(std::string(var).c_str()); // NOLINT
+    if (env_p == nullptr) {
+        return {};
+    }
+    return std::make_optional(env_p);
+}
+
+void close_stderr()
+{
+    int nullfd = open("/dev/null", O_WRONLY);
+    if (nullfd == -1) {
+        throw ex::posix_error("could not open /dev/null");
+    }
+    int res = dup2(nullfd, STDERR_FILENO);
+    if (res == -1) {
+        throw ex::posix_error("could not reassign stderr");
+    }
+    res = close(nullfd);
+    if (res == -1) {
+        throw ex::posix_error("could not close /dev/null fd");
+    }
+}
+
+void daemonize()
+{
+    int pid = fork();
+    if (pid == -1) {
+        throw ex::posix_error("could not fork process");
+    }
+
+    // kill parent process
+    if (pid > 0) {
+        std::exit(EXIT_SUCCESS); // NOLINT
+    }
+}
+
+auto wait_for_data_on_fd(int filde) -> bool
+{
+    pollfd fds{};
+    fds.fd = filde;
+    fds.events = POLLIN;
+
+    if (poll(&fds, 1, waitms) == -1) {
+        throw ex::posix_error("could not poll on file descriptor");
+    }
+
+    if ((fds.revents & (POLLERR | POLLNVAL | POLLHUP)) != 0) {
+        throw ex::posix_error(std::format("poll received {}", get_poll_err(fds.revents)));
+    }
+
+    return (fds.revents & POLLIN) != 0;
+}
+
+auto wait_for_data_on_stdin() -> bool
+{
+    return wait_for_data_on_fd(STDIN_FILENO);
+}
+
+// will block if there is no data available
+auto read_data_from_fd(int filde) -> std::string
+{
+    std::string result(bufsize, 0);
+    const auto bytes_read = read(filde, result.data(), bufsize);
+    if (bytes_read == -1) {
+        throw ex::posix_error("could not read from file descriptor");
+    }
+    result.resize(bytes_read);
+    return result;
+}
+
+auto read_data_from_stdin() -> std::string
+{
+    return read_data_from_fd(STDIN_FILENO);
+}
+
+auto get_poll_err(int event) -> std::string_view
+{
+    if ((event & POLLHUP) != 0) {
+        return "POLLHUP";
+    }
+    if ((event & POLLERR) != 0) {
+        return "POLLERR";
+    }
+    if ((event & POLLNVAL) != 0) {
+        return "POLLNVAL";
+    }
+    [[unlikely]] return "unknown event";
+}
+
+auto get_pid_process_name(int pid) -> std::string
+{
+    auto proc_file_name = std::format("/proc/{}/comm", pid);
+    std::ifstream proc_file(proc_file_name);
+    std::string proc_name;
+    proc_file >> proc_name;
+    return proc_name;
+}
+
+auto get_pid_from_socket(int sockfd) -> int
+{
+#ifdef __linux__
+    struct ucred ucred;
+    socklen_t len = sizeof(struct ucred);
+    if (getsockopt(sockfd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
+        throw ex::posix_error("getsockopt");
+    }
+    return ucred.pid;
+#else
+    return sockfd;
+#endif
+}
+
+} // namespace upp::os

@@ -18,33 +18,17 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <memory>
+#include <filesystem>
+#include <string>
 
-namespace upp
+namespace upp::util
 {
 
-template <auto Fn>
-struct deleter_type {
-    template <typename T>
-    constexpr void operator()(T *ptr) const
-    {
-        Fn(const_cast<std::remove_const_t<T> *>(ptr));
-    }
-};
+auto get_filename(std::string_view path) -> std::string;
+auto get_log_filename() -> std::string;
+auto get_cache_path() -> std::filesystem::path;
+auto get_cache_file_save_location(const std::filesystem::path &path) -> std::string;
+auto get_socket_path(int pid) -> std::string;
+auto temp_directory_path() -> std::filesystem::path;
 
-struct free_deleter {
-    template <typename T>
-    constexpr void operator()(T *ptr) const
-    {
-        std::free(const_cast<std::remove_const_t<T> *>(ptr)); // NOLINT
-    }
-};
-
-template <typename T, auto Fn>
-using c_unique_ptr = std::unique_ptr<T, deleter_type<Fn>>;
-
-template <typename T>
-using unique_C_ptr = std::unique_ptr<T, free_deleter>;
-
-} // namespace upp
+} // namespace upp::util

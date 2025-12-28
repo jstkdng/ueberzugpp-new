@@ -19,7 +19,7 @@
 #include "command/layer.hpp"
 #include "buildconfig.hpp"
 #include "exceptions.hpp"
-#include "os.hpp"
+#include "os/os.hpp"
 #include "util/log.hpp"
 
 #include <CLI/CLI.hpp>
