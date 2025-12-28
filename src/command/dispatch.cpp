@@ -18,6 +18,10 @@
 
 #include "command/dispatch.hpp"
 
+#include <memory>
+
+#include <CLI/CLI.hpp>
+
 namespace upp
 {
 

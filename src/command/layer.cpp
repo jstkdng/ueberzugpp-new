@@ -20,12 +20,15 @@
 #include "buildconfig.hpp"
 #include "exceptions.hpp"
 #include "os.hpp"
+#include "util/log.hpp"
 
 #include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
+#include <vips/operation.h>
 #include <vips/vips.h>
 
 #include <fstream>
+#include <memory>
 
 namespace upp
 {
@@ -69,6 +72,7 @@ void LayerCommand::close_stderr()
 {
     if (opts->silent) {
         os::close_stderr();
+        LOG_DEBUG("stderr closed");
     }
 }
 

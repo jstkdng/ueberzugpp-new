@@ -1,3 +1,7 @@
 CompileFlags:
   Add: [-Wno-builtin-macro-redefined, -D__cpp_concepts=202002L]
 
+Diagnostics:
+  MissingIncludes: Strict
+  UnusedIncludes: Strict
+

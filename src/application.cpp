@@ -22,12 +22,16 @@
 #include "command/layer.hpp"
 
 #include <spdlog/cfg/env.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include <CLI/CLI.hpp>
+
+#include <memory>
 
 namespace upp
 {
@@ -72,7 +76,7 @@ void Application::setup_logging()
     dist_sink->add_sink(stderr_sink);
     // dist_sink->add_sink(file_sink);
 
-    logger = std::make_shared<spdlog::logger>("ueberzugpp", dist_sink);
+    auto logger = std::make_shared<spdlog::logger>("ueberzugpp", dist_sink);
     spdlog::initialize_logger(logger);
 
     logger->set_pattern("[%Y-%m-%d %T.%F] %^[%L]%$ [%@] %v");

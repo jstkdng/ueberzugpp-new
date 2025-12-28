@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include <CLI/App.hpp>
+#include <CLI/CLI.hpp>
 
 namespace upp
 {

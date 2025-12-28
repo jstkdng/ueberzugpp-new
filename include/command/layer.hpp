@@ -18,11 +18,10 @@
 
 #pragma once
 
-#include "util/log.hpp"
-
+#include <atomic>
 #include <string>
 
-#include <CLI/App.hpp>
+#include <CLI/CLI.hpp>
 
 namespace upp
 {
@@ -46,9 +45,10 @@ class LayerCommand
     void execute();
     static void setup(CLI::App &cli);
 
+    inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
+
   private:
     LayerOptions *opts;
-    Logger logger{spdlog::default_logger()};
 
     void setup_vips();
     void close_stderr();
