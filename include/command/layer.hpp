@@ -43,9 +43,14 @@ class LayerCommand
   public:
     explicit LayerCommand(LayerOptions *opts);
     void execute();
+
     static void setup(CLI::App &cli);
     static void setup_vips();
     static void print_header();
+    static void terminate();
+    static void setup_signal_handler();
+    static void signal_handler(int signal);
+    static void sigwinch_handler(int signal);
 
     inline static std::atomic_flag stop_flag = ATOMIC_FLAG_INIT;
 

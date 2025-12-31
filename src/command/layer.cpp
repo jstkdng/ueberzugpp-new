@@ -20,12 +20,16 @@
 #include "buildconfig.hpp"
 #include "exceptions.hpp"
 #include "os/os.hpp"
+#include "terminal.hpp"
 #include "util/log.hpp"
 
 #include <CLI/CLI.hpp>
 #include <vips/vips.h>
 
+#include <algorithm>
+#include <array>
 #include <fstream>
+#include <csignal>
 #include <memory>
 
 namespace upp
@@ -41,8 +45,34 @@ void LayerCommand::execute()
     close_stderr();
     print_header();
     daemonize();
+    setup_signal_handler();
     setup_vips();
     // TODO: initialize context
+}
+
+void LayerCommand::terminate()
+{
+    stop_flag.test_and_set();
+    stop_flag.notify_one();
+}
+
+void LayerCommand::setup_signal_handler()
+{
+    LOG_DEBUG("setting up signal handler");
+    struct sigaction sga{};
+    sga.sa_handler = signal_handler;
+    sigemptyset(&sga.sa_mask);
+    sga.sa_flags = 0;
+    sigaction(SIGINT, &sga, nullptr);
+    sigaction(SIGTERM, &sga, nullptr);
+    sigaction(SIGHUP, &sga, nullptr);
+    sigaction(SIGCHLD, nullptr, nullptr);
+
+    struct sigaction sgaw{};
+    sgaw.sa_handler = sigwinch_handler;
+    sigemptyset(&sgaw.sa_mask);
+    sgaw.sa_flags = 0;
+    sigaction(SIGWINCH, &sgaw, nullptr);
 }
 
 void LayerCommand::setup_vips()
@@ -52,6 +82,39 @@ void LayerCommand::setup_vips()
     }
     vips_cache_set_max(0);
     LOG_DEBUG("libvips initialized");
+}
+
+void LayerCommand::signal_handler(int signal)
+{
+    using pair_t = std::pair<int, std::string_view>;
+    constexpr auto signal_map = std::to_array<pair_t>({
+        // clang-format off
+        {SIGINT, "SIGINT"},
+        {SIGTERM, "SIGTERM"},
+        {SIGHUP, "SIGHUP"} // clang-format on
+    });
+
+    const auto *found =
+        std::ranges::find_if(signal_map, [signal](const pair_t &pair) -> bool { return pair.first == signal; });
+    auto logger = spdlog::get("application");
+    if (found == signal_map.end()) {
+        LOG_WARN("received unknown signal, terminating");
+    } else {
+        LOG_WARN("received {}, terminating", found->second);
+    }
+
+    terminate();
+}
+
+void LayerCommand::sigwinch_handler([[maybe_unused]] int signal)
+{
+    LOG_DEBUG("received SIGWINCH, recalculating terminal state");
+    auto term = Terminal::get();
+    try {
+        term->load_state();
+    } catch (const std::exception &ex) {
+        LOG_WARN(ex.what());
+    }
 }
 
 void LayerCommand::daemonize()

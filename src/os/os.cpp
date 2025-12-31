@@ -39,6 +39,12 @@ auto getpid() -> int
     return ::getpid();
 }
 
+auto strerror() -> std::string
+{
+    const std::error_code code(errno, std::generic_category());
+    return code.message();
+}
+
 auto getenv(std::string_view var) -> std::optional<std::string>
 {
     const char *env_p = std::getenv(std::string(var).c_str()); // NOLINT

@@ -55,8 +55,10 @@ PRIVATE
     src/main.cpp
     src/application.cpp
     src/exceptions.cpp
+    src/terminal.cpp
 
     src/os/os.cpp
+    src/os/process.cpp
     src/os/unix/fd.cpp
     src/os/unix/socket/client.cpp
     src/os/unix/socket/server.cpp
@@ -71,9 +73,11 @@ BASE_DIRS include/
 FILES
     include/application.hpp
     include/exceptions.hpp
+    include/terminal.hpp
 
     include/os/os.hpp
     include/os/unix.hpp
+    include/os/process.hpp
 
     include/util/ptr.hpp
     include/util/log.hpp
