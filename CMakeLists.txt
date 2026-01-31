@@ -64,6 +64,7 @@ if (ENABLE_WAYLAND)
     target_sources(
         ueberzugpp
         PRIVATE
+            src/wayland/base.cpp
         #src/wayland/canvas.cpp
         #src/wayland/window.cpp
         #src/wayland/shm.cpp
