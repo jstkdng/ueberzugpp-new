@@ -35,13 +35,57 @@ PROPERTIES
     EXPORT_COMPILE_COMMANDS ON
 )
 
+option(ENABLE_X11 "Enable X11 support" ON)
+option(ENABLE_WAYLAND "Enable wayland support" ON)
+
 find_package(PkgConfig REQUIRED)
 find_package(CLI11 CONFIG REQUIRED)
 find_package(spdlog REQUIRED)
 
+if (ENABLE_X11 OR ENABLE_WAYLAND)
+    find_package(ECM REQUIRED NO_MODULE)
+    list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+endif ()
+
 pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
 
-# reproducible builds
+if (ENABLE_WAYLAND)
+    add_library(wayland-protocols STATIC)
+
+    find_package(Wayland REQUIRED COMPONENTS Client)
+    find_package(WaylandProtocols REQUIRED)
+    find_package(WaylandScanner REQUIRED)
+
+    ecm_add_wayland_client_protocol(wayland-protocols
+        PROTOCOL "${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml"
+        BASENAME "xdg-shell")
+
+    target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
+    target_sources(
+        ueberzugpp
+        PRIVATE
+        #src/wayland/canvas.cpp
+        #src/wayland/window.cpp
+        #src/wayland/shm.cpp
+        #    src/wayland/socket/socket.cpp
+        #    src/wayland/socket/hyprland.cpp
+
+        PRIVATE
+        FILE_SET HEADERS
+        BASE_DIRS include/
+        FILES
+            #include/wayland/canvas.hpp
+            include/wayland/types.hpp
+            include/wayland/base.hpp
+            #include/wayland/window.hpp
+            #include/wayland/shm.hpp
+            #include/wayland/socket/socket.hpp
+            #include/wayland/socket/hyprland.hpp
+            #include/wayland/socket/dummy.hpp
+    )
+endif ()
+
+# reproducible bu
 string(TIMESTAMP BUILD_DATE UTC)
 configure_file(include/buildconfig.hpp.in buildconfig.hpp @ONLY)
 target_include_directories(ueberzugpp SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
@@ -83,6 +127,7 @@ FILES
     include/util/log.hpp
     include/util/fwd.hpp
     include/util/util.hpp
+    include/util/str_map.hpp
 
     include/command/layer.hpp
     include/command/dispatch.hpp

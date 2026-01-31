@@ -18,39 +18,23 @@
 
 #pragma once
 
-#include "util/ptr.hpp"
+#include "wayland/types.hpp"
 
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <system_error>
-
-namespace upp::ex
+namespace upp
 {
 
-class posix_error : public std::system_error
+class WaylandBase
 {
   public:
-    explicit posix_error(std::string_view what = "");
-    explicit posix_error(int errc, std::string_view what = "");
+    WaylandBase();
+
+    static void wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
+                                   uint32_t version);
+    void init();
+
+  protected:
+    wl::display display;
+    wl::registry registry;
 };
 
-class vips_error : public std::runtime_error
-{
-  public:
-    explicit vips_error(std::string_view what = "");
-
-    [[nodiscard]] auto what() const noexcept -> const char * override { return full_msg.c_str(); }
-
-  private:
-    unique_C_ptr<char> vips_msg;
-    std::string full_msg;
-};
-
-class wayland_error : public std::runtime_error
-{
-  public:
-    explicit wayland_error(const char *what = "");
-};
-
-} // namespace upp::ex
+} // namespace upp

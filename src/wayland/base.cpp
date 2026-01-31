@@ -16,41 +16,36 @@
 // You should have received a copy of the GNU General Public License
 // along with ueberzugpp.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "wayland/base.hpp"
 #include "exceptions.hpp"
 
-#include <cerrno>
-#include <format>
-
-#include <vips/vips.h>
-
-namespace upp::ex
+namespace upp
 {
 
-posix_error::posix_error(std::string_view what) :
-    std::system_error(errno, std::generic_category(), std::string(what))
+constexpr wl_registry_listener registry_listener = {
+    .global = WaylandBase::wl_registry_global,
+    .global_remove = wl::ignore,
+};
+
+void WaylandBase::wl_registry_global(void *data, wl_registry *registry, uint32_t name, const char *interface,
+                                     [[maybe_unused]] uint32_t version)
 {
+    auto *base = static_cast<WaylandBase*>(data);
 }
 
-posix_error::posix_error(int errc, std::string_view what) :
-    std::system_error(errc, std::generic_category(), std::string(what))
+WaylandBase::WaylandBase() :
+    display(wl_display_connect(nullptr))
 {
-}
-
-vips_error::vips_error(std::string_view what) :
-    std::runtime_error(""),
-    vips_msg(vips_error_buffer_copy())
-{
-    std::string_view vips_msg_v{vips_msg.get()};
-    if (vips_msg_v.empty()) {
-        full_msg = what;
-    } else {
-        full_msg = std::format("{}: {}", what, vips_msg_v);
+    if (!display) {
+        throw ex::wayland_error("could not connect to display");
     }
+    registry.reset(wl_display_get_registry(display.get()));
 }
 
-wayland_error::wayland_error(const char *what) :
-    std::runtime_error(what)
+void WaylandBase::init()
 {
+    wl_registry_add_listener(registry.get(), &registry_listener, this);
+    wl_display_roundtrip(display.get());
 }
 
-} // namespace upp::ex
+} // namespace upp

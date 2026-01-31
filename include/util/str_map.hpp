@@ -1,4 +1,4 @@
-// Display images in the terminal
+// Display images inside a terminal
 // Copyright (C) 2024  JustKidding
 //
 // This file is part of ueberzugpp.
@@ -18,39 +18,24 @@
 
 #pragma once
 
-#include "util/ptr.hpp"
-
-#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <system_error>
+#include <unordered_map>
 
-namespace upp::ex
+namespace upp
 {
 
-class posix_error : public std::system_error
-{
-  public:
-    explicit posix_error(std::string_view what = "");
-    explicit posix_error(int errc, std::string_view what = "");
+struct StringHash {
+    using is_transparent = void; // Enables heterogeneous operations.
+
+    auto operator()(const std::string_view view) const noexcept -> std::size_t
+    {
+        constexpr std::hash<std::string_view> hasher;
+        return hasher(view);
+    }
 };
 
-class vips_error : public std::runtime_error
-{
-  public:
-    explicit vips_error(std::string_view what = "");
+template <class T>
+using string_map = std::unordered_map<std::string, T, StringHash, std::equal_to<>>;
 
-    [[nodiscard]] auto what() const noexcept -> const char * override { return full_msg.c_str(); }
-
-  private:
-    unique_C_ptr<char> vips_msg;
-    std::string full_msg;
-};
-
-class wayland_error : public std::runtime_error
-{
-  public:
-    explicit wayland_error(const char *what = "");
-};
-
-} // namespace upp::ex
+} // namespace upp
