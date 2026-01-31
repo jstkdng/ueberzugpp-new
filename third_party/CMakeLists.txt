@@ -44,6 +44,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(spdlog CLI11 glaze)
 
+target_include_directories(ueberzugpp SYSTEM PRIVATE include/)
 target_link_libraries(ueberzugpp PRIVATE spdlog::spdlog CLI11::CLI11 glaze::glaze)
 
 # cmake-format: on

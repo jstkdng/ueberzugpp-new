@@ -28,8 +28,8 @@
 
 #include <algorithm>
 #include <array>
-#include <fstream>
 #include <csignal>
+#include <fstream>
 #include <memory>
 
 namespace upp
@@ -48,6 +48,7 @@ void LayerCommand::execute()
     setup_signal_handler();
     setup_vips();
     // TODO: initialize context
+    wl_base.init();
 }
 
 void LayerCommand::terminate()

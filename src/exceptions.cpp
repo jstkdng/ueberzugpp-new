@@ -48,8 +48,8 @@ vips_error::vips_error(std::string_view what) :
     }
 }
 
-wayland_error::wayland_error(const char *what) :
-    std::runtime_error(what)
+wayland_error::wayland_error(std::string_view what) :
+    std::runtime_error(std::string(what))
 {
 }
 

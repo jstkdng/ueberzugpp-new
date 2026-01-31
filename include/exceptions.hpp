@@ -50,7 +50,7 @@ class vips_error : public std::runtime_error
 class wayland_error : public std::runtime_error
 {
   public:
-    explicit wayland_error(const char *what = "");
+    explicit wayland_error(std::string_view what = "");
 };
 
 } // namespace upp::ex

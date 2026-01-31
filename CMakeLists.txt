@@ -129,6 +129,7 @@ FILES
     include/util/fwd.hpp
     include/util/util.hpp
     include/util/str_map.hpp
+    include/util/thread.hpp
 
     include/command/layer.hpp
     include/command/dispatch.hpp

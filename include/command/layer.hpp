@@ -19,6 +19,7 @@
 #pragma once
 
 #include "util/fwd.hpp"
+#include "wayland/base.hpp"
 
 #include <atomic>
 #include <string>
@@ -56,6 +57,7 @@ class LayerCommand
 
   private:
     LayerOptions *opts;
+    WaylandBase wl_base;
 
     void close_stderr();
     void daemonize();

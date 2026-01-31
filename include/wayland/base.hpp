@@ -19,9 +19,8 @@
 #pragma once
 
 #include "util/str_map.hpp"
+#include "util/thread.hpp"
 #include "wayland/types.hpp"
-
-#include <any>
 
 namespace upp
 {
@@ -46,16 +45,27 @@ class WaylandBase
   private:
     wl::display display;
     wl::registry registry;
+    int display_fd;
     string_map<WaylandGlobal> globals;
+    jthread event_handler;
 
     void bind_base_protocols();
+    void handle_events();
+    auto find_global(std::string_view name, uint32_t version) -> WaylandGlobal;
 
   protected:
     wl::compositor compositor;
     wl::shm shm;
     xdg::wm_base wm_base;
 
-    auto bind_interface(const char *name, uint32_t version, const wl_interface *interface) const -> std::any;
+    template <class T>
+    auto bind_interface(std::string_view name, uint32_t version, const wl_interface *interface) -> T *
+    {
+        auto global = find_global(name, version);
+        return static_cast<T *>(
+            wl_registry_bind(registry.get(), global.name, interface, std::min(version, global.version)));
+    }
+
     virtual void bind_protocols() {};
 };
 
