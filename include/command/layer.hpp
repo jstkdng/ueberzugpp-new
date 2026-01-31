@@ -58,9 +58,12 @@ class LayerCommand
   private:
     LayerOptions *opts;
     WaylandBase wl_base;
+    jthread stdin_thread;
 
     void close_stderr();
     void daemonize();
+    void wait_for_commands();
+    void wait_for_commands_on_stdin();
 };
 
 } // namespace upp

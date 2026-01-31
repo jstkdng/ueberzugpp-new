@@ -49,6 +49,37 @@ void LayerCommand::execute()
     setup_vips();
     // TODO: initialize context
     wl_base.init();
+    wait_for_commands();
+}
+
+void LayerCommand::wait_for_commands()
+{
+    wait_for_commands_on_stdin();
+    stop_flag.wait(false);
+}
+
+void LayerCommand::wait_for_commands_on_stdin()
+{
+    if (opts->no_stdin) {
+        return;
+    }
+
+    LOG_INFO("listening for commands on stdin");
+    stdin_thread = jthread([](SToken token) {
+        while (!token.stop_requested()) {
+            try {
+                if (!os::wait_for_data_on_stdin()) {
+                    continue;
+                }
+                auto data = os::read_data_from_stdin();
+                LOG_INFO("data={}", data);
+            } catch (const ex::posix_error &ex) {
+                LOG_WARN("could not read data from stdin: {}", ex.what());
+                terminate();
+                break;
+            }
+        }
+    });
 }
 
 void LayerCommand::terminate()

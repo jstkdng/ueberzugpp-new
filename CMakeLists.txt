@@ -52,6 +52,7 @@ pkg_check_modules(VIPS REQUIRED IMPORTED_TARGET vips)
 if (ENABLE_WAYLAND)
     add_library(wayland-protocols STATIC)
 
+    pkg_get_variable(WLR_PROTOCOLS_DATADIR wlr-protocols pkgdatadir)
     find_package(Wayland REQUIRED COMPONENTS Client)
     find_package(WaylandProtocols REQUIRED)
     find_package(WaylandScanner REQUIRED)
@@ -59,6 +60,9 @@ if (ENABLE_WAYLAND)
     ecm_add_wayland_client_protocol(wayland-protocols
         PROTOCOL "${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml"
         BASENAME "xdg-shell")
+    ecm_add_wayland_client_protocol(wayland-protocols
+        PROTOCOL "${WLR_PROTOCOLS_DATADIR}/unstable/wlr-layer-shell-unstable-v1.xml"
+        BASENAME "wlr-layer-shell")
 
     target_link_libraries(ueberzugpp PRIVATE Wayland::Client wayland-protocols)
     target_sources(
