@@ -29,13 +29,14 @@ template <>
 struct glz::meta<upp::Command> {
     using T = upp::Command;
 
+    struct quoted_opts : glz::opts { bool quoted_num; };
     template <auto MemberPointer>
     static constexpr auto maybe_quoted_int_read = [](T &self, const glz::raw_json &json) {
         // first attempt to parse without quotes
         auto err = glz::read_json(self.*MemberPointer, json.str);
         if (err) {
             // if we error then attempt parsing as a quoted number
-            err = glz::read<glz::opts{.quoted_num = true}>(self.*MemberPointer, json.str);
+            err = glz::read<quoted_opts{.quoted_num = true}>(self.*MemberPointer, json.str);
         }
     };
 
